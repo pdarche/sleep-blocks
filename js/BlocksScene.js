@@ -15,7 +15,7 @@ Scene = {
 
 	},
 
-	init 	: function() {
+	init : function() {
 
 		//scene
 		Scene.WIDTH = window.innerWidth,
@@ -26,18 +26,16 @@ Scene = {
 
 		Scene.scene = new THREE.Scene();
 
-
-		//camera
+		// camera
 		Scene.VIEW_ANGLE = 50,
-		Scene.ASPECT = Scene.WIDTH / Scene.HEIGHT,
-		Scene.NEAR = 0.1,
-		Scene.FAR = 100000
+		Scene.ASPECT 	= Scene.WIDTH / Scene.HEIGHT,
+		Scene.NEAR 		= 0.1,
+		Scene.FAR 		= 100000
 
 		Scene.camera = new THREE.PerspectiveCamera( Scene.VIEW_ANGLE, Scene.ASPECT, Scene.NEAR, Scene.FAR );
 		Scene.camera.position.set( -1400, 1000, -900 );
 
-
-		//lights
+		// lights
 		var ambientLight = new THREE.AmbientLight( 0x606060 );
 		Scene.scene.add( ambientLight );
 
@@ -55,17 +53,18 @@ Scene = {
 		directionalLight.position.normalize();
 		Scene.scene.add( directionalLight );
 
+		// renderer
 		Scene.renderer = new THREE.CanvasRenderer();
 		Scene.renderer.setSize( window.innerWidth, window.innerHeight );
 
 		Scene.container.appendChild( Scene.renderer.domElement );
 
-		//state objects
+		// state objects
 		Scene.light = [], Scene.deep = [], Scene.rem = [], Scene.wake = [], Scene.und = []; 
 
 	},
 
-	addGrid		: function (){
+	addGrid	: function (){
 
 		var gridGeom = new THREE.Geometry(),
 			size = 1800, 
@@ -91,7 +90,7 @@ Scene = {
 
 	},
 
-	addProjector	: function(){
+	addProjector : function(){
 
 		Scene.projector = new THREE.Projector();
 
@@ -116,11 +115,11 @@ Scene = {
 		controls.noPan  = false
 		controls.staticMoving = true
 		controls.dynamicDampingFactor = 0.3
-		controls.keys = [ 65, 83, 68 ]//  ASCII values for A, S, and D
+		controls.keys = [ 65, 83, 68 ]
 
 	},
 
-	addAxes		: function() {
+	addAxes	: function() {
 
 		Scene.addRefTimes()
 		Scene.addRefDates()
@@ -147,7 +146,8 @@ Scene = {
 			.domain( [0, d3.max( Scene.bedtimes )] )
 			.range( [0, 900] )
 
-		for ( var j = 0; j < Scene.numNights; j ++ ){ // upper bound should be variable tied to bedtimes / number of night objects being created
+		// upper bound should be variable tied to bedtimes / number of night objects being created
+		for ( var j = 0; j < Scene.numNights; j ++ ){ 
 
 			var bedt = scale( Scene.bedtimes[j] ),
 				night = new THREE.Object3D()
@@ -180,7 +180,6 @@ Scene = {
 		}
 
 		Scene.scene.add( nights );
-
 	},
 
 	addRefTimes : function() { 
@@ -297,20 +296,20 @@ Scene = {
 				btHr = Number(bt.hour) * 60 * 60,
 				btMin = Number(bt.minute) * 60
 
-				btInSeconds = btHr + btMin + Number(bt.second);
+			btInSeconds = btHr + btMin + Number(bt.second);
 
-				if ( btHr < 75600 ) {
-				
-					btInSeconds = btHr + btMin + Number(btInSeconds) + 7200;
+			if ( btHr < 75600 ) {
+			
+				btInSeconds = btHr + btMin + Number(btInSeconds) + 7200;
 
-				}
+			}
 
-				Scene.bedtimes.push(btInSeconds)
+			Scene.bedtimes.push(btInSeconds)
 		}
 
 	},
 
-	animate 		: function() {
+	animate : function() {
 
 		requestAnimationFrame( Scene.animate );
 
@@ -319,7 +318,7 @@ Scene = {
 
 	},
 
-	render 			: function() {
+	render : function() {
 
 		if ( Scene.isShiftDown ) {
 

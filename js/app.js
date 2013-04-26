@@ -22,9 +22,9 @@
 		HEIGHT = window.innerHeight
 
 	var VIEW_ANGLE = 50,
-		ASPECT     = WIDTH / HEIGHT,
-		NEAR       = 0.1,
-		FAR        = 100000
+		ASPECT = WIDTH / HEIGHT,
+		NEAR = 0.1,
+		FAR  = 100000
 
 	var bedtimes = [],
 		fiveMinIncrements = []
@@ -65,7 +65,7 @@ function init() {
 		geometry.vertices.push( new THREE.Vector3(   size/2, 0, i ) );			
 	}
 
-		for ( var j = - (size/2) ; j <= size/2; j += step) {
+	for ( var j = - (size/2) ; j <= size/2; j += step) {
 		
 		geometry.vertices.push( new THREE.Vector3( j, 0, - ( size/2) ) );
 		geometry.vertices.push( new THREE.Vector3( j, 0, size/2 ) );	
@@ -219,57 +219,58 @@ var nights = new THREE.Object3D(),
 
 function createRects(){
 
-		for ( var j = 0; j < 30; j ++ ){ 
+	for ( var j = 0; j < 30; j ++ ){ 
 
-			var bedt = scale(bedtimes[j])
-				// console.log(bedt)
+		var bedt = scale(bedtimes[j])
+			// console.log(bedt)
 
-			var night = new THREE.Object3D()
+		var night = new THREE.Object3D()
 
-			for ( var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++ ){
+		for ( var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++ ){
 
-				var datum = sleep.sleepData[j].sleepGraph[i],
-					geometry = new THREE.CubeGeometry( 6, sleepStates[datum].height, 14 );
-				
-				var color = sleepStates[datum].color
+			var datum = sleep.sleepData[j].sleepGraph[i],
+				geometry = new THREE.CubeGeometry( 6, sleepStates[datum].height, 14 );
+			
+			var color = sleepStates[datum].color
 
-				var material = new THREE.MeshBasicMaterial( { color: color, wireframe: false } );
+			var material = new THREE.MeshBasicMaterial( { color: color, wireframe: false } );
 
-				var rect = new THREE.Mesh( geometry, material );
-				rect.position.x = ((i * 7) + bedt ) - 750
-				rect.position.y = 0 
-				rect.position.z = ( j * 50 ) - 750
-				rect.matrixAutoUpdate = false;
-				rect.translateY( sleepStates[datum].height/2 )
-				rect.updateMatrix();
-				night.add( rect )
-								
-			}
-
-			nights.add( night )
-			nightAr.push( night )
+			var rect = new THREE.Mesh( geometry, material );
+			rect.position.x = ((i * 7) + bedt ) - 750
+			rect.position.y = 0 
+			rect.position.z = ( j * 50 ) - 750
+			rect.matrixAutoUpdate = false;
+			rect.translateY( sleepStates[datum].height/2 )
+			rect.updateMatrix();
+			night.add( rect )
+							
 		}
+
+		nights.add( night )
+		nightAr.push( night )
+	}
 
 		scene.add( nights );
 }
 
 
 function makeBedtimes(){
+
 	for ( var j = 0; j < 30; j++ ){
 
 		var bt = sleep.sleepData[j].bedTime,
 			btHr = Number(bt.hour) * 60 * 60,
 			btMin = Number(bt.minute) * 60
 
-			btInSeconds = btHr + btMin + Number(bt.second);
+		btInSeconds = btHr + btMin + Number(bt.second);
 
-			if ( btHr < 75600 ) {
-			
-				btInSeconds = btHr + btMin + Number(btInSeconds) + 7200;
+		if ( btHr < 75600 ) {
+		
+			btInSeconds = btHr + btMin + Number(btInSeconds) + 7200;
 
-			}
+		}
 
-			bedtimes.push(btInSeconds)
+		bedtimes.push(btInSeconds)
 	}
 
 }
@@ -346,7 +347,6 @@ function drawAxes(){
 	dLine.type = THREE.LinePieces;
 	scene.add( dLine );
 
-
 }
 
 
@@ -382,14 +382,11 @@ function makeDatetimes(){
 
 }
 
-
- for (var p = 0; p < bedtimes.length; p++){
- 	// console.log(sleep.sleepData[p].bedTime)
- }
+for (var p = 0; p < bedtimes.length; p++){
+	// console.log(sleep.sleepData[p].bedTime)
+}
 
  	makeDatetimes()
 	drawAxes()
 	createRects()
-
-	console.log( "scene", scene )
 

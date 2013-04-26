@@ -1,4 +1,4 @@
-Blocks.Events = {
+Events = {
 
 	updateControls	: function(){
 

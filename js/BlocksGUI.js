@@ -1,6 +1,6 @@
 GUI = {
 
-	buildGUI	: function(){
+	buildGUI : function(){
 
 		var state = ["light", "deep", "REM", "wake"]
 
@@ -25,9 +25,7 @@ GUI = {
 	bindEvents	: function() {
 
 		controls.addEventListener( 'change', Scene.render );
-
 		document.addEventListener( 'mousemove', GUI.onDocumentMouseMove, false );
-
 		window.addEventListener( 'resize', GUI.onWindowResize, false );
 
 	},
@@ -55,7 +53,6 @@ GUI = {
 		}
 	},
 
-
 	onWindowResize 	: function() {
 
 		Scene.camera.aspect = window.innerWidth / window.innerHeight;
@@ -64,12 +61,6 @@ GUI = {
 		$('.day').css('height', (window.innerHeight/34) - 1 )
 
 		Scene.renderer.setSize( window.innerWidth, window.innerHeight );
-
-	},
-
-	onDateRollover	: function(){
-
-
 
 	}
 
