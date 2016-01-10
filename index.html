@@ -3,7 +3,7 @@
 <head>
 
 	<title>Sleep Blocks</title>
-	
+
 	<!-- Big shout out to Scott Garner for the code organization inspiration -->
 
 	<!--Meta-->
@@ -13,18 +13,17 @@
 	<meta name="description" content="An sleep visualization by El Pedrito" />
 	<meta name="author" content="El Pedrito" />
 	<meta name="keywords" content="WebGL, Three.js, Data Visualization" />
-	<meta name="copyright" content="Copyright 2012 Peter Darche" />	
+	<meta name="copyright" content="Copyright 2012 Peter Darche" />
 
 	<!-- JavaScript -->
 
-	<script type="text/javascript" src="js/vendor/jquery.js"></script>		
+	<script type="text/javascript" src="js/vendor/jquery.js"></script>
 	<script type="text/javascript" src="js/vendor/three.min.js"></script>
-	<script type="text/javascript" src="js/vendor/TrackballControls.js"></script>	
+	<script type="text/javascript" src="js/vendor/TrackballControls.js"></script>
 	<script type="text/javascript" src="js/vendor/skip.js"></script>
 	<script tyep="text/javascript" src="js/vendor/helvetiker/helvetiker_regular.typeface.js"></script>
 	<script type="text/javascript" src="js/vendor/d3.v2.js"></script>
 	<script type="text/javascript" src="js/sleep.js"></script>
-	<script type="text/javascript" src="js/Blocks.js"></script>
 	<script type="text/javascript" src="js/BlocksScene.js"></script>
 	<script type="text/javascript" src="js/BlocksGUI.js"></script>
 
@@ -35,17 +34,13 @@
 	<!-- Document ready callback -->
 
 	<script type="text/javascript">
-		
-		$( document ).ready(function(){
-
+		$(document).ready(function(){
 			//Blocks.Scene = Scene
-			Scene.buildScene()
-			Scene.animate()
-			GUI.buildGUI()
-			GUI.bindEvents()
-
-		})	
-	
+			Scene.buildScene();
+			Scene.animate();
+			GUI.buildGUI();
+			GUI.bindEvents();
+		});
 	</script>
 
 </head>
