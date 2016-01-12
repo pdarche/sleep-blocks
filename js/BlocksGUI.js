@@ -1,6 +1,7 @@
 GUI = {
+  states: ["light", "deep", "rem", "wake"],
   buildGUI : function(){
-    var state = ["light", "deep", "REM", "wake"];
+    var state = ["light", "deep", "rem", "wake"];
 
     for (var h = 0; h < state.length; h++){
       $('#days').append('<div class="state" id="' + state[h] + '"><p>' + state[h] + '</p></div>')
@@ -9,6 +10,7 @@ GUI = {
     for (var i = 0; i < 30; i++){
       // !!!!! upper bound shoudl be variable shared with number of night objects created
       var startDate = sleep.sleepData[i].startDate
+
       $('#days').append('<div class="day"><p>' + startDate.month + '/' + startDate.day + '/' + startDate.year + '</p></div>')
     }
 
@@ -18,8 +20,43 @@ GUI = {
 
   bindEvents  : function() {
     controls.addEventListener('change', Scene.render);
-    document.addEventListener('mousemove', GUI.onDocumentMouseMove, false);
+    // document.addEventListener('mousemove', GUI.onDocumentMouseMove, false);
     window.addEventListener('resize', GUI.onWindowResize, false);
+    $('.day').click(function(ev){
+      var index = $(this).index();
+
+
+      Scene.nightAr.forEach(function(night, ix){
+        night.children.forEach(function(block){
+          block.material.opacity = 1;
+        });
+      });
+
+      Scene.nightAr.forEach(function(night, ix){
+        if (index !== ix + 6){
+          night.children.forEach(function(block){
+            block.material.opacity = .05;
+          });
+        }
+      });
+    });
+
+    $('.state').click(function(ev){
+      var state = $(this).attr('id');
+      GUI.states.forEach(function(taretState){
+        Scene[taretState].forEach(function(block){
+          block.material.opacity = 1
+        });
+      });
+
+      GUI.states.forEach(function(taretState){
+        if (state !== taretState){
+          Scene[taretState].forEach(function(block){
+            block.material.opacity = .05
+          });
+        }
+      });
+    });
 
   },
 
@@ -35,9 +72,9 @@ GUI = {
     if (intersects.length > 0) {
 
       ROLLOVERED = intersects[0].object;
-      ROLLOVERED.material.opacity = .1;
+      // ROLLOVERED.material.opacity = .1;
       // if (ROLLOVERED) ROLLOVERED.color.setHex(0xff0000);
-      console.log("rollovered", ROLLOVERED);
+      // console.log("rollovered", ROLLOVERED);
     }
   },
 

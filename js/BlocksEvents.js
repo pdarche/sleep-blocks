@@ -1,10 +1,10 @@
 Events = {
   updateControls  : function(){
-    controls.addEventListener('change', render)
+    controls.addEventListener('change', render);
   },
 
   updateSceneSize : function(){
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener('resize', onWindowResize, false);
   },
 
   highlightObject : function(){
@@ -65,7 +65,7 @@ Events = {
           }
         })
       })
-      console.log(targetHeight)
+      // console.log(targetHeight)
     }).mouseout(function(){
       $.each(scene.children[8].children, function(a){
         $.each(scene.children[8].children[a].children, function(b){
@@ -85,7 +85,7 @@ Events = {
         if ( j !== index ){
             $.each(scene.children[8].children[j].children, function(i){
             scene.children[8].children[j].children[i].material.opacity = .1
-            console.log("opacifying")
+            // console.log("opacifying")
           })
         }
       })
@@ -93,7 +93,7 @@ Events = {
       $.each(scene.children[8].children, function(k){
         $.each(scene.children[8].children[k].children, function(l){
           scene.children[8].children[k].children[l].material.opacity = 1
-          console.log("unopacifying")
+          // console.log("unopacifying")
         })
       })
     })

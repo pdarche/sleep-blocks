@@ -1,5 +1,10 @@
 Scene = {
-  numNights: 3,
+  numNights: 20,
+  gridSize: 1800,
+  minsPerBlock: 5,
+  blockWidth: 7,
+  hours: 12,
+  startTime: 22,
 
   buildScene: function() {
     Scene.init();
@@ -60,27 +65,59 @@ Scene = {
     Scene.container.appendChild(Scene.renderer.domElement);
 
     // state objects
-    Scene.light = []
-    Scene.deep = []
-    Scene.rem = []
-    Scene.wake = []
-    Scene.und = []
+    Scene.light = [];
+    Scene.deep = [];
+    Scene.rem = [];
+    Scene.wake = [];
+    Scene.und = [];
+
+    // Set the size of the area that the chart is displayed on
+    Scene.displaySize = (Scene.gridSize - (1/5 * Scene.gridSize))/2;
+    Scene.pxPerMin = 2 * Scene.displaySize / (Scene.hours*60);
+    Scene.tickCount = (Scene.hours*60)/Scene.minsPerBlock;
 
   },
 
-  addGrid : function (){
-    var gridGeom = new THREE.Geometry(),
-      size = 1800,
-      step = 6
+  addProjector : function(){
+    Scene.projector = new THREE.Projector();
 
-    for (var i = -size/2 ; i <= size/2 ; i += step) {
-      gridGeom.vertices.push( new THREE.Vector3(-size/2, 0, i));
-      gridGeom.vertices.push( new THREE.Vector3(size/2, 0, i));
+    Scene.plane = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshBasicMaterial());
+    Scene.plane.rotation.x = - Math.PI / 2;
+    Scene.plane.visible = false;
+    Scene.scene.add(Scene.plane);
+
+    Scene.mouse2D = new THREE.Vector3(0, 0, 0);
+
+  },
+
+  addControls : function(){
+    window.controls = new THREE.TrackballControls( Scene.camera );
+
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+
+    controls.noZoom = false;
+    controls.noPan  = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.keys = [65, 83, 68];
+
+  },
+
+  // REFACTOR: this doesn't scale with changes to grid size
+  addGrid : function (){
+    var gridGeom = new THREE.Geometry();
+    var step = 6;
+
+    for (var i = -Scene.gridSize/2; i <= Scene.gridSize/2; i += step) {
+      gridGeom.vertices.push(new THREE.Vector3(-Scene.gridSize/2, 0, i));
+      gridGeom.vertices.push(new THREE.Vector3(Scene.gridSize/2, 0, i));
     }
 
-    for ( var j = - (size/2) ; j <= size/2; j += step) {
-      gridGeom.vertices.push( new THREE.Vector3( j, 0, - ( size/2) ) );
-      gridGeom.vertices.push( new THREE.Vector3( j, 0, size/2 ) );
+    for ( var j = - (Scene.gridSize/2); j <= Scene.gridSize/2; j += step) {
+      gridGeom.vertices.push(new THREE.Vector3( j, 0, -(Scene.gridSize/2)));
+      gridGeom.vertices.push(new THREE.Vector3( j, 0, Scene.gridSize/2));
     }
 
     var gridMat = new THREE.LineBasicMaterial({
@@ -96,36 +133,9 @@ Scene = {
 
   },
 
-  addProjector : function(){
-    Scene.projector = new THREE.Projector();
-
-    Scene.plane = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshBasicMaterial());
-    Scene.plane.rotation.x = - Math.PI / 2;
-    Scene.plane.visible = false;
-    Scene.scene.add(Scene.plane);
-
-    Scene.mouse2D = new THREE.Vector3( 0, 0, 0 );
-
-  },
-
-  addControls : function(){
-    window.controls = new THREE.TrackballControls( Scene.camera );
-
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-
-    controls.noZoom = false;
-    controls.noPan  = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.keys = [ 65, 83, 68 ];
-
-  },
-
   addAxes : function() {
     Scene.addRefTimes();
-    Scene.addRefDates();
+    // Scene.addRefDates();
 
   },
 
@@ -140,70 +150,78 @@ Scene = {
 
     var nights = new THREE.Object3D();
     Scene.nightAr = []
-    var scale = d3.scale.linear()
-      .domain([0, d3.max(Scene.bedtimes)])
-      .range([0, 900])
 
-    // upper bound should be variable tied to bedtimes / number of night objects being created
+    // Map seconds to pixels
+    var scale = d3.scale.linear()
+      .domain([0, Scene.hours * 60 * 60])
+      .range([0, Scene.displaySize])
+
+    // interate through the number of nights
     for (var j = 0; j < Scene.numNights; j++){
       var bedTime = scale(Scene.bedtimes[j]);
       var night = new THREE.Object3D();
 
+      // for each block in the that night
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
-        var datum = sleep.sleepData[j].sleepGraph[i];
-        var geometry = new THREE.CubeGeometry(6, sleepStates[datum].height, 14);
+        // create the material for the sleep block
+        var blockWidth = Scene.minsPerBlock * Scene.pxPerMin
+        var blockDatum = sleep.sleepData[j].sleepGraph[i];
+        var geometry = new THREE.CubeGeometry((.8 * blockWidth), sleepStates[blockDatum].height, 14);
         var material = new THREE.MeshBasicMaterial({
-          color: sleepStates[datum].color,
+          color: sleepStates[blockDatum].color,
           wireframe: false
         });
-
-        var rect = new THREE.Mesh( geometry, material );
-        rect.position.x = ((i * 7) + bedTime) - 750;
-        rect.position.y = 0
-        rect.position.z = (j * 50) - 750;
-        rect.translateY(sleepStates[datum].height/2);
+        // position the sleep block
+        var rect = new THREE.Mesh(geometry, material);
+        rect.position.x = ((i * blockWidth) + bedTime) - Scene.displaySize; // rect width and position is a function of time
+        rect.position.y = 0;
+        rect.position.z = (j * 50) - Scene.displaySize;
+        rect.translateY(sleepStates[blockDatum].height/2);
         rect.matrixAutoUpdate = false;
         rect.updateMatrix();
 
         // add to night object
-        night.add(rect);
+        if (blockDatum !== "UNDEFINED") {
+          night.add(rect);
+        }
 
         // push to appropriate state array
-        sleepStates[datum].arr.push(rect);
+        sleepStates[blockDatum].arr.push(rect);
       }
 
       nights.add(night);
       Scene.nightAr.push(night);
     }
-    console.log('the nights are ', nights);
     Scene.scene.add(nights);
   },
 
   addRefTimes : function() {
     var time = new THREE.Geometry();
 
-    time.vertices.push(new THREE.Vector3(750, 0, -800));
-    time.vertices.push(new THREE.Vector3(-750 , 0, -800));
+    // Add the start and end points
+    time.vertices.push(new THREE.Vector3(Scene.displaySize, 0, -800));
+    time.vertices.push(new THREE.Vector3(-Scene.displaySize , 0, -800));
 
-    for (var t = 0; t < 100; t++){
-      time.vertices.push(new THREE.Vector3(750/100 * t, 0, -800));
-      time.vertices.push(new THREE.Vector3(750/100 * t, 0, -815));
+    for (var t = 0; t < Scene.tickCount; t++){
+      // Create the xPosition
+      var xPos = ((Scene.displaySize/Scene.tickCount) * t * Scene.pxPerMin) - Scene.displaySize;
+      // add the tick verticies
+      time.vertices.push(new THREE.Vector3(xPos, 0, -800));
+      time.vertices.push(new THREE.Vector3(xPos, 0, -815));
 
-      time.vertices.push(new THREE.Vector3(-750/100 * (t + 1), 0, -800));
-      time.vertices.push(new THREE.Vector3(-750/100 * (t + 1), 0, -815));
+      if (t % 28 === 0) {
+        var currTime = Scene.fiveMinIncr[t];
+        var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
+        var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa});
+        var textMesh = new THREE.Mesh(text, meshMaterial);
 
-      // var currTime = Scene.fiveMinIncr[t];
+        textMesh.position.x = xPos
+        textMesh.position.z = -850
+        textMesh.rotation.x = - Math.PI / 2;
+        textMesh.rotation.z = - Math.PI / 2;
 
-      // var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
-      // var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa});
-      // var textMesh = new THREE.Mesh(text,meshMaterial);
-
-      // textMesh.position.x = ( 750/50 * t ) - 750
-      // textMesh.position.z = -850
-      // textMesh.rotation.x = - Math.PI / 2;
-      // textMesh.rotation.z = - Math.PI / 2;
-
-      // Scene.scene.add(textMesh);
+        Scene.scene.add(textMesh);
+      }
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -221,14 +239,14 @@ Scene = {
   addRefDates : function() {
     days = new THREE.Geometry();
 
-    days.vertices.push( new THREE.Vector3(-750, 0, -750));
-    days.vertices.push( new THREE.Vector3(-750, 0, 750));
+    days.vertices.push( new THREE.Vector3(-Scene.displaySize, 0, -Scene.displaySize));
+    days.vertices.push( new THREE.Vector3(-Scene.displaySize, 0, Scene.displaySize));
 
     for (var d = 0; d < 15; d++){
-      days.vertices.push(new THREE.Vector3(-750, 0, -800/15 * d));
+      days.vertices.push(new THREE.Vector3(-Scene.displaySize, 0, -800/15 * d));
       days.vertices.push(new THREE.Vector3(-765, 0, -800/15 * d));
 
-      days.vertices.push(new THREE.Vector3(-750, 0, 800/15 * d + 1));
+      days.vertices.push(new THREE.Vector3(-Scene.displaySize, 0, 800/15 * d + 1));
       days.vertices.push(new THREE.Vector3(-765, 0, 800/15 * d + 1));
     }
 
@@ -258,6 +276,7 @@ Scene = {
 
   },
 
+  // WARNING: this is not connected to start time
   makeDatetimes : function(){
     var hrs = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1];
     Scene.fiveMinIncr = []
@@ -281,14 +300,18 @@ Scene = {
   makeBedtimes  : function() {
     Scene.bedtimes = [];
 
-    for (var j = 0; j < Scene.numNights; j++){  //Scene upper bound should be made into a variable
-      var bt = sleep.sleepData[j].bedTime,
-        btHr = Number(bt.hour) * 60 * 60,
-        btMin = Number(bt.minute) * 60
+    for (var j = 0; j < Scene.numNights; j++) {
+      // convert the bedtime to seconds
+      var bt = sleep.sleepData[j].bedTime;
+      var btHr = Number(bt.hour) * 60 * 60;
+      var btMin = Number(bt.minute) * 60;
 
-      btInSeconds = btHr + btMin + Number(bt.second);
+      // Offset the seconds so that 10pm is 0
+      btInSeconds = btHr + btMin + Number(bt.second) - (Scene.startTime * 60 * 60);
+
+      // if the bedtime is after midnight add two hours
       if (btHr < 75600) {
-        btInSeconds = btHr + btMin + Number(btInSeconds) + 7200;
+        btInSeconds = (btHr + btMin + Number(btInSeconds) + (Scene.startTime * 60 * 60) + 7200);
       }
       Scene.bedtimes.push(btInSeconds);
     }

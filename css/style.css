@@ -24,7 +24,9 @@ body {
 	width:150px;
 	height:100%;
 	border-right:1px solid white;
+	z-index: 100;
 }
+
 .day, .state, .time {
 	position: relative;
 	display:block;
