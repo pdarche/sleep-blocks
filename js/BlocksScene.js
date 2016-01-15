@@ -1,10 +1,11 @@
 Scene = {
-  numNights: 20,
+  numNights: 14,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
   hours: 12,
   startTime: 22,
+  nightAr: [],
 
   buildScene: function() {
     Scene.init();
@@ -60,7 +61,7 @@ Scene = {
 
     // renderer
     Scene.renderer = new THREE.CanvasRenderer();
-    Scene.renderer.setSize(window.innerWidth, window.innerHeight);
+    Scene.renderer.setSize(Scene.WIDTH, Scene.HEIGHT);
 
     Scene.container.appendChild(Scene.renderer.domElement);
 
@@ -115,7 +116,7 @@ Scene = {
       gridGeom.vertices.push(new THREE.Vector3(Scene.gridSize/2, 0, i));
     }
 
-    for ( var j = - (Scene.gridSize/2); j <= Scene.gridSize/2; j += step) {
+    for (var j = -(Scene.gridSize/2); j <= Scene.gridSize/2; j += step) {
       gridGeom.vertices.push(new THREE.Vector3( j, 0, -(Scene.gridSize/2)));
       gridGeom.vertices.push(new THREE.Vector3( j, 0, Scene.gridSize/2));
     }
@@ -135,7 +136,7 @@ Scene = {
 
   addAxes : function() {
     Scene.addRefTimes();
-    // Scene.addRefDates();
+    Scene.addRefDates();
 
   },
 
@@ -149,7 +150,6 @@ Scene = {
     }
 
     var nights = new THREE.Object3D();
-    Scene.nightAr = []
 
     // Map seconds to pixels
     var scale = d3.scale.linear()
@@ -166,7 +166,7 @@ Scene = {
         // create the material for the sleep block
         var blockWidth = Scene.minsPerBlock * Scene.pxPerMin
         var blockDatum = sleep.sleepData[j].sleepGraph[i];
-        var geometry = new THREE.CubeGeometry((.8 * blockWidth), sleepStates[blockDatum].height, 14);
+        var geometry = new THREE.CubeGeometry((.8 * blockWidth), sleepStates[blockDatum].height, 7);
         var material = new THREE.MeshBasicMaterial({
           color: sleepStates[blockDatum].color,
           wireframe: false
@@ -175,7 +175,7 @@ Scene = {
         var rect = new THREE.Mesh(geometry, material);
         rect.position.x = ((i * blockWidth) + bedTime) - Scene.displaySize; // rect width and position is a function of time
         rect.position.y = 0;
-        rect.position.z = (j * 50) - Scene.displaySize;
+        rect.position.z = (j * 100) - Scene.displaySize;
         rect.translateY(sleepStates[blockDatum].height/2);
         rect.matrixAutoUpdate = false;
         rect.updateMatrix();
@@ -192,7 +192,9 @@ Scene = {
       nights.add(night);
       Scene.nightAr.push(night);
     }
+
     Scene.scene.add(nights);
+
   },
 
   addRefTimes : function() {
@@ -209,19 +211,19 @@ Scene = {
       time.vertices.push(new THREE.Vector3(xPos, 0, -800));
       time.vertices.push(new THREE.Vector3(xPos, 0, -815));
 
-      if (t % 28 === 0) {
-        var currTime = Scene.fiveMinIncr[t];
-        var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
-        var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa});
-        var textMesh = new THREE.Mesh(text, meshMaterial);
+      // if (t % 28 === 0) {
+      //   var currTime = Scene.fiveMinIncr[t];
+      //   var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
+      //   var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa});
+      //   var textMesh = new THREE.Mesh(text, meshMaterial);
 
-        textMesh.position.x = xPos
-        textMesh.position.z = -850
-        textMesh.rotation.x = - Math.PI / 2;
-        textMesh.rotation.z = - Math.PI / 2;
+      //   textMesh.position.x = xPos
+      //   textMesh.position.z = -850
+      //   textMesh.rotation.x = - Math.PI / 2;
+      //   textMesh.rotation.z = - Math.PI / 2;
 
-        Scene.scene.add(textMesh);
-      }
+      //   Scene.scene.add(textMesh);
+      // }
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -322,7 +324,7 @@ Scene = {
     requestAnimationFrame(Scene.animate);
 
     Scene.render();
-    controls.update()
+    controls.update();
 
   },
 

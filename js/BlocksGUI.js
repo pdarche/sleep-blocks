@@ -1,5 +1,6 @@
 GUI = {
   states: ["light", "deep", "rem", "wake"],
+
   buildGUI : function(){
     var state = ["light", "deep", "rem", "wake"];
 
@@ -8,10 +9,9 @@ GUI = {
     }
 
     for (var i = 0; i < 30; i++){
-      // !!!!! upper bound shoudl be variable shared with number of night objects created
       var startDate = sleep.sleepData[i].startDate
-
-      $('#days').append('<div class="day"><p>' + startDate.month + '/' + startDate.day + '/' + startDate.year + '</p></div>')
+      var date = startDate.month + '/' + startDate.day + '/' + startDate.year
+      $('#days').append('<div class="day"><p>' + date + '</p></div>');
     }
 
     $('.day').css('height', (window.innerHeight/34) - 1);
@@ -22,9 +22,9 @@ GUI = {
     controls.addEventListener('change', Scene.render);
     // document.addEventListener('mousemove', GUI.onDocumentMouseMove, false);
     window.addEventListener('resize', GUI.onWindowResize, false);
-    $('.day').click(function(ev){
-      var index = $(this).index();
 
+    $('.day').hover(function(ev){
+      var index = $(this).index();
 
       Scene.nightAr.forEach(function(night, ix){
         night.children.forEach(function(block){
@@ -35,7 +35,7 @@ GUI = {
       Scene.nightAr.forEach(function(night, ix){
         if (index !== ix + 6){
           night.children.forEach(function(block){
-            block.material.opacity = .05;
+            block.material.opacity = .02;
           });
         }
       });
@@ -52,9 +52,41 @@ GUI = {
       GUI.states.forEach(function(taretState){
         if (state !== taretState){
           Scene[taretState].forEach(function(block){
-            block.material.opacity = .05
+            block.material.opacity = .02
           });
         }
+      });
+    });
+
+    $('#bedtime').click(function(ev){
+      Scene.nightAr.forEach(function(night, ix){
+        night.children.forEach(function(block){
+          block.material.opacity = 1;
+        });
+      });
+
+      Scene.nightAr.forEach(function(night){
+        night.children.forEach(function(block, ix){
+          if (ix !== 0) {
+            block.material.opacity = .01;
+          }
+        });
+      });
+    });
+
+    $('#risetime').click(function(ev){
+      Scene.nightAr.forEach(function(night, ix){
+        night.children.forEach(function(block){
+          block.material.opacity = 1;
+        });
+      });
+
+      Scene.nightAr.forEach(function(night){
+        night.children.forEach(function(block, ix){
+          if (ix !== night.children.length - 1) {
+            block.material.opacity = .01;
+          }
+        });
       });
     });
 
