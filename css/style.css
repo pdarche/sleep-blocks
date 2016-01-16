@@ -21,7 +21,7 @@ body {
 #days {
 	position: absolute;
 	top:0px;
-	width:300px;
+	width:200px;
 	height:100%;
 	border-right:1px solid white;
 	z-index: 100;

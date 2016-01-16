@@ -4,8 +4,6 @@
 
 	<title>Sleep Blocks</title>
 
-	<!-- Big shout out to Scott Garner for the code organization inspiration -->
-
 	<!--Meta-->
 	<meta charset="utf-8" />
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -15,37 +13,27 @@
 	<meta name="copyright" content="Copyright 2012 Peter Darche" />
 
 	<!-- JavaScript -->
-	<script type="text/javascript" src="js/vendor/jquery.js"></script>
-	<script type="text/javascript" src="js/vendor/three.min.js"></script>
-	<script type="text/javascript" src="js/vendor/TrackballControls.js"></script>
-	<script type="text/javascript" src="js/vendor/skip.js"></script>
-	<script tyep="text/javascript" src="js/vendor/helvetiker/helvetiker_regular.typeface.js"></script>
-	<script type="text/javascript" src="js/vendor/d3.v2.js"></script>
-	<script type="text/javascript" src="js/sleep.js"></script>
-	<script type="text/javascript" src="js/BlocksScene.js"></script>
-	<script type="text/javascript" src="js/BlocksGUI.js"></script>
+	<script type="text/javascript" src="js/lib/react.min.js"></script>
+	<script type="text/javascript" src="js/lib/react-dom.min.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.js"></script>
+	<script type="text/javascript" src="js/lib/d3.v2.js"></script>
+	<script type="text/javascript" src="js/lib/three.min.js"></script>
+	<script type="text/javascript" src="js/lib/TrackballControls.js"></script>
+	<script tyep="text/javascript" src="js/lib/helvetiker/helvetiker_regular.typeface.js"></script>
+	<script type="text/javascript" src="js/data/sleep.js"></script>
+	<script type="text/javascript" src="js/components/vis.js"></script>
+	<script type="text/javascript" src="js/components/controls.js"></script>
+	<script type="text/javascript" src="js/components/stats.js"></script>
+	<script type="text/javascript" src="js/components/blocksApp.js"></script>
+	<script type="text/javascript" src="js/components/controls.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
 
 	<!-- stylesheet -->
 	<link rel="stylesheet" type="text/css" href="css/style.css"/>
 
-	<!-- Document ready callback -->
-	<script type="text/javascript">
-		$(document).ready(function(){
-			Scene.buildScene();
-			Scene.animate();
-			GUI.buildGUI();
-			GUI.bindEvents();
-		});
-	</script>
-
 </head>
 <body>
-	<div id="content">
-		<div id="days">
-			<div class="time" id="bedtime"><p>bedtime</p></div>
-			<div class="time" id="risetime"><p>risetime</p></div>
-		</day>
-	</div>
+	<div id="app"></div>
 </body>
 </html>
 
