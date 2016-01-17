@@ -1,14 +1,23 @@
+'use strict';
+
 /*
 * Control view
 *
 */
 
-var Controls = React.createClass({
-  render: function() {
-    var nights = this.props.nights.map(function(night){
-    var date = night.startDate.month + '/' + night.startDate.day + '/' + night.startDate.year;
+var moment = require('moment');
 
-      return <div className="day">{date}</div>
+var Controls = React.createClass({
+  handleDateHover: function(ev){
+    var targetNight = ev.target.id;
+    this.props.handleNightHover(targetNight);
+  },
+
+  render: function() {
+    var self = this;
+    var nights = this.props.nights.map(function(night){
+      var date = moment(night.startDate).format('L');
+      return <div className="day" id={night.id} onMouseOver={self.handleDateHover} >{date}</div>
     });
 
     return (
@@ -24,7 +33,7 @@ var Controls = React.createClass({
           <div className="state">Light</div>
           <div className="state">Deep</div>
           <div className="state">REM</div>
-          <div className="state">Wak</div>
+          <div className="state">Wake</div>
         </div>
 
         <h2>Nights</h2>

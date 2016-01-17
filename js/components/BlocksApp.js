@@ -2,6 +2,7 @@
 
 var Vis = require('./Vis');
 var Controls = require('./Controls');
+var Stats = require('./Stats');
 
 /*
 * Main application class
@@ -12,7 +13,8 @@ var BlocksApp = React.createClass({
   getInitialState: function(){
     return {
       nights: [],
-      activeNights: []
+      activeNights: [],
+      activeNight: sleep.sleepData[0]
     }
   },
 
@@ -20,24 +22,39 @@ var BlocksApp = React.createClass({
   componentDidMount: function(){
     var self = this;
     $.getJSON('js/data/sleep.json', function(res){
-      var active = res.sleepData.slice(0,14);
+      var nights = res.sleepData.map(function(night, ix){
+        night.id = ix;
+        return night
+      });
+      var active = nights.slice(0,14);
 
       self.setState({
-        nights: res.sleepData,
-        activeNights: active
+        nights: nights,
+        activeNights: active,
+        activeNight: active[0]
       });
     })
   },
 
+  handleNightHover: function(targetNight){
+    this.setState({
+      activeNight: this.state.activeNights[targetNight]
+    });
+  },
+
   // Render the visualization view
   render: function(){
+    console.log('the active night is', this.state.activeNights);
+
     return (
       <div>
-        <Controls nights={this.state.activeNights}/>
-        <Vis nights={this.state.nights}/>
+        <Controls nights={this.state.activeNights} handleNightHover={this.handleNightHover}/>
+        <Vis nights={this.state.nights} night={this.state.activeNight}/>
+        <Stats night={this.state.activeNight}/>
       </div>
     );
   }
 });
 
 module.exports = BlocksApp;
+

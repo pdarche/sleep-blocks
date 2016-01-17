@@ -10,7 +10,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 7,
+  numNights: 14,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -34,6 +34,27 @@ var Vis = React.createClass({
   componentDidMount: function(){
     this.buildScene();
     this.animate();
+  },
+
+  componentDidUpdate: function() {
+    console.log('THE PROPS ARE', this.props);
+    if (this.props.night) {
+      var index = this.props.night.id;
+
+      this.nightAr.forEach(function(night, ix){
+        night.children.forEach(function(block){
+          block.material.opacity = 1;
+        });
+      });
+
+      this.nightAr.forEach(function(night, ix){
+        if (index !== ix){
+          night.children.forEach(function(block){
+            block.material.opacity = .02;
+          });
+        }
+      });
+    }
   },
 
   buildScene: function(){

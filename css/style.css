@@ -10,10 +10,41 @@ h2 {
 	text-align: center;
 }
 
+.stats {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+
+	display: block;
+
+	font-family: helvetica;
+	color: #aaa;
+
+	width: 300px;
+}
+
+.stats--date {
+	position: relative;
+	font-weight: 500;
+	font-size: 40px;
+	margin: 30px 10px 10px 20px;
+}
+
+.stats--container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.stat {
+	padding: 5px;
+	margin: 5px;
+}
+
 #controls {
 	position: absolute;
 	top: 20px;
-	left: 20px;
+	left: 10px;
 
 	width: 200px;
 	padding: 10px;
