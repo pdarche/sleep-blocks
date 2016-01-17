@@ -238,14 +238,12 @@ var Vis = React.createClass({
   addSleepObjs: function(){
     // Create the nights
     var nights = new THREE.Object3D();
-    var scale = this.scale()
+    var scale = this.scale();
 
     // interate through the number of nights
     for (var j = 0; j < this.numNights; j++){
       var bedTime = scale(this.bedtimes[j]);
       var night = new THREE.Object3D();
-
-      console.log('the bedtime is', bedTime)
 
       // for each block in the that night
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
@@ -360,3 +358,4 @@ var Vis = React.createClass({
 });
 
 module.exports = Vis;
+
