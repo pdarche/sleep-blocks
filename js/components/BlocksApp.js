@@ -30,7 +30,7 @@ var BlocksApp = React.createClass({
         return night
       });
       var active = nights.slice(0,14);
-
+      console.log('the active nights are', active);
       self.setState({
         nights: nights,
         activeNights: active,
@@ -72,13 +72,16 @@ var BlocksApp = React.createClass({
           handleStateHover={this.handleStateHover}
           handleTimeHover={this.handleTimeHover}/>
         <Vis
-          nights={this.state.nights}
+          nights={this.state.activeNights}
           night={this.state.activeNight}
           state={this.state.activeState}
           time={this.state.activeTime}
           eventType={this.state.eventType}/>
         <Stats
           night={this.state.activeNight}
+          nights={this.state.activeNights}
+          state={this.state.activeState}
+          time={this.state.activeTime}
           statsType={this.state.eventType}/>
       </div>
     );

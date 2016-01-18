@@ -12,18 +12,18 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 14,
+  numNights: 50,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
   hours: 12,
   startTime: 22,
   sleepStates: {
-    "UNDEFINED": { "height" : 0, "color" : 0xffffff, arr : [] },
-    "LIGHT": { "height" : 100, "color" : 0x32cd32, arr : [] },
-    "DEEP": { "height" : 40, "color" : 0x006400, arr : [] },
-    "REM": { "height" : 70, "color" : 0xd3d3d3, arr : [] },
-    "WAKE": { "height" : 120, "color" : 0xb22020, arr : [] }
+    "UNDEFINED": { "height" : 0, "color" : 0x236167, arr : [] },
+    "LIGHT": { "height" : 100, "color" : 0x28774F, arr : [] },
+    "DEEP": { "height" : 40, "color" : 0x373276, arr : [] },
+    "REM": { "height" : 70, "color" : 0xA2A838, arr : [] },
+    "WAKE": { "height" : 120, "color" : 0x9F5B46, arr : [] }
   },
 
   getInitialState: function(){

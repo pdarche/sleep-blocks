@@ -18,10 +18,10 @@ var Stats = React.createClass({
         stats = <SingleNightStats night={this.props.night}/>;
         break;
       case 'state':
-        stats = <StateStats/>;
+        stats = <StateStats nights={this.props.nights} state={this.props.state}/>;
         break;
       case 'time':
-        stats = <TimeStats/>
+        stats = <TimeStats nights={this.props.nights} time={this.props.time}/>
         break;
     }
 

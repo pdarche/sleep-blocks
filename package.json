@@ -2,7 +2,7 @@
   "name": "sleep-blocks",
   "version": "0.0.1",
   "private": true,
-  "description": "Visualization of Zeo sleep data",
+  "description": "Visualization of my Zeo sleep data",
   "main": "js/app.js",
   "dependencies": {
     "react": "^0.14.3",
@@ -10,7 +10,8 @@
     "underscore": "^1.7.0",
     "moment": "2.10.6",
     "d3": "^3.5.10",
-    "classnames": "2.2.1"
+    "classnames": "2.2.1",
+    "lodash": "latest"
   },
   "devDependencies": {
     "browserify": "~6.2.0",
