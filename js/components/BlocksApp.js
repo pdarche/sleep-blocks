@@ -1,20 +1,22 @@
 'use strict';
 
-var Vis = require('./Vis');
-var Controls = require('./Controls');
-var Stats = require('./Stats');
-
 /*
 * Main application class
 *
 */
+
+var Vis = require('./Vis');
+var Controls = require('./Controls');
+var Stats = require('./Stats');
 
 var BlocksApp = React.createClass({
   getInitialState: function(){
     return {
       nights: [],
       activeNights: [],
-      activeNight: sleep.sleepData[0]
+      activeNight: null,
+      activeState: null,
+      eventType: null
     }
   },
 
@@ -31,25 +33,46 @@ var BlocksApp = React.createClass({
       self.setState({
         nights: nights,
         activeNights: active,
-        activeNight: active[0]
+        activeNight: null,
+        activeState: null
       });
     })
   },
 
   handleNightHover: function(targetNight){
     this.setState({
-      activeNight: this.state.activeNights[targetNight]
+      activeNight: this.state.activeNights[targetNight],
+      eventType: 'night'
+    });
+  },
+
+  handleStateHover: function(targetState) {
+    this.setState({
+      eventType: 'state',
+      activeState: targetState
+    });
+  },
+
+  handleTimeHover: function(targetTime) {
+    this.setState({
+      eventType: 'time'
     });
   },
 
   // Render the visualization view
   render: function(){
-    console.log('the active night is', this.state.activeNights);
-
     return (
       <div>
-        <Controls nights={this.state.activeNights} handleNightHover={this.handleNightHover}/>
-        <Vis nights={this.state.nights} night={this.state.activeNight}/>
+        <Controls
+          nights={this.state.activeNights}
+          handleNightHover={this.handleNightHover}
+          handleStateHover={this.handleStateHover}
+          handleTimeHover={this.handleTimeHover}/>
+        <Vis
+          nights={this.state.nights}
+          night={this.state.activeNight}
+          state={this.state.activeState}
+          eventType={this.state.eventType}/>
         <Stats night={this.state.activeNight}/>
       </div>
     );

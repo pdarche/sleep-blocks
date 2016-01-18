@@ -1,3 +1,5 @@
+'use strict';
+
 /*
 * Main 3D sleep visualization
 *
@@ -37,24 +39,62 @@ var Vis = React.createClass({
   },
 
   componentDidUpdate: function() {
-    console.log('THE PROPS ARE', this.props);
-    if (this.props.night) {
-      var index = this.props.night.id;
-
-      this.nightAr.forEach(function(night, ix){
-        night.children.forEach(function(block){
-          block.material.opacity = 1;
-        });
-      });
-
-      this.nightAr.forEach(function(night, ix){
-        if (index !== ix){
-          night.children.forEach(function(block){
-            block.material.opacity = .02;
-          });
-        }
-      });
+    switch (this.props.eventType) {
+      case 'night':
+        this.highlightNight();
+        break;
+      case 'state':
+        this.highlightState();
+        break;
+      case 'time':
+        this.highlightTime();
+        break;
+      default:
+        return
     }
+  },
+
+  resetBlockOpacity: function(){
+    this.nightAr.forEach(function(night, ix){
+      night.children.forEach(function(block){
+        block.material.opacity = 1;
+      });
+    });
+  },
+
+  increaseBlockOpacity: function(){
+    this.nightAr.forEach(function(night, ix){
+      night.children.forEach(function(block){
+        block.material.opacity = .02;
+      });
+    });
+  },
+
+  highlightNight: function(){
+    var index = this.props.night.id;
+
+    this.resetBlockOpacity();
+    this.nightAr.forEach(function(night, ix){
+      if (index !== ix){
+        night.children.forEach(function(block){
+          block.material.opacity = .02;
+        });
+      }
+    });
+  },
+
+  highlightState: function(){
+    var targetState = this.props.state.toUpperCase();
+
+    this.increaseBlockOpacity();
+    this.sleepStates[targetState].arr.forEach(function(block){
+      block.material.opacity = 1;
+    });
+
+  },
+
+  highlightTime: function(){
+    console.log('highlighting time');
   },
 
   buildScene: function(){
@@ -211,7 +251,7 @@ var Vis = React.createClass({
   },
 
   addRefDates : function() {
-    days = new THREE.Geometry();
+    var days = new THREE.Geometry();
 
     days.vertices.push( new THREE.Vector3(-this.displaySize, 0, -this.displaySize));
     days.vertices.push( new THREE.Vector3(-this.displaySize, 0, this.displaySize));
@@ -339,7 +379,7 @@ var Vis = React.createClass({
       var btMin = Number(bt.minute) * 60;
 
       // Offset the seconds so that 10pm is 0
-      btInSeconds = btHr + btMin + Number(bt.second) - (this.startTime * 60 * 60);
+      var btInSeconds = btHr + btMin + Number(bt.second) - (this.startTime * 60 * 60);
 
       // if the bedtime is after midnight add two hours
       if (btHr < 75600) {
