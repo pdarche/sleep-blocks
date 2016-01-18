@@ -16,6 +16,7 @@ var BlocksApp = React.createClass({
       activeNights: [],
       activeNight: null,
       activeState: null,
+      activeTime: null,
       eventType: null
     }
   },
@@ -34,7 +35,8 @@ var BlocksApp = React.createClass({
         nights: nights,
         activeNights: active,
         activeNight: null,
-        activeState: null
+        activeState: null,
+        activeTime: null
       });
     })
   },
@@ -55,7 +57,8 @@ var BlocksApp = React.createClass({
 
   handleTimeHover: function(targetTime) {
     this.setState({
-      eventType: 'time'
+      eventType: 'time',
+      activeTime: targetTime
     });
   },
 
@@ -72,8 +75,11 @@ var BlocksApp = React.createClass({
           nights={this.state.nights}
           night={this.state.activeNight}
           state={this.state.activeState}
+          time={this.state.activeTime}
           eventType={this.state.eventType}/>
-        <Stats night={this.state.activeNight}/>
+        <Stats
+          night={this.state.activeNight}
+          statsType={this.state.eventType}/>
       </div>
     );
   }

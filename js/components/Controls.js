@@ -17,6 +17,7 @@ var Controls = React.createClass({
   },
 
   handleTimeHover: function(ev){
+    console.log('the event is', ev)
     this.props.handleTimeHover(ev.target.id);
   },
 
@@ -31,8 +32,8 @@ var Controls = React.createClass({
       <div id="controls">
         <h2>Times</h2>
         <div className="times">
-          <div className="time bedtime" id="bedtime">bedtime</div>
-          <div className="time risetime" id="risetime">risetime</div>
+          <div className="time bedtime" id="bedtime" onClick={this.handleTimeHover}>bedtime</div>
+          <div className="time risetime" id="risetime" onClick={this.handleTimeHover}>risetime</div>
         </div>
 
         <h2>Sleep State</h2>

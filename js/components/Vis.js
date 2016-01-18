@@ -90,11 +90,24 @@ var Vis = React.createClass({
     this.sleepStates[targetState].arr.forEach(function(block){
       block.material.opacity = 1;
     });
-
   },
 
   highlightTime: function(){
-    console.log('highlighting time');
+    var targetIndex = 0;
+    var timeType = this.props.time;
+
+    this.resetBlockOpacity();
+    this.nightAr.forEach(function(night){
+      if (timeType == 'risetime') {
+        targetIndex = night.children.length - 1;
+      }
+
+      night.children.forEach(function(block, ix){
+        if (ix !== targetIndex) {
+          block.material.opacity = .01;
+        }
+      });
+    });
   },
 
   buildScene: function(){

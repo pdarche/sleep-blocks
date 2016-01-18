@@ -13,8 +13,16 @@ var Stats = React.createClass({
   render: function() {
     var stats;
 
-    if (this.props.night){
-      stats = <SingleNightStats night={this.props.night}/>
+    switch (this.props.statsType) {
+      case 'night':
+        stats = <SingleNightStats night={this.props.night}/>;
+        break;
+      case 'state':
+        stats = <StateStats/>;
+        break;
+      case 'time':
+        stats = <TimeStats/>
+        break;
     }
 
     return (
