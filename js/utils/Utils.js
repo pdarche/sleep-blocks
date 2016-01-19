@@ -48,29 +48,61 @@ var Utils = {
     'risetime': 'riseTime'
   },
 
-  timeToSeconds: function(time){
-    return time.second + (60 * time.minute) + (3600 * time.hour);
+  timeOffset: 7200,
+
+  timeToSeconds: function(time, offset){
+    var seconds = time.second + (60 * time.minute) + (3600 * time.hour);
+    if (offset) {
+      seconds -= offset;
+    }
+    if (seconds < 0){
+      seconds += 86400
+    }
+    return seconds
+  },
+
+  secondsToHms: function(d) {
+    var sec_num = parseInt(d, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = hours+':'+minutes+':'+seconds;
+    return time;
   },
 
   computeTimeStats: function(nights, time){
     var self = this;
     var timeKey = this.timeMapping[time];
-    var timeValues = _.map(nights, function(n){ return self.timeToSeconds(n[timeKey]); });
-    console.log('THE TIME VALUES ARE', timeValues);
+    // find the largetst value before 9 pm
+    var ltnine = _.filter(nights, function(n){ return n[timeKey].hour < 21})
+    var ltnine = _.map(ltnine, function(n){ return n[timeKey].hour})
+    var maxHour = _.max(ltnine) + 1
+    var offset = maxHour * 3600
+    // remove that time + 1 hour of that time from each value
+    var timeValues = _.map(nights, function(n){ return self.timeToSeconds(n[timeKey], offset); });
     var nightsWithTs = _.map(nights, function(n){
-      n[timeKey + 'Ts'] = self.timeToSeconds(n[timeKey]);
+      n[timeKey + 'Ts'] = self.timeToSeconds(n[timeKey], offset);
       return n
     });
+    // compute the min, max, and mean
     var timeMin = _.min(timeValues);
     var timeMax = _.max(timeValues);
-    var min = _.find(nights, [timeKey+'Ts', timeMin]);
-    var max = _.find(nights, [timeKey+'Ts', timeMax]);
-    var mean = _.sum(timeValues) / timeValues.length;
+    var min = _.find(nightsWithTs, [timeKey+'Ts', timeMin]);
+    var max = _.find(nightsWithTs, [timeKey+'Ts', timeMax]);
+    var mean = _.mean(timeValues) + offset;
+
+    if (mean > 86400){
+      mean -= 86400
+    }
 
     return {
       min: {value: min[timeKey], date: min.startDate},
       max: {value: max[timeKey], date: max.startDate},
-      mean: mean
+      mean: this.secondsToHms(mean)
     }
   },
 

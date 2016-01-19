@@ -25,7 +25,7 @@ var TimeStats = React.createClass({
       <div className="stats">
         <h1 className="stats--date">{Utils.toTitleCase(this.props.time)} </h1>
         <div className="stats--container">
-          <div className="stat">Avg: {this.formatTime(stats.mean)} </div>
+          <div className="stat">Avg: {stats.mean} </div>
           <div className="stat">
             Max: {this.formatTime(stats.max.value)} on {this.formatDate(stats.max.date)}
           </div>
