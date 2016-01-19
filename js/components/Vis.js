@@ -5,6 +5,8 @@
 *
 */
 
+var TWEEN = require('tween.js');
+
 var Vis = React.createClass({
   WIDTH: window.innerWidth,
   HEIGHT: window.innerHeight,
@@ -48,10 +50,39 @@ var Vis = React.createClass({
         break;
       case 'time':
         this.highlightTime();
+        this.moveCamera();
         break;
       default:
         return
     }
+  },
+
+  moveCamera: function() {
+    this.setupTween();
+  },
+
+  setupTween: function() {
+    var self = this;
+    var camp = this.camera.position
+    this.position = {x: camp.x, y: camp.y, z: camp.z};
+    this.target = {x: 0, y: 2000, z: 0};
+    this.tween = new TWEEN.Tween(this.position).to(this.target, 1000);
+
+    this.tween.onUpdate(function(){
+      self.camera.position.x = self.position.z;
+      self.camera.position.y = self.position.y;
+      self.camera.position.z = self.position.x
+    });
+    this.tween.easing(TWEEN.Easing.Quadratic.InOut);
+    this.tween.start();
+  },
+
+  updateTween: function() {
+    this.tween.onUpdate(function(){
+      this.camera.position.z = this.position.z
+      this.camera.position.y = this.position.y
+      this.camera.position.x = this.position.x
+    });
   },
 
   resetBlockOpacity: function(){
@@ -405,6 +436,7 @@ var Vis = React.createClass({
 
   animate : function() {
     requestAnimationFrame(this.animate);
+    TWEEN.update();
 
     this.renderScene();
     controls.update();

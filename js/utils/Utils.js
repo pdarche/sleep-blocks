@@ -79,7 +79,7 @@ var Utils = {
     var timeKey = this.timeMapping[time];
     // find the largetst value before 9 pm
     var ltnine = _.filter(nights, function(n){ return n[timeKey].hour < 21})
-    var ltnine = _.map(ltnine, function(n){ return n[timeKey].hour})
+        ltnine = _.map(ltnine, function(n){ return n[timeKey].hour})
     var maxHour = _.max(ltnine) + 1
     var offset = maxHour * 3600
     // remove that time + 1 hour of that time from each value
