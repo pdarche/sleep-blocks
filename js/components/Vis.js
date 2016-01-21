@@ -14,7 +14,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 50,
+  numNights: 14,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -50,7 +50,7 @@ var Vis = React.createClass({
         break;
       case 'time':
         this.highlightTime();
-        this.moveCamera();
+        // this.moveCamera();
         break;
       default:
         return
@@ -63,26 +63,10 @@ var Vis = React.createClass({
 
   setupTween: function() {
     var self = this;
-    var camp = this.camera.position
-    this.position = {x: camp.x, y: camp.y, z: camp.z};
-    this.target = {x: 0, y: 2000, z: 0};
-    this.tween = new TWEEN.Tween(this.position).to(this.target, 1000);
+    var targetPos = {x: 0, y: 2000, z: 0};
+    var tween = new TWEEN.Tween(this.camera.position)
+                        .to(targetPos, 1000).start();
 
-    this.tween.onUpdate(function(){
-      self.camera.position.x = self.position.z;
-      self.camera.position.y = self.position.y;
-      self.camera.position.z = self.position.x
-    });
-    this.tween.easing(TWEEN.Easing.Quadratic.InOut);
-    this.tween.start();
-  },
-
-  updateTween: function() {
-    this.tween.onUpdate(function(){
-      this.camera.position.z = this.position.z
-      this.camera.position.y = this.position.y
-      this.camera.position.x = this.position.x
-    });
   },
 
   resetBlockOpacity: function(){
@@ -96,7 +80,7 @@ var Vis = React.createClass({
   increaseBlockOpacity: function(){
     this.nightAr.forEach(function(night, ix){
       night.children.forEach(function(block){
-        block.material.opacity = .02;
+        block.material.opacity = .05;
       });
     });
   },
@@ -108,7 +92,7 @@ var Vis = React.createClass({
     this.nightAr.forEach(function(night, ix){
       if (index !== ix){
         night.children.forEach(function(block){
-          block.material.opacity = .02;
+          block.material.opacity = .05;
         });
       }
     });
@@ -166,6 +150,8 @@ var Vis = React.createClass({
       this.FAR
     );
     this.camera.position.set(-1400, 1000, -900);
+    this.camera.rotation.set(0, 0, 0);
+    this.camera.userQuaternion = true;
 
     // Set up lights
     var ambientLight = new THREE.AmbientLight(0x606060);
@@ -255,14 +241,14 @@ var Vis = React.createClass({
 
   addRefTimes : function() {
     var time = new THREE.Geometry();
-
+    console.log('the display size is', this.displaySize);
     // Add the start and end points
     time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
     time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
 
-    for (var t = 0; t < this.tickCount; t++){
+    for (var t = 0; t < this.tickCount/2; t++){
       // Create the xPosition
-      var xPos = ((this.displaySize/this.tickCount) * t * this.pxPerMin) - this.displaySize;
+      var xPos = (((this.displaySize/(this.tickCount/2)) * t * this.pxPerMin) - this.displaySize);
       // add the tick verticies
       time.vertices.push(new THREE.Vector3(xPos, 0, -800));
       time.vertices.push(new THREE.Vector3(xPos, 0, -815));
@@ -270,7 +256,7 @@ var Vis = React.createClass({
       // if (t % 28 === 0) {
       //   var currTime = this.fiveMinIncr[t];
       //   var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
-      //   var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa});
+      //   var meshMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
       //   var textMesh = new THREE.Mesh(text, meshMaterial);
 
       //   textMesh.position.x = xPos
@@ -283,8 +269,8 @@ var Vis = React.createClass({
     }
 
     var material = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      opacity: .4,
+      color: 0x000000,
+      opacity: 1,
       visible : true
     });
 
@@ -297,20 +283,19 @@ var Vis = React.createClass({
   addRefDates : function() {
     var days = new THREE.Geometry();
 
-    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, -this.displaySize));
-    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, this.displaySize));
+    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, -800));
+    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, 800));
 
-    for (var d = 0; d < 15; d++){
-      days.vertices.push(new THREE.Vector3(-this.displaySize, 0, -800/15 * d));
-      days.vertices.push(new THREE.Vector3(-765, 0, -800/15 * d));
+    for (var d = 0; d < this.numNights; d++){
+      var yPos = ((800/(this.numNights/2)) * d) - 800;
 
-      days.vertices.push(new THREE.Vector3(-this.displaySize, 0, 800/15 * d + 1));
-      days.vertices.push(new THREE.Vector3(-765, 0, 800/15 * d + 1));
+      days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
+      days.vertices.push(new THREE.Vector3(-755, 0, yPos));
     }
 
     var material = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      opacity: .4,
+      color: 0x000000,
+      opacity: 1,
       visible : true
     });
 
@@ -435,9 +420,11 @@ var Vis = React.createClass({
   },
 
   animate : function() {
+    // console.log('camera pos', this.camera.position)
     requestAnimationFrame(this.animate);
-    TWEEN.update();
 
+
+    // TWEEN.update();
     this.renderScene();
     controls.update();
 
