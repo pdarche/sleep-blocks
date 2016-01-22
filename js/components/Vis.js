@@ -14,12 +14,13 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 14,
+  numNights: 15,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
   hours: 12,
   startTime: 22,
+  nightSpacing: 100,
   sleepStates: {
     "UNDEFINED": { "height" : 0, "color" : 0x236167, arr : [] },
     "LIGHT": { "height" : 100, "color" : 0x28774F, arr : [] },
@@ -30,7 +31,7 @@ var Vis = React.createClass({
 
   getInitialState: function(){
     return {
-      numNights: 14,
+      numNights: 15,
       gridSize: 1800
     }
   },
@@ -134,12 +135,13 @@ var Vis = React.createClass({
     this.addAxes();
     this.makeBedtimes();
     this.addSleepObjs();
+    this.bindEvents();
   },
 
   init: function(){
     // Set up scene
     this.container = document.createElement('div');
-    $('#app').prepend(this.container);
+    $('#vis').prepend(this.container);
     this.scene = new THREE.Scene();
 
     // Set up camera
@@ -182,6 +184,18 @@ var Vis = React.createClass({
     this.displaySize = (this.state.gridSize - (1/5 * this.state.gridSize))/2;
     this.pxPerMin = (2 * this.displaySize / (this.hours*60));
     this.tickCount = (this.hours*60)/this.minsPerBlock;
+
+  },
+
+  bindEvents: function(){
+    window.addEventListener('resize', this.onWindowResize, false);
+  },
+
+  onWindowResize  : function() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
 
   },
 
@@ -287,7 +301,8 @@ var Vis = React.createClass({
     days.vertices.push( new THREE.Vector3(-this.displaySize, 0, 800));
 
     for (var d = 0; d < this.numNights; d++){
-      var yPos = ((800/(this.numNights/2)) * d) - 800;
+      // var yPos = ((800/(this.numNights/2)) * d) - 800;
+      var yPos = (d * this.nightSpacing) - this.displaySize;
 
       days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
       days.vertices.push(new THREE.Vector3(-755, 0, yPos));
@@ -349,7 +364,7 @@ var Vis = React.createClass({
         var rect = new THREE.Mesh(geometry, material);
         rect.position.x = ((i * blockWidth) + bedTime) - this.displaySize; // rect width and position is a function of time
         rect.position.y = 0;
-        rect.position.z = (j * 100) - this.displaySize;
+        rect.position.z = (j * this.nightSpacing) - this.displaySize;
         rect.translateY(this.sleepStates[blockDatum].height/2);
         rect.matrixAutoUpdate = false;
         rect.updateMatrix();
@@ -420,9 +435,7 @@ var Vis = React.createClass({
   },
 
   animate : function() {
-    // console.log('camera pos', this.camera.position)
     requestAnimationFrame(this.animate);
-
 
     // TWEEN.update();
     this.renderScene();
@@ -446,7 +459,11 @@ var Vis = React.createClass({
   },
 
   render: function() {
-    return (<div></div>)
+    return (
+      <div>
+        <div id="vis" onDoubleClick={this.resetBlockOpacity}></div>
+      </div>
+    );
   }
 });
 

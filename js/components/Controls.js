@@ -17,7 +17,6 @@ var Controls = React.createClass({
   },
 
   handleTimeHover: function(ev){
-    console.log('the event is', ev)
     this.props.handleTimeHover(ev.target.id);
   },
 
