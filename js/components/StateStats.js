@@ -32,15 +32,20 @@ var StateStats = React.createClass({
     return (
       <div className="stats">
         <h1 className="stats--date">{this.formatState(this.props.state)} </h1>
-        <div className="stats--container">
-          <div className="stat">Avg: {this.formatValue(stats.mean)} </div>
-          <div className="stat">
-            Max: {this.formatValue(stats.max.value)} on {this.formatDate(stats.max.date)}
-          </div>
-          <div className="stat">
-            Min: {this.formatValue(stats.min.value)} on {this.formatDate(stats.min.date)}
-          </div>
-        </div>
+        <table>
+          <tr>
+            <td className="stats--stat">Avg</td>
+            <td className="stats--value">{this.formatValue(stats.mean)}</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Max</td>
+            <td className="stats--value">{this.formatValue(stats.max.value)} on {this.formatDate(stats.max.date)}</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Min</td>
+            <td className="stats--value">{this.formatValue(stats.min.value)} on {this.formatDate(stats.min.date)}</td>
+          </tr>
+        </table>
       </div>
     );
   }

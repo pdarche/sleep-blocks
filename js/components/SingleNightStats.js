@@ -20,15 +20,36 @@ var SingleNightStats = React.createClass({
     return (
       <div className="stats">
         <h1 className="stats--date">{date}</h1>
-        <div className="stat"> Bedtime {moment(night.bedTime).format('LTS')}</div>
-        <div className="stat">Risetime {moment(night.riseTime).format('LTS')}</div>
-        <div className="stats--container">
-          <div className="stat"> Total Sleep {this.createTime(night.totalZ)} hrs</div>
-          <div className="stat">Light Sleep {this.createTime(night.timeInLight)} hrs</div>
-          <div className="stat">Deep Sleep {this.createTime(night.timeInDeep)} hrs</div>
-          <div className="stat">REM Sleep {this.createTime(night.timeInRem)} hrs</div>
-          <div className="stat">Wake Sleep {this.createTime(night.timeInWake)} hrs</div>
-        </div>
+        <table>
+          <tr>
+            <td className="stats--stat">Bedtime</td>
+            <td className="stats--value">{moment(night.bedTime).format('LT')}</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Risetime</td>
+            <td className="stats--value">{moment(night.riseTime).format('LT')}</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Total Sleep</td>
+            <td className="stats--value">{this.createTime(night.totalZ)} hrs</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Light Sleep</td>
+            <td className="stats--value">{this.createTime(night.timeInLight)} hrs</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Deep Sleep</td>
+            <td className="stats--value">{this.createTime(night.timeInDeep)} hrs</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">REM Sleep</td>
+            <td className="stats--value">{this.createTime(night.timeInRem)} hrs</td>
+          </tr>
+          <tr>
+            <td className="stats--stat">Time Awake</td>
+            <td className="stats--value">{this.createTime(night.timeInWake)} hrs</td>
+          </tr>
+        </table>
       </div>
     );
   }
