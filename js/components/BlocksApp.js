@@ -8,16 +8,20 @@
 var Vis = require('./Vis');
 var Controls = require('./Controls');
 var Stats = require('./Stats');
+var Slider = require('./Slider');
+var d3 = require('d3');
 
 var BlocksApp = React.createClass({
   getInitialState: function(){
     return {
-      nights: [],
+      nights: sleep.sleepData,
       activeNights: [],
       activeNight: null,
       activeState: null,
       activeTime: null,
-      eventType: null
+      eventType: null,
+      controlsEnabled: true,
+      dateOffset: 0
     }
   },
 
@@ -30,7 +34,7 @@ var BlocksApp = React.createClass({
         return night
       });
       var active = nights.slice(0,14);
-      console.log('the active nights are', active);
+
       self.setState({
         nights: nights,
         activeNights: active,
@@ -62,6 +66,23 @@ var BlocksApp = React.createClass({
     });
   },
 
+  handleSliderHover: function() {
+    this.setState({
+      controlsEnabled: !this.state.controlsEnabled
+    });
+  },
+
+  handleSliderMovement: function(value){
+    var dateOffset = d3.scale.linear()
+      .domain([0, 860])
+      .range([0, this.state.nights.length])(value)
+
+    this.setState({
+      eventType: 'dateOffset',
+      dateOffset: dateOffset
+    });
+  },
+
   // Render the visualization view
   render: function(){
     return (
@@ -76,13 +97,20 @@ var BlocksApp = React.createClass({
           night={this.state.activeNight}
           state={this.state.activeState}
           time={this.state.activeTime}
-          eventType={this.state.eventType}/>
+          dateOffset={this.state.dateOffset}
+          eventType={this.state.eventType}
+          controlsEnabled={this.state.controlsEnabled}/>
         <Stats
           night={this.state.activeNight}
           nights={this.state.activeNights}
           state={this.state.activeState}
           time={this.state.activeTime}
           statsType={this.state.eventType}/>
+        <Slider
+          nights={this.state.nights}
+          activeNights={this.state.activeNights}
+          handleSliderHover={this.handleSliderHover}
+          handleSliderMovement={this.handleSliderMovement}/>
       </div>
     );
   }

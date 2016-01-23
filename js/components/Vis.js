@@ -14,7 +14,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 15,
+  numNights: 20,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -42,6 +42,8 @@ var Vis = React.createClass({
   },
 
   componentDidUpdate: function() {
+    controls.enabled = this.props.controlsEnabled
+
     switch (this.props.eventType) {
       case 'night':
         this.highlightNight();
@@ -53,9 +55,21 @@ var Vis = React.createClass({
         this.highlightTime();
         // this.moveCamera();
         break;
+      case 'dateOffset':
+        this.offsetBlocks();
       default:
         return
     }
+  },
+
+  offsetBlocks: function(){
+    var self = this;
+    console.log('THE INCOMING OFFSET IS', this.props.dateOffset);
+    console.log('night lenght', this.nightAr.lenght)
+    this.nightAr.forEach(function(night, ix){
+      night.position.z = (ix * self.nightSpacing) - self.displaySize
+      console.log('new position', night.position.z)
+    });
   },
 
   moveCamera: function() {
@@ -255,7 +269,6 @@ var Vis = React.createClass({
 
   addRefTimes : function() {
     var time = new THREE.Geometry();
-    console.log('the display size is', this.displaySize);
     // Add the start and end points
     time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
     time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
@@ -318,7 +331,7 @@ var Vis = React.createClass({
     dLine.type = THREE.LinePieces;
     this.scene.add(dLine);
 
-    // for ( var e = 1; e < this.state.numNights; e++ ){
+    // for ( var e = 1; e < this.numNights; e++ ){
     //   var date = sleep.sleepData[e].startDate.month + '/' + sleep.sleepData[e].startDate.day + '/' + sleep.sleepData[e].startDate.year
 
     //   var text = new THREE.TextGeometry( String(date), { size: 15, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal" });
@@ -350,6 +363,7 @@ var Vis = React.createClass({
       var bedTime = scale(this.bedtimes[j]);
       var night = new THREE.Object3D();
 
+      console.log('original position', (j * this.nightSpacing) - this.displaySize)
       // for each block in the that night
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
         // create the material for the sleep block
@@ -416,7 +430,7 @@ var Vis = React.createClass({
   makeBedtimes  : function() {
     this.bedtimes = [];
 
-    for (var j = 0; j < this.state.numNights; j++) {
+    for (var j = 0; j < this.numNights; j++) {
       // convert the bedtime to seconds
       var bt = sleep.sleepData[j].bedTime;
       var btHr = Number(bt.hour) * 60 * 60;
@@ -436,11 +450,11 @@ var Vis = React.createClass({
 
   animate : function() {
     requestAnimationFrame(this.animate);
-
     // TWEEN.update();
     this.renderScene();
-    controls.update();
-
+    if (this.props.controlsEnabled){
+      controls.update();
+    }
   },
 
   renderScene : function() {

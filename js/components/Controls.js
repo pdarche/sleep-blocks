@@ -22,10 +22,11 @@ var Controls = React.createClass({
 
   render: function() {
     var self = this;
-    var nights = this.props.nights.map(function(night){
-      var date = moment(night.startDate).format('L');
-      return <div className="day" id={night.id} onMouseOver={self.handleDateHover} >{date}</div>
-    });
+    // var nights = this.props.nights.map(function(night){
+    //   var date = moment(night.startDate).format('L');
+    //   return <div className="day" id={night.id} onMouseOver={self.handleDateHover} >{date}</div>
+    // });
+    var nights = [];
 
     return (
       <div id="controls">

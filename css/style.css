@@ -95,3 +95,42 @@ h2 {
 	cursor:pointer;
 }
 
+
+/* Slider */
+
+#slider {
+	position: relative;
+	top: -100px;
+	z-index: 200;
+
+	width: 960px;
+	margin: 0px auto;
+
+	background-color: rgba(255,255,255,.4);
+}
+
+.axis {
+  fill: gray;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.axis .halo {
+  stroke: gray;
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+
+.slider .handle path {
+  stroke: gray;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.slider .handle text {
+  /*fill: white;*/
+  text-align: center;
+  font-size: 18px;
+}
