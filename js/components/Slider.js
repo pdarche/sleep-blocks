@@ -4,6 +4,8 @@ var d3 = require('d3');
 var moment = require('moment');
 
 var Slider = React.createClass({
+  previousValue: 0,
+
   componentDidMount: function(){
     var self = this;
     var formatDate = d3.time.format("%b %d");
@@ -49,7 +51,6 @@ var Slider = React.createClass({
       .tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
       .select(".domain")
       .select(function() {
-        console.log(this)
         return this.parentNode.appendChild(this.cloneNode(true));
       })
       .attr("class", "halo");
@@ -80,11 +81,15 @@ var Slider = React.createClass({
 
     function brushed() {
       var value = brush.extent()[0];
+      var newValue;
 
       if (d3.event.sourceEvent) { // not a programmatic event
         value = timeScale.invert(d3.mouse(this)[0]);
         brush.extent([value, value]);
-        self.props.handleSliderMovement(timeScale(value))
+        newValue = timeScale(value) - self.previousValue;
+
+        self.previousValue = timeScale(value);
+        self.props.handleSliderMovement(newValue)
       }
 
       handle.attr("transform", "translate(" + timeScale(value) + ",0)");

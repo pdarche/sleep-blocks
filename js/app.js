@@ -1,3 +1,5 @@
+'use strict';
+
 /*
 * Render the application
 *

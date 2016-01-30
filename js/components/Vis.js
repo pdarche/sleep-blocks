@@ -14,7 +14,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 20,
+  numNights: 60,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -31,7 +31,7 @@ var Vis = React.createClass({
 
   getInitialState: function(){
     return {
-      numNights: 15,
+      numNights: 60,
       gridSize: 1800
     }
   },
@@ -64,11 +64,9 @@ var Vis = React.createClass({
 
   offsetBlocks: function(){
     var self = this;
-    console.log('THE INCOMING OFFSET IS', this.props.dateOffset);
-    console.log('night lenght', this.nightAr.lenght)
+
     this.nightAr.forEach(function(night, ix){
-      night.position.z = (ix * self.nightSpacing) - self.displaySize
-      console.log('new position', night.position.z)
+      night.position.z -= self.props.dateOffset * self.nightSpacing;
     });
   },
 
@@ -362,8 +360,6 @@ var Vis = React.createClass({
     for (var j = 0; j < this.numNights; j++){
       var bedTime = scale(this.bedtimes[j]);
       var night = new THREE.Object3D();
-
-      console.log('original position', (j * this.nightSpacing) - this.displaySize)
       // for each block in the that night
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
         // create the material for the sleep block
@@ -380,7 +376,7 @@ var Vis = React.createClass({
         rect.position.y = 0;
         rect.position.z = (j * this.nightSpacing) - this.displaySize;
         rect.translateY(this.sleepStates[blockDatum].height/2);
-        rect.matrixAutoUpdate = false;
+        // rect.matrixAutoUpdate = false;
         rect.updateMatrix();
 
         // add to night object
