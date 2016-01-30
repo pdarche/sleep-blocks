@@ -14,7 +14,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 60,
+  numNights: 30,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -31,7 +31,7 @@ var Vis = React.createClass({
 
   getInitialState: function(){
     return {
-      numNights: 60,
+      numNights: 30,
       gridSize: 1800
     }
   },
@@ -64,16 +64,28 @@ var Vis = React.createClass({
 
   offsetBlocks: function(){
     var self = this;
-    var verts = this.dateAxis.vertices
-                  .slice(2, this.dateAxis.vertices.length);
+    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
 
     this.nightAr.forEach(function(night, ix){
-      night.position.z -= self.props.dateOffset * self.nightSpacing;
+      // night.position.z -= self.props.dateOffset * self.nightSpacing;
+      var absPos = (ix - 1 * self.nightSpacing);
+      var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
+      night.position.z = newPos;
+
+      // night.updateMatrixWorld();
+      // var vector = new THREE.Vector3();
+      // vector.setFromMatrixPosition(night.matrixWorld);
     });
 
-    verts.forEach(function(vert){
-      vert.z -= self.props.dateOffset * self.nightSpacing;
+    // var parent = this.nightAr[0]
+    // var child = parent.children[0];
+
+    verts.forEach(function(vert, ix){
+      var absPos = (ix * self.nightSpacing);
+      var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
+      vert.z = newPos;
     });
+    this.dateAxis.verticesNeedUpdate = true;
   },
 
   moveCamera: function() {
@@ -146,7 +158,7 @@ var Vis = React.createClass({
 
   buildScene: function(){
     this.init();
-    this.addGrid();
+    // this.addGrid();
     this.addProjector();
     this.addControls();
     this.makeDatetimes();
@@ -192,7 +204,9 @@ var Vis = React.createClass({
     this.scene.add(directionalLight);
 
     // Set up renderer
-    this.renderer = new THREE.CanvasRenderer();
+    this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
+    // this.renderer = new THREE.CanvasRenderer();
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.setSize(this.WIDTH, this.HEIGHT);
 
     // Append the renderer to the container
@@ -264,8 +278,8 @@ var Vis = React.createClass({
       visible : true
     });
 
-    var gridLines = new THREE.Line(gridGeom, gridMat);
-    gridLines.type = THREE.LinePieces;
+    var gridLines = new THREE.LineSegments(gridGeom, gridMat);
+    // gridLines.type = THREE.LinePieces;
 
     this.scene.add(gridLines);
 
@@ -273,6 +287,7 @@ var Vis = React.createClass({
 
   addRefTimes : function() {
     var time = new THREE.Geometry();
+    // time.geometry.dynamic = true
     // Add the start and end points
     time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
     time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
@@ -305,8 +320,7 @@ var Vis = React.createClass({
       visible : true
     });
 
-    var tLine = new THREE.Line(time, material);
-    tLine.type = THREE.LinePieces;
+    var tLine = new THREE.LineSegments(time, material);
     this.scene.add(tLine);
 
   },
@@ -314,8 +328,8 @@ var Vis = React.createClass({
   addRefDates : function() {
     var days = new THREE.Geometry();
 
-    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, -800));
-    days.vertices.push( new THREE.Vector3(-this.displaySize, 0, 800));
+    days.vertices.push(new THREE.Vector3(-this.displaySize, 0, -800));
+    days.vertices.push(new THREE.Vector3(-this.displaySize, 0, 800));
 
     for (var d = 0; d < this.numNights; d++){
       var yPos = (d * this.nightSpacing) - this.displaySize;
@@ -330,8 +344,7 @@ var Vis = React.createClass({
       visible : true
     });
 
-    var dLine = new THREE.Line(days, material);
-    dLine.type = THREE.LinePieces;
+    var dLine = new THREE.LineSegments(days, material);
     this.dateAxis = days;
     this.scene.add(dLine);
 
@@ -371,10 +384,11 @@ var Vis = React.createClass({
         // create the material for the sleep block
         var blockWidth = this.minsPerBlock * this.pxPerMin
         var blockDatum = sleep.sleepData[j].sleepGraph[i];
-        var geometry = new THREE.CubeGeometry((.8 * blockWidth), this.sleepStates[blockDatum].height, 7);
+        var geometry = new THREE.BoxGeometry((.8 * blockWidth), this.sleepStates[blockDatum].height, 7);
         var material = new THREE.MeshBasicMaterial({
           color: this.sleepStates[blockDatum].color,
-          wireframe: false
+          wireframe: false,
+          transparent: true
         });
         // position the sleep block
         var rect = new THREE.Mesh(geometry, material);

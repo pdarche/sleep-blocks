@@ -14,7 +14,7 @@ var d3 = require('d3');
 var BlocksApp = React.createClass({
   offsetMapping: d3.scale.linear()
       .domain([0, 860])
-      .range([0, 60]),
+      .range([0, 29]),
 
   getInitialState: function(){
     return {

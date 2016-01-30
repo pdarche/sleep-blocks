@@ -89,7 +89,8 @@ var Slider = React.createClass({
         newValue = timeScale(value) - self.previousValue;
 
         self.previousValue = timeScale(value);
-        self.props.handleSliderMovement(newValue)
+        // self.props.handleSliderMovement(newValue)
+        self.props.handleSliderMovement(timeScale(value));
       }
 
       handle.attr("transform", "translate(" + timeScale(value) + ",0)");
