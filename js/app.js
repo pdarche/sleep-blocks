@@ -6,9 +6,10 @@
 */
 
 window.React = require('react');
+var ReactDOM = require('react-dom');
 var BlocksApp = require('./components/BlocksApp');
 
-React.render(
+ReactDOM.render(
   <BlocksApp/>,
   document.getElementById('app')
 );
