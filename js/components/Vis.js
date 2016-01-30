@@ -53,7 +53,7 @@ var Vis = React.createClass({
         break;
       case 'time':
         this.highlightTime();
-        // this.moveCamera();
+        // this.moveCamera('time');
         break;
       case 'dateOffset':
         this.offsetBlocks();
@@ -64,9 +64,15 @@ var Vis = React.createClass({
 
   offsetBlocks: function(){
     var self = this;
+    var verts = this.dateAxis.vertices
+                  .slice(2, this.dateAxis.vertices.length);
 
     this.nightAr.forEach(function(night, ix){
       night.position.z -= self.props.dateOffset * self.nightSpacing;
+    });
+
+    verts.forEach(function(vert){
+      vert.z -= self.props.dateOffset * self.nightSpacing;
     });
   },
 
@@ -312,7 +318,6 @@ var Vis = React.createClass({
     days.vertices.push( new THREE.Vector3(-this.displaySize, 0, 800));
 
     for (var d = 0; d < this.numNights; d++){
-      // var yPos = ((800/(this.numNights/2)) * d) - 800;
       var yPos = (d * this.nightSpacing) - this.displaySize;
 
       days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
@@ -325,8 +330,9 @@ var Vis = React.createClass({
       visible : true
     });
 
-    var dLine = new THREE.Line( days, material );
+    var dLine = new THREE.Line(days, material);
     dLine.type = THREE.LinePieces;
+    this.dateAxis = days;
     this.scene.add(dLine);
 
     // for ( var e = 1; e < this.numNights; e++ ){
