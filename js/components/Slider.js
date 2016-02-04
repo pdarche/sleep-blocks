@@ -1,5 +1,6 @@
 'use strict';
 
+
 var d3 = require('d3');
 var moment = require('moment');
 
@@ -108,3 +109,4 @@ var Slider = React.createClass({
 });
 
 module.exports = Slider;
+

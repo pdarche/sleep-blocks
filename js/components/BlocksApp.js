@@ -14,7 +14,7 @@ var d3 = require('d3');
 var BlocksApp = React.createClass({
   offsetMapping: d3.scale.linear()
       .domain([0, 860])
-      .range([0, 29]),
+      .range([0, 299]),
 
   getInitialState: function(){
     return {
@@ -72,7 +72,8 @@ var BlocksApp = React.createClass({
 
   handleSliderHover: function() {
     this.setState({
-      controlsEnabled: !this.state.controlsEnabled
+      controlsEnabled: !this.state.controlsEnabled,
+      eventType: null
     });
   },
 

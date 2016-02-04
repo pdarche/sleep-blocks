@@ -14,7 +14,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 30,
+  numNights: 300,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -31,7 +31,7 @@ var Vis = React.createClass({
 
   getInitialState: function(){
     return {
-      numNights: 30,
+      numNights: 300,
       gridSize: 1800
     }
   },
@@ -42,7 +42,7 @@ var Vis = React.createClass({
   },
 
   componentDidUpdate: function() {
-    controls.enabled = this.props.controlsEnabled
+    controls.enabled = this.props.controlsEnabled;
 
     switch (this.props.eventType) {
       case 'night':
@@ -64,28 +64,32 @@ var Vis = React.createClass({
 
   offsetBlocks: function(){
     var self = this;
-    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
 
     this.nightAr.forEach(function(night, ix){
-      // night.position.z -= self.props.dateOffset * self.nightSpacing;
       var absPos = (ix - 1 * self.nightSpacing);
       var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
       night.position.z = newPos;
 
-      // night.updateMatrixWorld();
-      // var vector = new THREE.Vector3();
-      // vector.setFromMatrixPosition(night.matrixWorld);
+      if (ix <= self.props.dateOffset ||
+          ix - self.props.dateOffset > 16) {
+        night.visible = false;
+      } else {
+        night.visible = true;
+      }
     });
 
-    // var parent = this.nightAr[0]
-    // var child = parent.children[0];
-
+    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
     verts.forEach(function(vert, ix){
-      var absPos = (ix * self.nightSpacing);
-      var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
+      if (vert.x == -720){
+        var absPos = (ix * (self.nightSpacing/2));
+      } else {
+        var absPos = ((ix - 1) * (self.nightSpacing/2));
+      }
+      var newPos = ((absPos - (self.props.dateOffset * self.nightSpacing)) - 720)
       vert.z = newPos;
     });
     this.dateAxis.verticesNeedUpdate = true;
+
   },
 
   moveCamera: function() {
