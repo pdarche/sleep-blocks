@@ -39,6 +39,7 @@ var Vis = React.createClass({
   componentDidMount: function(){
     this.buildScene();
     this.animate();
+    this.offsetBlocks();
   },
 
   componentDidUpdate: function() {
@@ -70,8 +71,8 @@ var Vis = React.createClass({
       var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
       night.position.z = newPos;
 
-      if (ix <= self.props.dateOffset ||
-          ix - self.props.dateOffset > 16) {
+      if (ix <= self.props.dateOffset - 1 ||
+          ix - self.props.dateOffset > 15) {
         night.visible = false;
       } else {
         night.visible = true;
@@ -89,6 +90,8 @@ var Vis = React.createClass({
       vert.z = newPos;
     });
     this.dateAxis.verticesNeedUpdate = true;
+
+    console.log('the date axis', this.dateAxis);
 
   },
 
@@ -162,7 +165,7 @@ var Vis = React.createClass({
 
   buildScene: function(){
     this.init();
-    // this.addGrid();
+    this.addGrid();
     this.addProjector();
     this.addControls();
     this.makeDatetimes();
@@ -349,6 +352,7 @@ var Vis = React.createClass({
     });
 
     var dLine = new THREE.LineSegments(days, material);
+    console.log(dLine);
     this.dateAxis = days;
     this.scene.add(dLine);
 
