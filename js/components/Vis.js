@@ -54,7 +54,7 @@ var Vis = React.createClass({
         break;
       case 'time':
         this.highlightTime();
-        // this.moveCamera('time');
+        this.moveCamera('time');
         break;
       case 'dateOffset':
         this.offsetBlocks();
@@ -91,19 +91,23 @@ var Vis = React.createClass({
     });
     this.dateAxis.verticesNeedUpdate = true;
 
-    console.log('the date axis', this.dateAxis);
-
   },
 
-  moveCamera: function() {
+  moveCamera: function(time) {
     this.setupTween();
   },
 
   setupTween: function() {
-    var self = this;
+    // var self = this;
     var targetPos = {x: 0, y: 2000, z: 0};
     var tween = new TWEEN.Tween(this.camera.position)
-                        .to(targetPos, 1000).start();
+                        .to(targetPos, 500);
+
+    var targetRot = {x: 0, y: -Math.PI / 2, z: 0};
+    var rotTween = new TWEEN.Tween(this.scene.rotation)
+                        .to(targetRot, 500);
+
+    tween.chain(rotTween).start();
 
   },
 
@@ -189,24 +193,30 @@ var Vis = React.createClass({
       this.FAR
     );
     this.camera.position.set(-1400, 1000, -900);
-    this.camera.rotation.set(0, 0, 0);
-    this.camera.userQuaternion = true;
+    // this.camera.position.set(0, 2000, 0);
+    // this.camera.useQuaternion = false;
 
     // Set up lights
     var ambientLight = new THREE.AmbientLight(0x606060);
     this.scene.add(ambientLight);
+
+    var spotLight = new THREE.SpotLight();
+    spotLight.position.set(10, 80, 30);
+    spotLight.castShadow = true;
 
     var directionalLight = new THREE.DirectionalLight(0xffffff);
     directionalLight.position.x = Math.random() - 0.5;
     directionalLight.position.y = Math.random() - 0.5;
     directionalLight.position.z = Math.random() - 0.5;
     directionalLight.position.normalize();
+    directionalLight.castShadow = true;
     this.scene.add(directionalLight);
 
     var directionalLight = new THREE.DirectionalLight(0x808080);
     directionalLight.position.x = Math.random() - 0.5;
     directionalLight.position.y = Math.random() - 0.5;
     directionalLight.position.z = Math.random() - 0.5;
+    directionalLight.castShadow = true;
     directionalLight.position.normalize();
     this.scene.add(directionalLight);
 
@@ -352,7 +362,6 @@ var Vis = React.createClass({
     });
 
     var dLine = new THREE.LineSegments(days, material);
-    console.log(dLine);
     this.dateAxis = days;
     this.scene.add(dLine);
 
@@ -474,21 +483,19 @@ var Vis = React.createClass({
 
   animate : function() {
     requestAnimationFrame(this.animate);
-    // TWEEN.update();
+    TWEEN.update();
     this.renderScene();
     if (this.props.controlsEnabled){
       controls.update();
     }
   },
 
-  renderScene : function() {
+  rotation: 0,
+
+  renderScene: function() {
     if (this.isShiftDown) {
       this.theta -= this.mouse2D.x * 6;
     }
-
-    // camera.position.x = 1000 * Math.sin( theta * Math.PI / 360 );
-    // camera.position.y = 1400 * Math.cos( theta * Math.PI / 360 );
-    // camera.position.z = 1400 * Math.cos( theta * Math.PI / 360 );
 
     this.camera.lookAt(this.scene.position);
     // this.raycaster = this.projector.pickingRay(this.mouse2D.clone(), this.camera);
