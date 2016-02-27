@@ -103,11 +103,11 @@ var Vis = React.createClass({
     var tween = new TWEEN.Tween(this.camera.position)
                         .to(targetPos, 500);
 
-    var targetRot = {x: 0, y: -Math.PI / 2, z: 0};
+    var targetRot = {x: 0, y: Math.PI, z: 0};
     var rotTween = new TWEEN.Tween(this.scene.rotation)
                         .to(targetRot, 500);
 
-    tween.chain(rotTween).start();
+    rotTween.chain(tween).start();
 
   },
 
