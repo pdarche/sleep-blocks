@@ -6,6 +6,8 @@
 */
 
 var TWEEN = require('tween.js');
+//var THREE = require('three');
+// var OrbitControls = require('three-orbit-controls')(THREE);
 
 var Vis = React.createClass({
   WIDTH: window.innerWidth,
@@ -29,14 +31,14 @@ var Vis = React.createClass({
     "WAKE": { "height" : 120, "color" : 0x9F5B46, arr : [] }
   },
 
-  getInitialState: function(){
+  getInitialState: function() {
     return {
       numNights: 300,
       gridSize: 1800
     }
   },
 
-  componentDidMount: function(){
+  componentDidMount: function() {
     this.buildScene();
     this.animate();
     this.offsetBlocks();
@@ -55,6 +57,9 @@ var Vis = React.createClass({
       case 'time':
         this.highlightTime();
         this.moveCamera('time');
+        break;
+      case 'view':
+        this.handleViewChange();
         break;
       case 'dateOffset':
         this.offsetBlocks();
@@ -93,22 +98,30 @@ var Vis = React.createClass({
 
   },
 
-  moveCamera: function(time) {
-    this.setupTween();
+  handleViewChange: function() {
+    var vec;
+    switch (this.props.activeView) {
+      case 'overview':
+        vec = {x: -1400, y: 1000, z: -900}
+        break;
+      case 'overhead':
+        vec = {x: -25, y: 2000, z: 0}
+        break;
+      case 'front':
+        vec = {x: 0, y: 800, z: -1700}
+        break;
+      default:
+        vec = {x: -1400, y: 1000, z: -900}
+        break;
+    }
+    console.log('tween vec is', vec)
+    this.setupTween(vec)
   },
 
-  setupTween: function() {
-    // var self = this;
-    var targetPos = {x: 0, y: 2000, z: 0};
+  setupTween: function(targetPos) {
     var tween = new TWEEN.Tween(this.camera.position)
                         .to(targetPos, 500);
-
-    var targetRot = {x: 0, y: Math.PI, z: 0};
-    var rotTween = new TWEEN.Tween(this.scene.rotation)
-                        .to(targetRot, 500);
-
-    rotTween.chain(tween).start();
-
+    tween.start();
   },
 
   resetBlockOpacity: function(){
@@ -193,9 +206,8 @@ var Vis = React.createClass({
       this.FAR
     );
     this.camera.position.set(-1400, 1000, -900);
-    // this.camera.position.set(0, 2000, 0);
-    // this.camera.useQuaternion = false;
-
+    window.camera = this.camera
+    
     // Set up lights
     var ambientLight = new THREE.AmbientLight(0x606060);
     this.scene.add(ambientLight);
@@ -262,16 +274,27 @@ var Vis = React.createClass({
 
   addControls : function(){
     window.controls = new THREE.TrackballControls(this.camera);
+    // window.orbitControls = new OrbitControls(this.camera);
+    // window.controls = new THREE.OrbitControls(this.camera);
 
     controls.rotateSpeed = 1.0;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
 
     controls.noZoom = false;
-    controls.noPan  = false;
-    controls.staticMoving = true;
+    controls.noPan  = true;
+    controls.noRotate = true;
+    //controls.staticMoving = true;
     controls.dynamicDampingFactor = 0.3;
     controls.keys = [65, 83, 68];
+    //controls.enableRotate = true;
+    var self = this
+    controls.addEventListener('change', function(){
+        //console.log('x position', self.camera.position.x)
+        //console.log('camera rotation', self.camera.rotation)
+        //console.log('y position', self.camera.position.y)
+        //console.log('z position', self.camera.position.z)
+    })
 
   },
 
@@ -485,8 +508,9 @@ var Vis = React.createClass({
     requestAnimationFrame(this.animate);
     TWEEN.update();
     this.renderScene();
+    // window.orbitControls.update()
     if (this.props.controlsEnabled){
-      controls.update();
+      window.controls.update();
     }
   },
 
@@ -500,7 +524,6 @@ var Vis = React.createClass({
     this.camera.lookAt(this.scene.position);
     // this.raycaster = this.projector.pickingRay(this.mouse2D.clone(), this.camera);
     this.renderer.render(this.scene, this.camera);
-
   },
 
   render: function() {

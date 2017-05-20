@@ -8,6 +8,10 @@
 var moment = require('moment');
 
 var Controls = React.createClass({
+  handleViewChange: function(ev) {
+    this.props.handleViewChange(ev.target.id);                
+  },
+
   handleDateHover: function(ev){
     this.props.handleNightHover(ev.target.id);
   },
@@ -30,6 +34,13 @@ var Controls = React.createClass({
 
     return (
       <div id="controls">
+        <h2>View</h2>
+        <div className="views">
+          <div className="view overhead" id="overhead" onClick={this.handleViewChange}>overhead</div>
+          <div className="view front" id="front" onClick={this.handleViewChange}>front</div>
+          <div className="view overview" id="overview" onClick={this.handleViewChange}>overview</div>
+        </div>
+
         <h2>Times</h2>
         <div className="times">
           <div className="time bedtime" id="bedtime" onClick={this.handleTimeHover}>bedtime</div>

@@ -61,7 +61,7 @@ h2 {
 	z-index: 100;
 }
 
-.times, .sleep-states {
+.times, .sleep-states, .views {
 	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
@@ -69,14 +69,14 @@ h2 {
 	justify-content: center;
 }
 
-.time, .state {
+.time, .state, .view {
 	margin: 5px;
 	padding: 10px;
 	border: 1px solid #ccc;
 	width: 34%;
 }
 
-.day, .state, .time {
+.day, .state, .time, .view {
 	background-color: rgba(200,200,200, .3);
 	border-bottom:1px solid rgba(200,200,200,.3);
 	text-align: center;
@@ -90,7 +90,7 @@ h2 {
 	padding: 2px;
 }
 
-.day:hover, .state:hover, .time:hover {
+.day:hover, .state:hover, .time:hover, .view:hover {
 	background-color: rgba(200,200,200, .6);
 	cursor:pointer;
 }

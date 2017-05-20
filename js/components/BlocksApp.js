@@ -19,6 +19,7 @@ var BlocksApp = React.createClass({
   getInitialState: function(){
     return {
       nights: sleep.sleepData,
+      activeView: 'overview',
       activeNights: [],
       activeNight: null,
       activeState: null,
@@ -30,26 +31,33 @@ var BlocksApp = React.createClass({
   },
 
   // Fetch the sleep data
-  componentDidMount: function(){
+  componentDidMount: function() {
     var self = this;
-    $.getJSON('js/data/sleep.json', function(res){
-      var nights = res.sleepData.map(function(night, ix){
-        night.id = ix;
-        return night
-      });
-      var active = nights.slice(0,14);
+    //$.getJSON('js/data/sleep.json', function(res){
+    //  var nights = res.sleepData.map(function(night, ix){
+    //    night.id = ix;
+    //    return night
+    //  });
+    //  var active = nights.slice(0,14);
 
-      self.setState({
-        nights: nights,
-        activeNights: active,
-        activeNight: null,
-        activeState: null,
-        activeTime: null
-      });
-    })
+    //  self.setState({
+    //    nights: nights,
+    //    activeNights: active,
+    //    activeNight: null,
+    //    activeState: null,
+    //    activeTime: null
+    //  });
+    //})
   },
 
-  handleNightHover: function(targetNight){
+  handleViewChange: function(targetView) {
+   this.setState({
+     activeView: targetView,
+     eventType: 'view'
+   });
+  },
+
+  handleNightHover: function(targetNight) {
     this.setState({
       activeNight: this.state.activeNights[targetNight],
       eventType: 'night'
@@ -77,7 +85,7 @@ var BlocksApp = React.createClass({
     });
   },
 
-  handleSliderMovement: function(value){
+  handleSliderMovement: function(value) {
     var dateOffset = this.offsetMapping(value);
 
     this.setState({
@@ -94,7 +102,8 @@ var BlocksApp = React.createClass({
           nights={this.state.activeNights}
           handleNightHover={this.handleNightHover}
           handleStateHover={this.handleStateHover}
-          handleTimeHover={this.handleTimeHover}/>
+          handleTimeHover={this.handleTimeHover}
+          handleViewChange={this.handleViewChange}/>
         <Vis
           nights={this.state.activeNights}
           night={this.state.activeNight}
@@ -102,6 +111,7 @@ var BlocksApp = React.createClass({
           time={this.state.activeTime}
           dateOffset={this.state.dateOffset}
           eventType={this.state.eventType}
+          activeView={this.state.activeView}
           controlsEnabled={this.state.controlsEnabled}/>
         <Stats
           night={this.state.activeNight}
