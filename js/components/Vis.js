@@ -114,13 +114,13 @@ var Vis = React.createClass({
         vec = {x: -1400, y: 1000, z: -900}
         break;
     }
-    console.log('tween vec is', vec)
     this.setupTween(vec)
   },
 
   setupTween: function(targetPos) {
     var tween = new TWEEN.Tween(this.camera.position)
                         .to(targetPos, 500);
+    tween.easing(TWEEN.Easing.Cubic.InOut)
     tween.start();
   },
 
@@ -287,14 +287,6 @@ var Vis = React.createClass({
     //controls.staticMoving = true;
     controls.dynamicDampingFactor = 0.3;
     controls.keys = [65, 83, 68];
-    //controls.enableRotate = true;
-    var self = this
-    controls.addEventListener('change', function(){
-        //console.log('x position', self.camera.position.x)
-        //console.log('camera rotation', self.camera.rotation)
-        //console.log('y position', self.camera.position.y)
-        //console.log('z position', self.camera.position.z)
-    })
 
   },
 
