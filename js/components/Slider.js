@@ -1,7 +1,7 @@
 'use strict';
 
 
-var d3 = require('d3');
+//var d3 = require('d3');
 var moment = require('moment');
 
 var Slider = React.createClass({
@@ -43,17 +43,19 @@ var Slider = React.createClass({
     var xAxis = d3.svg.axis()
         .scale(timeScale)
         .orient("bottom")
-        .tickSize(0)
+        .ticks(10)
+        .tickSubdivide(40)
+        .tickSize(8, 5)
+        .tickPadding(10)
       //.tickFormat(function(d) { return formatDate(d); })
-      //.tickPadding(12))
-      //.tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
 
     svg.append("g")
       .attr("class", "x axis")
-    .attr("transform", "translate(0," + height / 2 + ")")     
-    .call(xAxis)
+      .attr("transform", "translate(0," + height / 2 + ")")     
+      .call(xAxis)
       .select(".domain")
       .select(function() {
+        console.log(this.parentNode)
         return this.parentNode.appendChild(this.cloneNode(true))
       })
       .attr("class", "halo");
@@ -63,8 +65,8 @@ var Slider = React.createClass({
       .attr("class", "slider")
       .call(brush);
 
-    // slider.selectAll(".extent, .resize")
-    //   .remove();
+     slider.selectAll(".extent, .resize")
+       .remove();
 
     slider.select(".background")
       .attr("height", height);

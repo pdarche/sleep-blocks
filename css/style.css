@@ -105,7 +105,7 @@ h2 {
 
 #slider {
 	position: relative;
-	top: -100px;
+	top: -50px;
 	z-index: 200;
 	width: 100%;
 	margin: 0px auto;
@@ -114,17 +114,26 @@ h2 {
 }
 
 .axis {
-  fill: gray;
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
   stroke-width: 1px;
 }
 
+.axis .minor{
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
 .axis .halo {
-  stroke: gray;
+  fill: none;
+  /*stroke: gray;
   stroke-width: 1px;
-  stroke-linecap: round;
+  stroke-linecap: round;*/
 }
 
 .slider .handle path {

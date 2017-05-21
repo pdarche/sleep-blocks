@@ -68,14 +68,12 @@ var Vis = React.createClass({
 
   offsetBlocks: function() {
     var self = this;
-    console.log('incoming date offset is', this.props.dateOffset);
     this.nightAr.forEach(function(night, ix) {
       var absPos = ix * self.nightSpacing;
       var newPos = absPos - (self.props.dateOffset * self.nightSpacing) 
       // Set the night's new z position 
       night.position.z = newPos;
       if ((2 * ix) + 1 < self.props.dateOffset || (2 * ix) - self.props.dateOffset > 60) {
-        console.log('I should be not be visible')
         night.visible = false;
       } else {
         night.visible = true;
@@ -179,7 +177,7 @@ var Vis = React.createClass({
 
   buildScene: function(){
     this.init();
-    this.addGrid();
+   // this.addGrid();
     this.addProjector();
     this.addControls();
     this.makeDatetimes();
