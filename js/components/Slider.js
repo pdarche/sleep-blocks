@@ -7,15 +7,15 @@ var moment = require('moment');
 var Slider = React.createClass({
   previousValue: 0,
 
-  componentDidMount: function(){
+  componentDidMount: function() {
     var self = this;
     var formatDate = d3.time.format("%b %d");
     var startDate = moment(this.props.nights[0].startDate);
     var endDate = moment(this.props.nights[this.props.nights.length - 1].startDate);
 
-    // parameters
+    // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
-      width = 960 - margin.left - margin.right,
+      width = window.innerWidth - margin.left - margin.right,
       height = 100 - margin.bottom - margin.top;
 
     var timeScale = d3.time.scale()
@@ -23,7 +23,12 @@ var Slider = React.createClass({
       .range([0, width])
       .clamp(true);
 
-    // defines brush
+    var offsetScale = d3.scale.linear()
+      .domain([0, width])
+      .range([0, 299]) // TODO: change to number of nights 
+      .clamp(true)
+
+    // Define brush
     var brush = d3.svg.brush()
       .x(timeScale)
       .extent([startDate, startDate])
@@ -33,30 +38,27 @@ var Slider = React.createClass({
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
-      // classic transform to position g
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var xAxis = d3.svg.axis()
+        .scale(timeScale)
+        .orient("bottom")
+        .tickSize(0)
+      //.tickFormat(function(d) { return formatDate(d); })
+      //.tickPadding(12))
+      //.tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
 
     svg.append("g")
       .attr("class", "x axis")
-    // put in middle of screen
-    .attr("transform", "translate(0," + height / 2 + ")")
-    // inroduce axis
-    .call(d3.svg.axis()
-      .scale(timeScale)
-      .orient("bottom")
-      .tickFormat(function(d) {
-        return formatDate(d);
-      })
-      .tickSize(0)
-      .tickPadding(12)
-      .tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
+    .attr("transform", "translate(0," + height / 2 + ")")     
+    .call(xAxis)
       .select(".domain")
       .select(function() {
-        return this.parentNode.appendChild(this.cloneNode(true));
+        return this.parentNode.appendChild(this.cloneNode(true))
       })
       .attr("class", "halo");
 
-    // slider
+    // Slider
     var slider = svg.append("g")
       .attr("class", "slider")
       .call(brush);
@@ -70,28 +72,27 @@ var Slider = React.createClass({
     var handle = slider.append("g")
       .attr("class", "handle")
 
+    // TODO: change!  This is where the stupid handle is
     handle.append("path")
-      .attr("transform", "translate(0," + height / 3 + ")")
-      .attr("d", "M 0 -20 V 20")
+      .attr("transform", "translate(0," + 30 + ")")
+      .attr("d", "M 0 -10 V 10")
 
     handle.append('text')
+      .attr("class", "current-date")
+      .attr("transform", "translate(0, 10)")
       .text(startDate)
-      .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
 
     slider.call(brush.event);
 
-    function brushed() {
+    function brushed(ev) {
       var value = brush.extent()[0];
-      var newValue;
-
+      var offset;
       if (d3.event.sourceEvent) { // not a programmatic event
-        value = timeScale.invert(d3.mouse(this)[0]);
+        value = timeScale.invert(d3.mouse(this)[0]);         
+        offset = offsetScale(d3.mouse(this)[0])
         brush.extent([value, value]);
-        newValue = timeScale(value) - self.previousValue;
-
-        self.previousValue = timeScale(value);
-        // self.props.handleSliderMovement(newValue)
-        self.props.handleSliderMovement(timeScale(value));
+        self.previousValue = offset;
+        self.props.handleSliderMovement(offset);
       }
 
       handle.attr("transform", "translate(" + timeScale(value) + ",0)");
@@ -99,7 +100,7 @@ var Slider = React.createClass({
     }
   },
 
-  onMouseOver: function(){
+  onMouseOver: function() {
     this.props.handleSliderHover();
   },
 

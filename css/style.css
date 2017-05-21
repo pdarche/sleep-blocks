@@ -98,15 +98,19 @@ h2 {
 
 /* Slider */
 
+#slider:hover {
+    top: -100px;
+    transition: all .25s;
+}
+
 #slider {
 	position: relative;
 	top: -100px;
 	z-index: 200;
-
-	width: 960px;
+	width: 100%;
 	margin: 0px auto;
-
 	background-color: rgba(255,255,255,.4);
+    transition: all .25s;
 }
 
 .axis {
@@ -114,17 +118,18 @@ h2 {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
+  stroke-width: 1px;
 }
 
 .axis .halo {
   stroke: gray;
-  stroke-width: 4px;
+  stroke-width: 1px;
   stroke-linecap: round;
 }
 
 .slider .handle path {
   stroke: gray;
-  stroke-width: 3px;
+  stroke-width: 1px;
   stroke-linecap: round;
   pointer-events: none;
 }
@@ -134,3 +139,15 @@ h2 {
   text-align: center;
   font-size: 18px;
 }
+
+.background:hover {
+    cursor: pointer;
+}
+.current-date {
+  text-anchor: middle;
+}
+
+.current-date text {
+  font-size: 12;
+}
+

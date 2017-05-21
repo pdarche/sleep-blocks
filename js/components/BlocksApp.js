@@ -12,10 +12,6 @@ var Slider = require('./Slider');
 var d3 = require('d3');
 
 var BlocksApp = React.createClass({
-  offsetMapping: d3.scale.linear()
-      .domain([0, 860])
-      .range([0, 299]),
-
   getInitialState: function(){
     return {
       nights: sleep.sleepData,
@@ -32,6 +28,7 @@ var BlocksApp = React.createClass({
 
   // Fetch the sleep data
   componentDidMount: function() {
+    // TODO: fetch this instead of loading the file
     var self = this;
     //$.getJSON('js/data/sleep.json', function(res){
     //  var nights = res.sleepData.map(function(night, ix){
@@ -86,11 +83,9 @@ var BlocksApp = React.createClass({
   },
 
   handleSliderMovement: function(value) {
-    var dateOffset = this.offsetMapping(value);
-
     this.setState({
       eventType: 'dateOffset',
-      dateOffset: dateOffset
+      dateOffset: value
     });
   },
 

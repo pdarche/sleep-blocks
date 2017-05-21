@@ -22,7 +22,7 @@ var Vis = React.createClass({
   blockWidth: 7,
   hours: 12,
   startTime: 22,
-  nightSpacing: 100,
+  nightSpacing: 50,
   sleepStates: {
     "UNDEFINED": { "height" : 0, "color" : 0x236167, arr : [] },
     "LIGHT": { "height" : 100, "color" : 0x28774F, arr : [] },
@@ -46,7 +46,6 @@ var Vis = React.createClass({
 
   componentDidUpdate: function() {
     controls.enabled = this.props.controlsEnabled;
-
     switch (this.props.eventType) {
       case 'night':
         this.highlightNight();
@@ -56,7 +55,6 @@ var Vis = React.createClass({
         break;
       case 'time':
         this.highlightTime();
-        this.moveCamera('time');
         break;
       case 'view':
         this.handleViewChange();
@@ -68,16 +66,16 @@ var Vis = React.createClass({
     }
   },
 
-  offsetBlocks: function(){
+  offsetBlocks: function() {
     var self = this;
-
-    this.nightAr.forEach(function(night, ix){
-      var absPos = (ix - 1 * self.nightSpacing);
-      var newPos = (absPos - (self.props.dateOffset * (self.nightSpacing))) + self.nightSpacing
+    console.log('incoming date offset is', this.props.dateOffset);
+    this.nightAr.forEach(function(night, ix) {
+      var absPos = ix * self.nightSpacing;
+      var newPos = absPos - (self.props.dateOffset * self.nightSpacing) 
+      // Set the night's new z position 
       night.position.z = newPos;
-
-      if (ix <= self.props.dateOffset - 1 ||
-          ix - self.props.dateOffset > 15) {
+      if ((2 * ix) + 1 < self.props.dateOffset || (2 * ix) - self.props.dateOffset > 60) {
+        console.log('I should be not be visible')
         night.visible = false;
       } else {
         night.visible = true;
@@ -85,17 +83,16 @@ var Vis = React.createClass({
     });
 
     var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
-    verts.forEach(function(vert, ix){
+    verts.forEach(function(vert, ix) {
       if (vert.x == -720){
-        var absPos = (ix * (self.nightSpacing/2));
+        var absPos = (ix * (self.nightSpacing));
       } else {
-        var absPos = ((ix - 1) * (self.nightSpacing/2));
+        var absPos = ((ix - 1) * (self.nightSpacing));
       }
       var newPos = ((absPos - (self.props.dateOffset * self.nightSpacing)) - 720)
       vert.z = newPos;
     });
     this.dateAxis.verticesNeedUpdate = true;
-
   },
 
   handleViewChange: function() {
@@ -124,7 +121,7 @@ var Vis = React.createClass({
     tween.start();
   },
 
-  resetBlockOpacity: function(){
+  resetBlockOpacity: function() {
     this.nightAr.forEach(function(night, ix){
       night.children.forEach(function(block){
         block.material.opacity = 1;
