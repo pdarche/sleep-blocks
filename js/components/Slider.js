@@ -12,7 +12,6 @@ var Slider = React.createClass({
     var formatDate = d3.time.format("%b %d");
     var startDate = moment(this.props.nights[0].startDate);
     var endDate = moment(this.props.nights[this.props.nights.length - 1].startDate);
-
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
       width = window.innerWidth - margin.left - margin.right,
@@ -44,18 +43,18 @@ var Slider = React.createClass({
         .scale(timeScale)
         .orient("bottom")
         .ticks(10)
-        .tickSubdivide(40)
-        .tickSize(8, 5)
+        //.tickSubdivide(40)
+        //.tickSize(8, 5)
+        .tickSize(0)
         .tickPadding(10)
       //.tickFormat(function(d) { return formatDate(d); })
-
+    
     svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height / 2 + ")")     
       .call(xAxis)
       .select(".domain")
       .select(function() {
-        console.log(this.parentNode)
         return this.parentNode.appendChild(this.cloneNode(true))
       })
       .attr("class", "halo");
@@ -83,6 +82,28 @@ var Slider = React.createClass({
       .attr("class", "current-date")
       .attr("transform", "translate(0, 10)")
       .text(startDate)
+
+    var hoverAxis = d3.svg.axis()
+        .scale(timeScale)
+        .orient("bottom")
+        .ticks(300) // Number of nights
+        .tickSize(-8)
+    
+    svg.append("g")
+      .attr("class", "x axis hover")
+      .attr("transform", "translate(0," + height / 2 + ")")     
+      .call(hoverAxis)
+    
+    d3.selectAll(".hover line").on('mouseover', function(d, ix){
+        // add check for if mouse is down.  if it is don't do antyhing
+        self.props.handleNightHover(ix)
+        d3.select(this).style('opacity', 1)
+        d3.select(this.parentNode).select('text').style('opacity', 1)
+      })
+      .on('mouseout', function(d, ix) {
+        d3.select(this).style('opacity', .1)
+        d3.select(this.parentNode).select('text').style('opacity', 0)
+      })
 
     slider.call(brush.event);
 

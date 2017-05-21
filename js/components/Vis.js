@@ -66,33 +66,6 @@ var Vis = React.createClass({
     }
   },
 
-  offsetBlocks: function() {
-    var self = this;
-    this.nightAr.forEach(function(night, ix) {
-      var absPos = ix * self.nightSpacing;
-      var newPos = absPos - (self.props.dateOffset * self.nightSpacing) 
-      // Set the night's new z position 
-      night.position.z = newPos;
-      if ((2 * ix) + 1 < self.props.dateOffset || (2 * ix) - self.props.dateOffset > 60) {
-        night.visible = false;
-      } else {
-        night.visible = true;
-      }
-    });
-
-    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
-    verts.forEach(function(vert, ix) {
-      if (vert.x == -720){
-        var absPos = (ix * (self.nightSpacing));
-      } else {
-        var absPos = ((ix - 1) * (self.nightSpacing));
-      }
-      var newPos = ((absPos - (self.props.dateOffset * self.nightSpacing)) - 720)
-      vert.z = newPos;
-    });
-    this.dateAxis.verticesNeedUpdate = true;
-  },
-
   handleViewChange: function() {
     var vec;
     switch (this.props.activeView) {
@@ -110,6 +83,34 @@ var Vis = React.createClass({
         break;
     }
     this.setupTween(vec)
+  },
+
+  offsetBlocks: function() {
+    var self = this;
+    this.nightAr.forEach(function(night, ix) {
+      // Offset the night position
+      var absPos = ix * self.nightSpacing;
+      var newPos = absPos - (self.props.dateOffset * self.nightSpacing) 
+      night.position.z = newPos;
+      if ((2 * ix) + 1 < self.props.dateOffset || (2 * ix) - self.props.dateOffset > 90) {
+        night.visible = false;
+      } else {
+        night.visible = true;
+      }
+    });
+    
+    // Offset the date axis ticks
+    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
+    verts.forEach(function(vert, ix) {
+      if (vert.x == -720){
+        var absPos = (ix * (self.nightSpacing));
+      } else {
+        var absPos = ((ix - 1) * (self.nightSpacing));
+      }
+      var newPos = ((absPos - (self.props.dateOffset * self.nightSpacing)) - 720)
+      vert.z = newPos;
+    });
+    this.dateAxis.verticesNeedUpdate = true;
   },
 
   setupTween: function(targetPos) {
@@ -136,11 +137,11 @@ var Vis = React.createClass({
   },
 
   highlightNight: function(){
-    var index = this.props.night.id;
-
+    //var index = this.props.night.id;
+    var index = this.props.nightIx;
     this.resetBlockOpacity();
     this.nightAr.forEach(function(night, ix){
-      if (index !== ix){
+      if (index !== ix) {
         night.children.forEach(function(block){
           block.material.opacity = .05;
         });
@@ -148,7 +149,7 @@ var Vis = React.createClass({
     });
   },
 
-  highlightState: function(){
+  highlightState: function() {
     var targetState = this.props.state.toUpperCase();
 
     this.increaseBlockOpacity();
@@ -157,7 +158,7 @@ var Vis = React.createClass({
     });
   },
 
-  highlightTime: function(){
+  highlightTime: function() {
     var targetIndex = 0;
     var timeType = this.props.time;
 
