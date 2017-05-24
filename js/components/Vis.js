@@ -6,8 +6,11 @@
 */
 
 var TWEEN = require('tween.js');
+var Moment = require('moment');
+var MomentRange = require('moment-range'); 
 //var THREE = require('three');
 // var OrbitControls = require('three-orbit-controls')(THREE);
+var moment = MomentRange.extendMoment(Moment);
 
 var Vis = React.createClass({
   WIDTH: window.innerWidth,
@@ -16,7 +19,7 @@ var Vis = React.createClass({
   NEAR: .1,
   FAR: 100000,
   nightAr: [],
-  numNights: 300,
+  numNights: 387,
   gridSize: 1800,
   minsPerBlock: 5,
   blockWidth: 7,
@@ -33,12 +36,14 @@ var Vis = React.createClass({
 
   getInitialState: function() {
     return {
-      numNights: 300,
+      numNights: 387,
       gridSize: 1800
     }
   },
 
-  componentDidMount: function() {
+  componentDidMount: function() { 
+    this.createDateRange();
+    this.createTimescale();
     this.buildScene();
     this.animate();
     this.offsetBlocks();
@@ -85,29 +90,55 @@ var Vis = React.createClass({
     this.setupTween(vec)
   },
 
+  createDateRange: function() {
+    var dateRange = moment.range(
+        sleep.sleepData[0].dateObj, 
+        sleep.sleepData[this.numNights].dateObj
+    ) 
+    this.dateRange = Array.from(dateRange.by('days'))
+  },
+
+  createTimescale: function() {
+    var startDate = moment(sleep.sleepData[0].startDate)
+    var endDate = moment(sleep.sleepData[this.numNights].startDate)
+    var diff = endDate.diff(startDate, 'days')
+    var width = this.nightSpacing * diff 
+    this.timeScale = d3.time.scale()
+      .domain([startDate, endDate])
+      .range([0, width])
+  },
+
   offsetBlocks: function() {
-    var self = this;
+    var self = this
+    var offsetIx = Math.ceil(this.props.dateOffset)
+    var startDate = this.props.dateRange[offsetIx] 
+    var endDate = this.props.dateRange[offsetIx + 60]
+
     this.nightAr.forEach(function(night, ix) {
-      // Offset the night position
-      var absPos = ix * self.nightSpacing;
-      var newPos = absPos - (self.props.dateOffset * self.nightSpacing) 
+      // Update the night's position
+      var absPos = self.timeScale(night.dateObj) 
+      var newPos = absPos - (self.props.dateOffset * 2 * self.nightSpacing) 
       night.position.z = newPos;
-      if ((2 * ix) + 1 < self.props.dateOffset || (2 * ix) - self.props.dateOffset > 90) {
-        night.visible = false;
+      // Update the night's visibility
+      if (moment(night.dateObj).isBefore(startDate) || 
+          moment(night.dateObj).isAfter(endDate)) {
+        night.visible = false; 
       } else {
         night.visible = true;
-      }
-    });
-    
+      } 
+    })
+    this.offsetDateTicks()
+  },
+
+  offsetDateTicks: function() {
     // Offset the date axis ticks
+    var self = this
     var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
     verts.forEach(function(vert, ix) {
-      if (vert.x == -720){
-        var absPos = (ix * (self.nightSpacing));
-      } else {
-        var absPos = ((ix - 1) * (self.nightSpacing));
-      }
-      var newPos = ((absPos - (self.props.dateOffset * self.nightSpacing)) - 720)
+      var absPos = vert.x == -720 ?
+        ix * self.nightSpacing :
+        (ix - 1) * self.nightSpacing
+      var newPos = (absPos - (self.props.dateOffset * 2 * self.nightSpacing)) - 720
       vert.z = newPos;
     });
     this.dateAxis.verticesNeedUpdate = true;
@@ -241,19 +272,17 @@ var Vis = React.createClass({
     this.displaySize = (this.state.gridSize - (1/5 * this.state.gridSize))/2;
     this.pxPerMin = (2 * this.displaySize / (this.hours*60));
     this.tickCount = (this.hours*60)/this.minsPerBlock;
-
   },
 
   bindEvents: function(){
     window.addEventListener('resize', this.onWindowResize, false);
   },
 
-  onWindowResize  : function() {
+  onWindowResize: function() {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-
   },
 
   addProjector : function(){
@@ -265,13 +294,10 @@ var Vis = React.createClass({
     this.scene.add(this.plane);
 
     this.mouse2D = new THREE.Vector3(0, 0, 0);
-
   },
 
   addControls : function(){
     window.controls = new THREE.TrackballControls(this.camera);
-    // window.orbitControls = new OrbitControls(this.camera);
-    // window.controls = new THREE.OrbitControls(this.camera);
 
     controls.rotateSpeed = 1.0;
     controls.zoomSpeed = 1.2;
@@ -280,13 +306,11 @@ var Vis = React.createClass({
     controls.noZoom = false;
     controls.noPan  = true;
     controls.noRotate = true;
-    //controls.staticMoving = true;
     controls.dynamicDampingFactor = 0.3;
     controls.keys = [65, 83, 68];
-
   },
 
-  addGrid : function (){
+  addGrid : function () {
     var gridGeom = new THREE.Geometry();
     var step = 6;
 
@@ -305,12 +329,9 @@ var Vis = React.createClass({
       opacity: 0.2,
       visible : true
     });
-
     var gridLines = new THREE.LineSegments(gridGeom, gridMat);
     // gridLines.type = THREE.LinePieces;
-
     this.scene.add(gridLines);
-
   },
 
   addRefTimes : function() {
@@ -323,7 +344,7 @@ var Vis = React.createClass({
     for (var t = 0; t < this.tickCount/2; t++){
       // Create the xPosition
       var xPos = (((this.displaySize/(this.tickCount/2)) * t * this.pxPerMin) - this.displaySize);
-      // add the tick verticies
+      // Add the tick verticies
       time.vertices.push(new THREE.Vector3(xPos, 0, -800));
       time.vertices.push(new THREE.Vector3(xPos, 0, -815));
 
@@ -359,7 +380,7 @@ var Vis = React.createClass({
     days.vertices.push(new THREE.Vector3(-this.displaySize, 0, -800));
     days.vertices.push(new THREE.Vector3(-this.displaySize, 0, 800));
 
-    for (var d = 0; d < this.numNights; d++){
+    for (var d = 0; d < this.props.dateRange.length - 1; d++){
       var yPos = (d * this.nightSpacing) - this.displaySize;
 
       days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
@@ -389,21 +410,18 @@ var Vis = React.createClass({
 
     //   this.scene.add(textMesh);
     // }
-
   },
 
   addAxes : function() {
     this.addRefTimes();
     this.addRefDates();
-
   },
 
-  addSleepObjs: function(){
+  addSleepObjs: function() {
     // Create the nights
     var nights = new THREE.Object3D();
     var scale = this.scale();
 
-    // interate through the number of nights
     for (var j = 0; j < this.numNights; j++){
       var bedTime = scale(this.bedtimes[j]);
       var night = new THREE.Object3D();
@@ -418,30 +436,27 @@ var Vis = React.createClass({
           wireframe: false,
           transparent: true
         });
-        // position the sleep block
+        // Position the sleep block
         var rect = new THREE.Mesh(geometry, material);
         rect.position.x = ((i * blockWidth) + bedTime) - this.displaySize; // rect width and position is a function of time
         rect.position.y = 0;
-        rect.position.z = (j * this.nightSpacing) - this.displaySize;
+        //rect.position.z = (j * this.nightSpacing) - this.displaySize;
+        rect.position.z = this.timeScale(sleep.sleepData[j].dateObj) - 700;
         rect.translateY(this.sleepStates[blockDatum].height/2);
         // rect.matrixAutoUpdate = false;
         rect.updateMatrix();
-
         // add to night object
         if (blockDatum !== "UNDEFINED") {
           night.add(rect);
         }
-
         // push to appropriate state array
         this.sleepStates[blockDatum].arr.push(rect);
       }
-
+      night.dateObj = sleep.sleepData[j].dateObj
       nights.add(night);
       this.nightAr.push(night);
     }
-
     this.scene.add(nights);
-
   },
 
   scale: function(){
@@ -473,30 +488,25 @@ var Vis = React.createClass({
 
   makeBedtimes  : function() {
     this.bedtimes = [];
-
     for (var j = 0; j < this.numNights; j++) {
       // convert the bedtime to seconds
       var bt = sleep.sleepData[j].bedTime;
       var btHr = Number(bt.hour) * 60 * 60;
       var btMin = Number(bt.minute) * 60;
-
       // Offset the seconds so that 10pm is 0
       var btInSeconds = btHr + btMin + Number(bt.second) - (this.startTime * 60 * 60);
-
       // if the bedtime is after midnight add two hours
       if (btHr < 75600) {
         btInSeconds = (btHr + btMin + Number(btInSeconds) + (this.startTime * 60 * 60) + 7200);
       }
       this.bedtimes.push(btInSeconds);
     }
-
   },
 
   animate : function() {
     requestAnimationFrame(this.animate);
     TWEEN.update();
     this.renderScene();
-    // window.orbitControls.update()
     if (this.props.controlsEnabled){
       window.controls.update();
     }
@@ -508,7 +518,6 @@ var Vis = React.createClass({
     if (this.isShiftDown) {
       this.theta -= this.mouse2D.x * 6;
     }
-
     this.camera.lookAt(this.scene.position);
     // this.raycaster = this.projector.pickingRay(this.mouse2D.clone(), this.camera);
     this.renderer.render(this.scene, this.camera);

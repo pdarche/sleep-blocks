@@ -10,6 +10,9 @@ var Controls = require('./Controls');
 var Stats = require('./Stats');
 var Slider = require('./Slider');
 var d3 = require('d3');
+var _ = require('lodash');
+var moment = require('moment');
+
 
 var BlocksApp = React.createClass({
   getInitialState: function(){
@@ -25,6 +28,15 @@ var BlocksApp = React.createClass({
       controlsEnabled: true,
       dateOffset: 0
     }
+  },
+
+  componentWillMount: function() {
+    // TODO: move this into a function
+    sleep.sleepData = sleep.sleepData.map(function(night){
+      night.dateObj = moment(night.startDate) 
+      return night
+    }) 
+    this.createDateRange()
   },
 
   // Fetch the sleep data
@@ -48,6 +60,14 @@ var BlocksApp = React.createClass({
     //})
   },
 
+  createDateRange: function() {
+    var dateRange = moment.range(
+        sleep.sleepData[0].dateObj, 
+        sleep.sleepData[this.state.nights.length - 1].dateObj
+    ) 
+    this.dateRange = Array.from(dateRange.by('days'))
+  },
+
   handleViewChange: function(targetView) {
    this.setState({
      activeView: targetView,
@@ -55,10 +75,16 @@ var BlocksApp = React.createClass({
    });
   },
 
-  handleNightHover: function(targetNight) {
+  handleNightHover: function(targetNight, date) {
+    var activeNight = _.find(sleep.sleepData, function(night) {
+      return night.dateObj.isSame(date)
+    }) 
+    var activeNightIx = _.findIndex(sleep.sleepData, function(night) {
+      return night.dateObj.isSame(date)
+    }) 
     this.setState({
-      activeNight: this.state.activeNights[targetNight],
-      activeNightIx: targetNight,
+      activeNight: activeNight, // this.state.activeNights[targetNight],
+      activeNightIx: activeNightIx,
       eventType: 'night'
     });
   },
@@ -110,6 +136,7 @@ var BlocksApp = React.createClass({
           dateOffset={this.state.dateOffset}
           eventType={this.state.eventType}
           activeView={this.state.activeView}
+          dateRange={this.dateRange}
           controlsEnabled={this.state.controlsEnabled}/>
         <Stats
           night={this.state.activeNight}
@@ -120,6 +147,7 @@ var BlocksApp = React.createClass({
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
+          dateRange={this.dateRange}
           handleNightHover={this.handleNightHover}
           handleSliderHover={this.handleSliderHover}
           handleSliderMovement={this.handleSliderMovement}/>

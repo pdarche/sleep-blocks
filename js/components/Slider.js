@@ -24,7 +24,7 @@ var Slider = React.createClass({
 
     var offsetScale = d3.scale.linear()
       .domain([0, width])
-      .range([0, 299]) // TODO: change to number of nights 
+      .range([0, this.props.dateRange.length - 1])       
       .clamp(true)
 
     // Define brush
@@ -43,11 +43,8 @@ var Slider = React.createClass({
         .scale(timeScale)
         .orient("bottom")
         .ticks(10)
-        //.tickSubdivide(40)
-        //.tickSize(8, 5)
         .tickSize(0)
         .tickPadding(10)
-      //.tickFormat(function(d) { return formatDate(d); })
     
     svg.append("g")
       .attr("class", "x axis")
@@ -86,7 +83,7 @@ var Slider = React.createClass({
     var hoverAxis = d3.svg.axis()
         .scale(timeScale)
         .orient("bottom")
-        .ticks(300) // Number of nights
+        .ticks(this.props.dateRange.length - 1) // Number of nights
         .tickSize(-8)
     
     svg.append("g")
@@ -96,7 +93,7 @@ var Slider = React.createClass({
     
     d3.selectAll(".hover line").on('mouseover', function(d, ix){
         // add check for if mouse is down.  if it is don't do antyhing
-        self.props.handleNightHover(ix)
+        self.props.handleNightHover(ix, d)
         d3.select(this).style('opacity', 1)
         d3.select(this.parentNode).select('text').style('opacity', 1)
       })
