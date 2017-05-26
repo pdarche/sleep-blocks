@@ -78,7 +78,7 @@ var Slider = React.createClass({
     handle.append('text')
       .attr("class", "current-date")
       .attr("transform", "translate(0, 10)")
-      .text(startDate)
+      .text(startDate.format('MMM DD'))
 
     var hoverAxis = d3.svg.axis()
         .scale(timeScale)

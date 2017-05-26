@@ -54,11 +54,6 @@ var Controls = React.createClass({
           <div className="state rem" id="rem" onClick={this.handleStateHover}>REM</div>
           <div className="state wake" id="wake" onClick={this.handleStateHover}>Wake</div>
         </div>
-
-        <h2>Nights</h2>
-        <div className="nights">
-          {nights}
-        </div>
       </div>
     );
   }
