@@ -85,7 +85,6 @@ h2 {
 .day {
 	position: relative;
 	display:block;
-
 	margin: 5px;
 	padding: 2px;
 }
@@ -99,18 +98,18 @@ h2 {
 /* Slider */
 
 #slider:hover {
-    top: -100px;
+    top: -80px;
     transition: all .25s;
 }
 
 #slider {
-	position: relative;
-	top: -100px;
-	z-index: 200;
-	width: 100%;
-	margin: 0px auto;
-	background-color: rgba(255,255,255,.4);
-    transition: all .25s;
+  position: relative;
+  top: -80px;
+  z-index: 200;
+  width: 100%;
+  margin: 0px auto;
+  background-color: rgba(255,255,255,.4);
+  transition: all .25s;
 }
 
 .axis {
@@ -144,14 +143,27 @@ h2 {
 }
 
 .slider .handle text {
-  /*fill: white;*/
   text-align: center;
   font-size: 18px;
 }
 
-.background:hover {
-    cursor: pointer;
+.slider .current-date, .slider .handle-path{
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 }
+
+.slider .current-date:active, .slider .handle-path:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.slider .background {
+  pointer-events: none;
+}
+
 .current-date {
   text-anchor: middle;
 }
@@ -166,5 +178,5 @@ h2 {
 
 .hover line {
   opacity: .1;
-  stroke-width: 2.5;
+  stroke-width:  1;
 }

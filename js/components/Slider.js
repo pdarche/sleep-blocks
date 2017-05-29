@@ -1,7 +1,6 @@
 'use strict';
 
 
-//var d3 = require('d3');
 var moment = require('moment');
 
 var Slider = React.createClass({
@@ -12,10 +11,11 @@ var Slider = React.createClass({
     var formatDate = d3.time.format("%b %d");
     var startDate = moment(this.props.nights[0].startDate);
     var endDate = moment(this.props.nights[this.props.nights.length - 1].startDate);
+    
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
       width = window.innerWidth - margin.left - margin.right,
-      height = 100 - margin.bottom - margin.top;
+      height = 80 - margin.bottom - margin.top;
 
     var timeScale = d3.time.scale()
       .domain([startDate, endDate])
@@ -72,18 +72,20 @@ var Slider = React.createClass({
 
     // TODO: change!  This is where the stupid handle is
     handle.append("path")
-      .attr("transform", "translate(0," + 30 + ")")
-      .attr("d", "M 0 -10 V 10")
+      .attr("class", "handle-path")
+      .attr("transform", "translate(0," + 20 + ")")
+      .attr("d", "M 0 -22 V 0")
 
     handle.append('text')
       .attr("class", "current-date")
-      .attr("transform", "translate(0, 10)")
+      .attr("transform", "translate(0, 0)")
       .text(startDate.format('MMM DD'))
 
+    // Axis for night highlighting
     var hoverAxis = d3.svg.axis()
         .scale(timeScale)
         .orient("bottom")
-        .ticks(this.props.dateRange.length - 1) // Number of nights
+        .ticks(this.props.dateRange.length - 1)
         .tickSize(-8)
     
     svg.append("g")
@@ -94,11 +96,15 @@ var Slider = React.createClass({
     d3.selectAll(".hover line").on('mouseover', function(d, ix){
         // add check for if mouse is down.  if it is don't do antyhing
         self.props.handleNightHover(ix, d)
-        d3.select(this).style('opacity', 1)
+        d3.select(this)
+          .style('opacity', 1)
+          .style("stroke-width", 2.5)
         d3.select(this.parentNode).select('text').style('opacity', 1)
       })
       .on('mouseout', function(d, ix) {
-        d3.select(this).style('opacity', .1)
+        d3.select(this)
+          .style('opacity', .1)
+          .style("stroke-width", 1)
         d3.select(this.parentNode).select('text').style('opacity', 0)
       })
 
@@ -114,7 +120,6 @@ var Slider = React.createClass({
         self.previousValue = offset;
         self.props.handleSliderMovement(offset);
       }
-
       handle.attr("transform", "translate(" + timeScale(value) + ",0)");
       handle.select('text').text(formatDate(value));
     }
@@ -125,9 +130,14 @@ var Slider = React.createClass({
   },
 
   render: function(){
-    return (<div id="slider" onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOver}></div>);
+    return (
+      <div id="slider" 
+        onMouseOver={this.onMouseOver} 
+        onMouseOut={this.onMouseOver}></div>
+    );
   }
 });
 
 module.exports = Slider;
+
 

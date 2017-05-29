@@ -118,7 +118,7 @@ var BlocksApp = React.createClass({
   },
 
   // Render the visualization view
-  render: function(){
+  render: function() {
     return (
       <div>
         <Controls
@@ -138,12 +138,6 @@ var BlocksApp = React.createClass({
           activeView={this.state.activeView}
           dateRange={this.dateRange}
           controlsEnabled={this.state.controlsEnabled}/>
-        <Stats
-          night={this.state.activeNight}
-          nights={this.state.activeNights}
-          state={this.state.activeState}
-          time={this.state.activeTime}
-          statsType={this.state.eventType}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
@@ -158,3 +152,9 @@ var BlocksApp = React.createClass({
 
 module.exports = BlocksApp;
 
+// <Stats
+//   night={this.state.activeNight}
+//   nights={this.state.activeNights}
+//   state={this.state.activeState}
+//   time={this.state.activeTime}
+//   statsType={this.state.eventType}/>
