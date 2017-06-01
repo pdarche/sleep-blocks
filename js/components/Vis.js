@@ -336,31 +336,38 @@ var Vis = React.createClass({
 
   addRefTimes : function() {
     var time = new THREE.Geometry();
-    // time.geometry.dynamic = true
     // Add the start and end points
     time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
     time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
 
-    for (var t = 0; t < this.tickCount/2; t++){
+    for (var t = 0; t < this.tickCount; t++){
       // Create the xPosition
-      var xPos = (((this.displaySize/(this.tickCount/2)) * t * this.pxPerMin) - this.displaySize);
+      var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin) - this.displaySize;
       // Add the tick verticies
       time.vertices.push(new THREE.Vector3(xPos, 0, -800));
       time.vertices.push(new THREE.Vector3(xPos, 0, -815));
 
-      // if (t % 28 === 0) {
-      //   var currTime = this.fiveMinIncr[t];
-      //   var text = new THREE.TextGeometry(currTime, {size: 6, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal"});
-      //   var meshMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
-      //   var textMesh = new THREE.Mesh(text, meshMaterial);
+      if (t % 12 === 0) {
+        var currTime = this.fiveMinIncr[t];
+        var canvas = document.createElement('canvas')
+        var context = canvas.getContext('2d')
+        context.font = "24px Arial";
+        context.fillStyle = "rgba(0,0,0,1)";
+        context.fillText(currTime, 0, 50);
 
-      //   textMesh.position.x = xPos
-      //   textMesh.position.z = -850
-      //   textMesh.rotation.x = - Math.PI / 2;
-      //   textMesh.rotation.z = - Math.PI / 2;
+        var texture = new THREE.Texture(canvas) 
+        texture.needsUpdate = true;
 
-      //   this.scene.add(textMesh);
-      // }
+        var material = new THREE.MeshBasicMaterial( {map: texture, side: THREE.DoubleSide} );
+        material.transparent = true
+
+        var mesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width, canvas.height), material)
+        mesh.position.x = xPos
+        mesh.position.z = -740
+        mesh.rotation.x = - Math.PI / 2;
+        mesh.rotation.z = - Math.PI / 2;
+        this.scene.add(mesh);
+      }
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -371,7 +378,6 @@ var Vis = React.createClass({
 
     var tLine = new THREE.LineSegments(time, material);
     this.scene.add(tLine);
-
   },
 
   addRefDates : function() {
@@ -382,7 +388,6 @@ var Vis = React.createClass({
 
     for (var d = 0; d < this.props.dateRange.length - 1; d++){
       var yPos = (d * this.nightSpacing) - this.displaySize;
-
       days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
       days.vertices.push(new THREE.Vector3(-755, 0, yPos));
     }
