@@ -340,36 +340,37 @@ var Vis = React.createClass({
     time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
     time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
 
-    for (var t = 0; t < this.tickCount; t++){
-      // Create the xPosition
+    var canvas = document.createElement('canvas')
+    var context = canvas.getContext('2d')
+    canvas.height = this.gridSize 
+    context.font = "24px Arial";
+    context.fillStyle = "rgba(0,0,0,1)";
+
+    for (var t = 0; t < this.tickCount; t++) {
+      // Create xPosition
       var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin) - this.displaySize;
-      // Add the tick verticies
+      // Add tick verticies
       time.vertices.push(new THREE.Vector3(xPos, 0, -800));
       time.vertices.push(new THREE.Vector3(xPos, 0, -815));
-
+      // Add date text 
       if (t % 12 === 0) {
         var currTime = this.fiveMinIncr[t];
-        var canvas = document.createElement('canvas')
-        var context = canvas.getContext('2d')
-        context.font = "24px Arial";
-        context.fillStyle = "rgba(0,0,0,1)";
-        context.fillText(currTime, 0, 50);
-
-        var texture = new THREE.Texture(canvas) 
-        texture.needsUpdate = true;
-
-        var material = new THREE.MeshBasicMaterial( {map: texture, side: THREE.DoubleSide} );
-        material.transparent = true
-
-        var mesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width, canvas.height), material)
-        mesh.position.x = xPos
-        mesh.position.z = -740
-        mesh.rotation.x = - Math.PI / 2;
-        mesh.rotation.z = - Math.PI / 2;
-        this.scene.add(mesh);
+        console.log('currtime', currTime)
+        console.log('xpos', xPos)
+        context.fillText(currTime, 0, -xPos + 825);
       }
     }
-
+    // Add canvas to texture 
+    var texture = new THREE.Texture(canvas) 
+    texture.needsUpdate = true;
+    var material = new THREE.MeshBasicMaterial( {map: texture, side: THREE.DoubleSide} );
+    material.transparent = true
+    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width, canvas.height), material)
+    mesh.position.x = 0
+    mesh.position.z = -740
+    mesh.rotation.x = - Math.PI / 2;
+    mesh.rotation.z = - Math.PI / 2;
+    this.scene.add(mesh);
     var material = new THREE.LineBasicMaterial({
       color: 0x000000,
       opacity: 1,
@@ -389,7 +390,28 @@ var Vis = React.createClass({
     for (var d = 0; d < this.props.dateRange.length - 1; d++){
       var yPos = (d * this.nightSpacing) - this.displaySize;
       days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
-      days.vertices.push(new THREE.Vector3(-755, 0, yPos));
+      days.vertices.push(new THREE.Vector3(-745, 0, yPos));
+
+      var date = this.props.dateRange[d].format('MM/DD/YYYY')  
+      var yPos = (d * this.nightSpacing) - this.displaySize;
+      var canvas = document.createElement('canvas')
+      var context = canvas.getContext('2d')
+      context.font = "24px Arial";
+      context.fillStyle = "rgba(0,0,0,1)";
+      context.fillText(date, 0, 32);
+
+      var texture = new THREE.Texture(canvas) 
+      texture.needsUpdate = true;
+
+      var material = new THREE.MeshBasicMaterial( {map: texture, side: THREE.DoubleSide} );
+      material.transparent = true
+
+      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(canvas.width, canvas.height), material)
+      mesh.position.x = -900
+      mesh.position.z = (d + 1) * (2 * this.nightSpacing) - 872
+      mesh.rotation.x = - Math.PI / 2;
+      mesh.rotation.z = - Math.PI;
+      //this.scene.add(mesh);
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -401,20 +423,6 @@ var Vis = React.createClass({
     var dLine = new THREE.LineSegments(days, material);
     this.dateAxis = days;
     this.scene.add(dLine);
-
-    // for ( var e = 1; e < this.numNights; e++ ){
-    //   var date = sleep.sleepData[e].startDate.month + '/' + sleep.sleepData[e].startDate.day + '/' + sleep.sleepData[e].startDate.year
-
-    //   var text = new THREE.TextGeometry( String(date), { size: 15, height: 0, curveSegments: 10, font: "helvetiker", weight: "normal", style: "normal" });
-    //   var meshMaterial = new THREE.MeshLambertMaterial({color: 0xaaaaaa });
-    //   var textMesh = new THREE.Mesh(text,meshMaterial);
-    //   textMesh.position.x = -780
-    //   textMesh.position.z = (810/15 * e) - 810
-    //   textMesh.rotation.x = - Math.PI / 2;
-    //   textMesh.rotation.z = - Math.PI ;
-
-    //   this.scene.add(textMesh);
-    // }
   },
 
   addAxes : function() {
