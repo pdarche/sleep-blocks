@@ -8,9 +8,8 @@
 var TWEEN = require('tween.js');
 var Moment = require('moment');
 var MomentRange = require('moment-range'); 
-//var THREE = require('three');
-// var OrbitControls = require('three-orbit-controls')(THREE);
 var moment = MomentRange.extendMoment(Moment);
+var _ = require('underscore')
 
 var Vis = React.createClass({
   WIDTH: window.innerWidth,
@@ -42,7 +41,8 @@ var Vis = React.createClass({
   },
 
   componentDidMount: function() { 
-    this.createDateRange();
+    this.createDateRange(); // Remove... not needed 
+    this.createDatescale();
     this.createTimescale();
     this.buildScene();
     this.animate();
@@ -95,6 +95,7 @@ var Vis = React.createClass({
   /*
    * Creates the date range between the first
    * and last night of sleep 
+   * TODO: remove.  this is getting passed is as props
   */
 
   createDateRange: function() {
@@ -106,19 +107,55 @@ var Vis = React.createClass({
   },
 
   /*
-   * Create the timescale to map times
-   *
+   * Create the datescale to use for mapping 
+   * to date positions
   */
 
-  createTimescale: function() {
+  createDatescale: function() {
     var startDate = moment(sleep.sleepData[0].startDate)
     var endDate = moment(sleep.sleepData[this.numNights].startDate)
     var diff = endDate.diff(startDate, 'days')
     var width = this.nightSpacing * diff 
-    this.timeScale = d3.time.scale()
+    this.dateScale = d3.time.scale()
       .domain([startDate, endDate])
       .range([0, width])
   },
+
+  /*
+   * Create the timescale to use for mapping 
+   * to time positions
+  */
+  
+  createTimescale: function() {
+    // if the time is after midnight, take the difference from midnight and add 2 
+    // if the time is before midnight but later 8 pm, take the difference and substract it from 10 pm 
+    var baseline = 22 * 3600 // 10 pm in seconds
+    sleep.sleepData.forEach(function(night, ix) {
+      var bt = night.bedTime
+      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second      
+      var tbt = bts >= baseline ?
+        bts - baseline :
+        bts + (2 * 3600)
+      night.translatedBedTime = tbt
+    }) 
+
+    this.timeScale = d3.scale.linear()
+      .domain([0, this.hours * 3600])
+      .range([0, this.displaySize])
+  },
+
+  offsetTime: function() {
+        
+  },
+
+  createSecondsFromMidnight: function() {
+     
+  },
+
+  /*
+   * Offset the blocks by number of days 
+   * 
+  */
 
   offsetBlocks: function() {
     var self = this
@@ -128,7 +165,7 @@ var Vis = React.createClass({
 
     this.nightAr.forEach(function(night, ix) {
       // Update the night's position
-      var absPos = self.timeScale(night.dateObj) 
+      var absPos = self.dateScale(night.dateObj) 
       var newPos = absPos - (self.props.dateOffset * 2 * self.nightSpacing) 
       night.position.z = newPos;
       // Update the night's visibility
@@ -141,23 +178,35 @@ var Vis = React.createClass({
     })
   },
 
+
+  /*
+   * Offset X axis ticks by number of days 
+   * 
+  */
+  
   offsetDateTicks: function() {
     // Offset the date axis ticks
     var self = this
     var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
     verts.forEach(function(vert, ix) {
-      var absPos = vert.x == -720 ?
+      var absPos = vert.x == 0 ?
         ix * self.nightSpacing :
         (ix - 1) * self.nightSpacing
       var offset = self.props.dateOffset * 2 * self.nightSpacing
-      var newPos = absPos - offset - 720
+      var newPos = absPos - offset
       vert.z = newPos;
     });
     this.dateAxis.verticesNeedUpdate = true;
+    // Offset the axis tick labels
     var absPos = 8000 - 740 
     var newPos = absPos - this.props.dateOffset * 2 * this.nightSpacing
     this.dateAxisLabels.position.z = newPos
   },
+
+  /*
+   *  
+   * 
+  */
 
   setupTween: function(targetPos) {
     var currPos = this.camera.position;
@@ -166,6 +215,11 @@ var Vis = React.createClass({
     tween.start();
   },
 
+  /*
+   *  
+   * 
+  */
+
   resetBlockOpacity: function() {
     this.nightAr.forEach(function(night, ix){
       night.children.forEach(function(block){
@@ -173,6 +227,11 @@ var Vis = React.createClass({
       });
     });
   },
+  
+  /*
+   *  
+   * 
+  */
 
   increaseBlockOpacity: function(){
     this.nightAr.forEach(function(night, ix){
@@ -221,13 +280,12 @@ var Vis = React.createClass({
   buildScene: function(){
     this.init();
    // this.addGrid();
-    this.addProjector();
     this.addControls();
     this.makeDatetimes();
     this.addAxes();
     this.makeBedtimes();
     this.addSleepObjs();
-    this.bindEvents();
+    //this.bindEvents();
   },
 
   init: function(){
@@ -236,45 +294,10 @@ var Vis = React.createClass({
     $('#vis').prepend(this.container);
     this.scene = new THREE.Scene();
 
-    // Set up camera
-    this.camera = new THREE.PerspectiveCamera(
-      this.VIEW_ANGLE,
-      this.WIDTH / this.HEIGHT,
-      this.NEAR,
-      this.FAR
-    );
-    this.camera.position.set(-1400, 1000, -900);
-    
-    // Set up lights
-    var ambientLight = new THREE.AmbientLight(0x606060);
-    this.scene.add(ambientLight);
-
-    var spotLight = new THREE.SpotLight();
-    spotLight.position.set(10, 80, 30);
-    spotLight.castShadow = true;
-
-    var directionalLight = new THREE.DirectionalLight(0xffffff);
-    directionalLight.position.x = Math.random() - 0.5;
-    directionalLight.position.y = Math.random() - 0.5;
-    directionalLight.position.z = Math.random() - 0.5;
-    directionalLight.position.normalize();
-    directionalLight.castShadow = true;
-    this.scene.add(directionalLight);
-
-    // TODO: figure out what's going on here
-    //var directionalLight = new THREE.DirectionalLight(0x808080);
-    //directionalLight.position.x = Math.random() - 0.5;
-    //directionalLight.position.y = Math.random() - 0.5;
-    //directionalLight.position.z = Math.random() - 0.5;
-    //directionalLight.castShadow = true;
-    //directionalLight.position.normalize();
-    //this.scene.add(directionalLight);
-
-    // Set up renderer
-    this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-    //this.renderer.setClearColor(0x000000, 0);
-    this.renderer.setClearColor(0xffffff, 1);
-    this.renderer.setSize(this.WIDTH, this.HEIGHT);
+    this.addCamera() 
+    this.addLights()
+    this.addRenderer()
+    this.addProjector();
 
     // Append the renderer to the container
     this.container.appendChild(this.renderer.domElement);
@@ -282,7 +305,8 @@ var Vis = React.createClass({
     // Set the size of the area that the chart is displayed on
     this.displaySize = (this.state.gridSize - (1/5 * this.state.gridSize))/2;
     this.pxPerMin = (2 * this.displaySize / (this.hours*60));
-    this.tickCount = (this.hours*60)/this.minsPerBlock;
+    this.tickCount = this.hours;
+    console.log('the hours are', this.hours)
   },
 
   bindEvents: function(){
@@ -296,7 +320,44 @@ var Vis = React.createClass({
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   },
 
-  addProjector : function(){
+  addLights: function() {
+    // Set up lights
+    var ambientLight = new THREE.AmbientLight(0x606060);
+    this.scene.add(ambientLight);
+
+    var spotLight = new THREE.SpotLight();
+    spotLight.position.set(10, 80, 30);
+    spotLight.castShadow = true;
+    //this.scene.add(spotLight)
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff);
+    directionalLight.position.x = Math.random() - 0.5;
+    directionalLight.position.y = Math.random() - 0.5;
+    directionalLight.position.z = Math.random() - 0.5;
+    directionalLight.position.normalize();
+    directionalLight.castShadow = true;
+    this.scene.add(directionalLight);
+
+  },
+
+  addCamera: function() {
+    this.camera = new THREE.PerspectiveCamera(
+      this.VIEW_ANGLE,
+      this.WIDTH / this.HEIGHT,
+      this.NEAR,
+      this.FAR
+    );
+    this.camera.position.set(-1400, 1000, -900);
+  },
+
+  addRenderer: function() {
+    this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
+    //this.renderer.setClearColor(0x000000, 0);
+    this.renderer.setClearColor(0xffffff, 1);
+    this.renderer.setSize(this.WIDTH, this.HEIGHT);
+  },
+
+  addProjector: function() {
     this.projector = new THREE.Projector();
 
     this.plane = new THREE.Mesh(
@@ -326,7 +387,7 @@ var Vis = React.createClass({
 
 
   // TODO: remove this. Won't be needed with gridlines
-  addGrid : function () {
+  addGrid : function() {
     var gridGeom = new THREE.Geometry();
     var step = 6;
 
@@ -351,16 +412,18 @@ var Vis = React.createClass({
 
   addYAxisTicks: function() {
     var time = new THREE.Geometry();
+    var scale = this.scale()
     // Add the start and end points
-    time.vertices.push(new THREE.Vector3(this.displaySize, 0, -800));
-    time.vertices.push(new THREE.Vector3(-this.displaySize , 0, -800));
+    time.vertices.push(new THREE.Vector3(0, 0, 0));
+    time.vertices.push(new THREE.Vector3(this.displaySize*2 , 0, 0));
 
     for (var t = 0; t < this.tickCount; t++) {
-      // Create xPosition
-      var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin) - this.displaySize;
-      // Add tick verticies
-      time.vertices.push(new THREE.Vector3(xPos, 0, -800));
-      time.vertices.push(new THREE.Vector3(xPos, 0, -815));
+      //var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin);
+      // this should use the time scale
+      var xPos = scale(t * 3600) // Note: this is tighlty coupled to there only being ticks for hours
+      console.log('the xpos is', xPos)
+      time.vertices.push(new THREE.Vector3(xPos, 0, 0));
+      time.vertices.push(new THREE.Vector3(xPos, 0, -15));
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -376,15 +439,15 @@ var Vis = React.createClass({
   addYAxisTickLabels: function() {
     var canvas = document.createElement('canvas')
     var context = canvas.getContext('2d')
-    canvas.height = 1400 
-    canvas.width = 75
-    context.font = "24px Arial";
+    canvas.height = this.displaySize * 4 
+    canvas.width = 150
+    context.font = "48px Arial";
+    var hrs = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     for (var t = 0; t < this.tickCount; t++) {
-      var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin) - this.displaySize;
-      if (t % 12 === 0) {
-        var currTime = this.fiveMinIncr[t];
-        context.fillText(currTime, 10, canvas.height - xPos - this.displaySize);
-      }
+      var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin);
+      // var currTime = this.fiveMinIncr[t];
+      var time = hrs[t];
+      context.fillText(time, 10, canvas.height - 2 * xPos - 5);
     }
     var texture = new THREE.Texture(canvas) 
     texture.needsUpdate = true;
@@ -394,24 +457,25 @@ var Vis = React.createClass({
     });
     material.transparent = false //true
     var mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(canvas.width, canvas.height), 
+        new THREE.PlaneGeometry(canvas.width/2, canvas.height/2), 
         material
     )
-    mesh.position.set(0, 0, -860)
+    mesh.position.set(this.displaySize, 0, -canvas.width/2)
     mesh.rotation.set(-Math.PI / 2, 0, -Math.PI / 2)
     this.scene.add(mesh);
   },
 
   addXAxisTicks: function() {
+    var self = this
     var days = new THREE.Geometry();
-    days.vertices.push(new THREE.Vector3(-this.displaySize, 0, -800));
-    days.vertices.push(new THREE.Vector3(-this.displaySize, 0, 800));
+    days.vertices.push(new THREE.Vector3(0, 0, 0));
+    days.vertices.push(new THREE.Vector3(0, 0, 1600));
 
-    for (var d = 0; d < this.props.dateRange.length - 1; d++){
-      var yPos = (d * this.nightSpacing) - this.displaySize;
-      days.vertices.push(new THREE.Vector3(-this.displaySize, 0, yPos));
-      days.vertices.push(new THREE.Vector3(-745, 0, yPos));
-    }
+    this.props.dateRange.forEach(function(date, ix) {
+      var zPos = self.dateScale(date); 
+      days.vertices.push(new THREE.Vector3(0, 0, zPos));
+      days.vertices.push(new THREE.Vector3(-10, 0, zPos));
+    })
 
     var material = new THREE.LineBasicMaterial({
       color: 0x000000,
@@ -419,9 +483,9 @@ var Vis = React.createClass({
       visible : true
     });
 
-    var dLine = new THREE.LineSegments(days, material);
+    var xTicks = new THREE.LineSegments(days, material);
     this.dateAxis = days;
-    this.scene.add(dLine);
+    this.scene.add(xTicks);
   },
 
   addXAxisTickLabels: function() {
@@ -468,10 +532,12 @@ var Vis = React.createClass({
     var scale = this.scale();
 
     for (var j = 0; j < this.numNights; j++){
-      var bedTime = scale(this.bedtimes[j]);
+      //var bedTime = scale(sleep.sleepData[j].translatedBedTime);
+      var bedTime = scale(this.bedtimes[j])
       var night = new THREE.Object3D();
 
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
+
         // create the material for the sleep block
         var blockWidth = this.minsPerBlock * this.pxPerMin
         var blockDatum = sleep.sleepData[j].sleepGraph[i];
@@ -485,19 +551,20 @@ var Vis = React.createClass({
           wireframe: false,
           transparent: true
         });
+
         // Position the sleep block
         var rect = new THREE.Mesh(geometry, material);
-        rect.position.x = ((i * blockWidth) + bedTime) - this.displaySize; // rect width and position is a function of time
+        rect.position.x = ((i * blockWidth) + bedTime); // rect width and position is a function of time
         rect.position.y = 0;
-        //rect.position.z = (j * this.nightSpacing) - this.displaySize;
-        rect.position.z = this.timeScale(sleep.sleepData[j].dateObj) - 700;
+        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj);
         rect.translateY(this.sleepStates[blockDatum].height/2);
-        // rect.matrixAutoUpdate = false;
         rect.updateMatrix();
+
         // add to night object
         if (blockDatum !== "UNDEFINED") {
           night.add(rect);
         }
+
         // push to appropriate state array
         this.sleepStates[blockDatum].arr.push(rect);
       }
@@ -510,8 +577,8 @@ var Vis = React.createClass({
 
   scale: function(){
     return d3.scale.linear()
-      .domain([0, this.hours * 60 * 60])
-      .range([0, this.displaySize])
+      .domain([0, this.hours * 3600])
+      .range([0, this.displaySize * 2])
   },
 
   // WARNING: this is not connected to start time

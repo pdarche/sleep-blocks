@@ -65,6 +65,7 @@ var BlocksApp = React.createClass({
         sleep.sleepData[0].dateObj, 
         sleep.sleepData[this.state.nights.length - 1].dateObj
     ) 
+    // TODO: see if this can be set to state? 
     this.dateRange = Array.from(dateRange.by('days'))
   },
 
