@@ -444,7 +444,9 @@ var Vis = React.createClass({
       var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin);
       // var currTime = this.fiveMinIncr[t];
       var time = hrs[t];
-      context.fillText(time + ':00', 30, canvas.height - xPos + 10);
+      if (time != 10) {
+        context.fillText(time + ':00', 30, canvas.height - xPos + 10);
+      }
     }
     var texture = new THREE.Texture(canvas) 
     texture.needsUpdate = true;
@@ -488,10 +490,10 @@ var Vis = React.createClass({
   addXAxisTickLabels: function() {
     var canvas = document.createElement('canvas')
     var context = canvas.getContext('2d')
-    canvas.height = this.props.numNights * this.nightSpacing * 4 
+    canvas.height = (this.props.numNights + 3) * this.nightSpacing * 4 
     canvas.width = 150
     context.font = "24px Arial";
-    for (var d = 0; d < this.props.dateRange.length - 1; d++){
+    for (var d = 0; d < this.props.dateRange.length; d++){
       var date = this.props.dateRange[d].format('MM/DD/YYYY') 
       var yPos = (d * this.nightSpacing);
       context.fillText(date, 10, canvas.height - (yPos * 2) - 30);
@@ -500,16 +502,18 @@ var Vis = React.createClass({
     texture.needsUpdate = true;
 
     var material = new THREE.MeshBasicMaterial({
-        map: texture, 
-        side: THREE.DoubleSide
+      map: texture, 
+      side: THREE.DoubleSide
     });
     // material.transparent = false 
 
     var mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(canvas.width, canvas.height), 
-        material
+      new THREE.PlaneGeometry(canvas.width, canvas.height), 
+      material
     );
+
     mesh.position.set(-100, 0, 0)
+    mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 3100, 0));
     mesh.rotation.x = -Math.PI / 2;
     mesh.rotation.z = -Math.PI;
 
@@ -535,7 +539,6 @@ var Vis = React.createClass({
       var night = new THREE.Object3D();
 
       for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
-
         // create the material for the sleep block
         var blockWidth = this.minsPerBlock * this.pxPerMin
         var blockDatum = sleep.sleepData[j].sleepGraph[i];
@@ -554,7 +557,7 @@ var Vis = React.createClass({
         var rect = new THREE.Mesh(geometry, material);
         rect.position.x = ((i * blockWidth) + bedTime); 
         rect.position.y = 0;
-        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj) + this.nightSpacing;
+        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj) + (2 * this.nightSpacing);
         rect.translateY(this.sleepStates[blockDatum].height/2);
         rect.updateMatrix();
 
