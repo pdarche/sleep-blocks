@@ -1,5 +1,9 @@
 'use strict';
 
+/*
+* Date slider component 
+*
+*/
 
 var moment = require('moment');
 
@@ -10,8 +14,8 @@ var Slider = React.createClass({
     var self = this;
     var formatDate = d3.time.format("%b %d");
     var startDate = moment(this.props.nights[0].startDate);
-    var endDate = moment(this.props.nights[this.props.nights.length - 1].startDate);
-    
+    var endDate = moment(this.props.nights[this.props.numNights].startDate); 
+
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
       width = window.innerWidth - margin.left - margin.right,
@@ -27,7 +31,7 @@ var Slider = React.createClass({
       .range([0, this.props.dateRange.length - 1])       
       .clamp(true)
 
-    // Define brush
+    // Initialize brush
     var brush = d3.svg.brush()
       .x(timeScale)
       .extent([startDate, startDate])
@@ -61,7 +65,7 @@ var Slider = React.createClass({
       .attr("class", "slider")
       .call(brush);
 
-     slider.selectAll(".extent, .resize")
+    slider.selectAll(".extent, .resize")
        .remove();
 
     slider.select(".background")
@@ -98,13 +102,11 @@ var Slider = React.createClass({
         self.props.handleNightHover(ix, d)
         d3.select(this)
           .style('opacity', 1)
-          .style("stroke-width", 2.5)
         d3.select(this.parentNode).select('text').style('opacity', 1)
       })
       .on('mouseout', function(d, ix) {
         d3.select(this)
           .style('opacity', .1)
-          .style("stroke-width", 1)
         d3.select(this.parentNode).select('text').style('opacity', 0)
       })
 

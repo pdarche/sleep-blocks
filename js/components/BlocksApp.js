@@ -26,7 +26,8 @@ var BlocksApp = React.createClass({
       activeTime: null,
       eventType: null,
       controlsEnabled: true,
-      dateOffset: 0
+      dateOffset: 0,
+      numNights: 100
     }
   },
 
@@ -63,7 +64,7 @@ var BlocksApp = React.createClass({
   createDateRange: function() {
     var dateRange = moment.range(
         sleep.sleepData[0].dateObj, 
-        sleep.sleepData[this.state.nights.length - 1].dateObj
+        sleep.sleepData[this.state.numNights - 1].dateObj
     ) 
     // TODO: see if this can be set to state? 
     this.dateRange = Array.from(dateRange.by('days'))
@@ -138,11 +139,13 @@ var BlocksApp = React.createClass({
           eventType={this.state.eventType}
           activeView={this.state.activeView}
           dateRange={this.dateRange}
-          controlsEnabled={this.state.controlsEnabled}/>
+          controlsEnabled={this.state.controlsEnabled}
+          numNights={this.state.numNights}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
           dateRange={this.dateRange}
+          numNights={this.state.numNights}
           handleNightHover={this.handleNightHover}
           handleSliderHover={this.handleSliderHover}
           handleSliderMovement={this.handleSliderMovement}/>
