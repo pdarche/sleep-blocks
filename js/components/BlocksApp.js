@@ -27,23 +27,23 @@ var BlocksApp = React.createClass({
       eventType: null,
       controlsEnabled: true,
       dateOffset: 0,
-      numNights: 100
+      numNights: 20
     }
   },
 
   componentWillMount: function() {
     // TODO: move this into a function
     sleep.sleepData = sleep.sleepData.map(function(night){
-      night.dateObj = moment(night.startDate) 
+      night.dateObj = moment(night.startDate)
       return night
-    }) 
+    })
     this.createDateRange()
   },
 
   // Fetch the sleep data
   componentDidMount: function() {
     // TODO: fetch this instead of loading the file
-    var self = this;
+    // var self = this;
     //$.getJSON('js/data/sleep.json', function(res){
     //  var nights = res.sleepData.map(function(night, ix){
     //    night.id = ix;
@@ -62,12 +62,13 @@ var BlocksApp = React.createClass({
   },
 
   createDateRange: function() {
+    var self = this
     var dateRange = moment.range(
-        sleep.sleepData[0].dateObj, 
-        sleep.sleepData[this.state.numNights - 1].dateObj
-    ) 
-    // TODO: see if this can be set to state? 
-    this.dateRange = Array.from(dateRange.by('days'))
+        sleep.sleepData[0].dateObj,
+        sleep.sleepData[self.state.numNights - 1].dateObj
+    )
+    // TODO: see if this can be set to state?
+    self.dateRange = Array.from(dateRange.by('days'))
   },
 
   handleViewChange: function(targetView) {
@@ -80,10 +81,10 @@ var BlocksApp = React.createClass({
   handleNightHover: function(targetNight, date) {
     var activeNight = _.find(sleep.sleepData, function(night) {
       return night.dateObj.isSame(date)
-    }) 
+    })
     var activeNightIx = _.findIndex(sleep.sleepData, function(night) {
       return night.dateObj.isSame(date)
-    }) 
+    })
     this.setState({
       activeNight: activeNight, // this.state.activeNights[targetNight],
       activeNightIx: activeNightIx,

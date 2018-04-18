@@ -7,7 +7,7 @@
 
 var TWEEN = require('tween.js');
 var Moment = require('moment');
-var MomentRange = require('moment-range'); 
+var MomentRange = require('moment-range');
 var moment = MomentRange.extendMoment(Moment);
 var _ = require('underscore');
 
@@ -36,12 +36,14 @@ var Vis = React.createClass({
   getInitialState: function() {
     return {
       numNights: 100,
-      gridSize: 1800
+      gridSize: 1800,
+      xOffset: -740,
+      zOffset: -740
     }
   },
 
-  componentDidMount: function() { 
-    this.createDateRange(); // Remove... not needed 
+  componentDidMount: function() {
+    this.createDateRange(); // Remove... not needed
     this.createDatescale();
     this.createTimescale();
     this.buildScene();
@@ -77,7 +79,7 @@ var Vis = React.createClass({
     var vec;
     switch (this.props.activeView) {
       case 'overview':
-        vec = {x: -900, y: 1600, z: -800}
+        vec = {x: -1200, y: 1200, z: -1200}
         break;
       case 'overhead':
         vec = {x: -25, y: 2000, z: 0}
@@ -86,7 +88,7 @@ var Vis = React.createClass({
         vec = {x: 0, y: 800, z: -1700}
         break;
       default:
-        vec = {x: -1400, y: 1000, z: -900}
+        vec = {x: -1200, y: 1200, z: -1200}
         break;
     }
     this.setupTween(vec)
@@ -94,20 +96,20 @@ var Vis = React.createClass({
 
   /*
    * Creates the date range between the first
-   * and last night of sleep 
+   * and last night of sleep
    * TODO: remove.  this is getting passed is as props
   */
 
   createDateRange: function() {
     var dateRange = moment.range(
-      sleep.sleepData[0].dateObj, 
+      sleep.sleepData[0].dateObj,
       sleep.sleepData[this.props.numNights].dateObj
-    ) 
+    )
     this.dateRange = Array.from(dateRange.by('days'))
   },
 
   /*
-   * Create the datescale to use for mapping 
+   * Create the datescale to use for mapping
    * to date positions
   */
 
@@ -115,27 +117,27 @@ var Vis = React.createClass({
     var startDate = moment(sleep.sleepData[0].startDate)
     var endDate = moment(sleep.sleepData[this.props.numNights].startDate)
     var diff = endDate.diff(startDate, 'days')
-    var width = this.nightSpacing * diff 
+    var width = this.nightSpacing * diff
     this.dateScale = d3.time.scale()
       .domain([startDate, endDate])
       .range([0, width])
   },
 
   /*
-   * Create the timescale to use for mapping 
+   * Create the timescale to use for mapping
    * to time positions
   */
-  
+
   createTimescale: function() {
     var baseline = 22 * 3600 // 10 pm in seconds
     sleep.sleepData.forEach(function(night, ix) {
       var bt = night.bedTime
-      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second      
+      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
       var tbt = bts >= baseline ?
         bts - baseline :
         bts + (2 * 3600)
       night.translatedBedTime = tbt
-    }) 
+    })
 
     this.timeScale = d3.scale.linear()
       .domain([0, this.hours * 3600])
@@ -143,45 +145,45 @@ var Vis = React.createClass({
   },
 
   offsetTime: function() {
-        
+
   },
 
   createSecondsFromMidnight: function() {
-     
+
   },
 
   /*
-   * Offset the blocks by number of days 
-   * 
+   * Offset the blocks by number of days
+   *
   */
 
   offsetBlocks: function() {
     var self = this
     var offsetIx = Math.ceil(this.props.dateOffset)
-    var startDate = this.props.dateRange[offsetIx] 
+    var startDate = this.props.dateRange[offsetIx]
     var endDate = this.props.dateRange[offsetIx + 60]
 
     this.nightAr.forEach(function(night, ix) {
       // Update the night's position
-      var absPos = self.dateScale(night.dateObj) 
-      var newPos = absPos - (self.props.dateOffset * 2 * self.nightSpacing) 
+      var absPos = self.dateScale(night.dateObj)
+      var newPos = absPos - (self.props.dateOffset * 2 * self.nightSpacing)
       night.position.z = newPos;
       // Update the night's visibility
-      if (moment(night.dateObj).isBefore(startDate) || 
+      if (moment(night.dateObj).isBefore(startDate) ||
           moment(night.dateObj).isAfter(endDate)) {
-        night.visible = false; 
+        night.visible = false;
       } else {
         night.visible = true;
-      } 
+      }
     })
   },
 
 
   /*
-   * Offset X axis ticks by number of days 
-   * 
+   * Offset X axis ticks by number of days
+   *
   */
-  
+
   offsetDateTicks: function() {
     // Offset the date axis ticks
     var self = this
@@ -196,14 +198,14 @@ var Vis = React.createClass({
     });
     this.dateAxis.verticesNeedUpdate = true;
     // Offset the axis tick labels
-    var absPos = 8000 - 740 
+    var absPos = 8000 - 740
     var newPos = absPos - this.props.dateOffset * 2 * this.nightSpacing
     this.dateAxisLabels.position.z = newPos
   },
 
   /*
-   *  
-   * 
+   *
+   *
   */
 
   setupTween: function(targetPos) {
@@ -214,8 +216,8 @@ var Vis = React.createClass({
   },
 
   /*
-   *  
-   * 
+   *
+   *
   */
 
   resetBlockOpacity: function() {
@@ -225,10 +227,10 @@ var Vis = React.createClass({
       });
     });
   },
-  
+
   /*
-   *  
-   * 
+   *
+   *
   */
 
   increaseBlockOpacity: function(){
@@ -292,7 +294,7 @@ var Vis = React.createClass({
     $('#vis').prepend(this.container);
     this.scene = new THREE.Scene();
 
-    this.addCamera() 
+    this.addCamera()
     this.addLights()
     this.addRenderer()
     this.addProjector();
@@ -344,7 +346,8 @@ var Vis = React.createClass({
       this.NEAR,
       this.FAR
     );
-    this.camera.position.set(-900, 1600, -800);
+    this.camera.position.set(-1200, 1200, -1200);
+    this.camera.lookAt(this.scene.position)
   },
 
   addRenderer: function() {
@@ -358,7 +361,7 @@ var Vis = React.createClass({
     this.projector = new THREE.Projector();
 
     this.plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(2000, 2000), 
+        new THREE.PlaneGeometry(2000, 2000),
         new THREE.MeshBasicMaterial()
     );
     this.plane.rotation.x = - Math.PI / 2;
@@ -412,14 +415,13 @@ var Vis = React.createClass({
     var scale = this.scale()
 
     // Add the start and end points
-    time.vertices.push(new THREE.Vector3(0, 0, 0));
-    time.vertices.push(new THREE.Vector3(this.displaySize, 0, 0));
+    time.vertices.push(new THREE.Vector3(this.state.xOffset, 0, this.state.zOffset));
+    time.vertices.push(new THREE.Vector3(this.displaySize + this.state.xOffset, 0, this.state.zOffset));
 
     for (var t = 0; t < this.tickCount; t++) {
-      //var xPos = (this.displaySize / this.tickCount * t * this.pxPerMin);
-      var xPos = scale(t * 3600) // Note: this is tighlty coupled to there only being ticks for hours
-      time.vertices.push(new THREE.Vector3(xPos, 0, 0));
-      time.vertices.push(new THREE.Vector3(xPos, 0, -15));
+      var xPos = scale(t * 3600) + this.state.xOffset // Note: this is tighlty coupled to there only being ticks for hours
+      time.vertices.push(new THREE.Vector3(xPos, 0, this.state.zOffset));
+      time.vertices.push(new THREE.Vector3(xPos, 0, this.state.zOffset - 15));
     }
 
     var material = new THREE.LineBasicMaterial({
@@ -435,7 +437,7 @@ var Vis = React.createClass({
   addYAxisTickLabels: function() {
     var canvas = document.createElement('canvas')
     var context = canvas.getContext('2d')
-    canvas.height = this.displaySize * 2 
+    canvas.height = this.displaySize * 2
     canvas.width = 150
     context.font = "48px Arial";
 
@@ -448,7 +450,7 @@ var Vis = React.createClass({
         context.fillText(time + ':00', 30, canvas.height - xPos + 10);
       }
     }
-    var texture = new THREE.Texture(canvas) 
+    var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true;
     var material = new THREE.MeshBasicMaterial({
         map: texture,
@@ -456,10 +458,14 @@ var Vis = React.createClass({
     });
     material.transparent = false //true
     var mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(canvas.width/2, canvas.height/2), 
-        material
+      new THREE.PlaneGeometry(canvas.width/2, canvas.height/2),
+      material
     )
-    mesh.position.set(this.displaySize/2, 0, -canvas.width/2)
+    mesh.position.set(
+      this.state.xOffset + this.displaySize/2,
+      0,
+      this.state.zOffset - canvas.width/2
+    )
     mesh.rotation.set(-Math.PI / 2, 0, -Math.PI / 2)
     this.scene.add(mesh);
   },
@@ -470,11 +476,13 @@ var Vis = React.createClass({
     days.vertices.push(new THREE.Vector3(0, 0, 0));
     days.vertices.push(new THREE.Vector3(0, 0, 1600));
 
-    this.props.dateRange.forEach(function(date, ix) {
-      var zPos = self.dateScale(date); 
+    //this.props.dateRange.forEach(function(date, ix) {
+    for (var i = 0; i < 20; i++) {
+      var date = this.props.dateRange[i];
+      var zPos = self.dateScale(date);
       days.vertices.push(new THREE.Vector3(0, 0, zPos));
       days.vertices.push(new THREE.Vector3(-10, 0, zPos));
-    })
+    }
 
     var material = new THREE.LineBasicMaterial({
       color: 0x000000,
@@ -484,41 +492,43 @@ var Vis = React.createClass({
 
     var xTicks = new THREE.LineSegments(days, material);
     this.dateAxis = days;
+    xTicks.applyMatrix(new THREE.Matrix4().makeTranslation(self.state.xOffset, 0, -740 ));
     this.scene.add(xTicks);
   },
 
   addXAxisTickLabels: function() {
     var canvas = document.createElement('canvas')
     var context = canvas.getContext('2d')
-    canvas.height = (this.props.numNights + 3) * this.nightSpacing * 4 
+    canvas.height = (this.props.numNights + 3) * this.nightSpacing * 4
     canvas.width = 150
     context.font = "24px Arial";
+
     for (var d = 0; d < this.props.dateRange.length; d++){
-      var date = this.props.dateRange[d].format('MM/DD/YYYY') 
+      var date = this.props.dateRange[d].format('MM/DD/YYYY')
       var yPos = (d * this.nightSpacing);
       context.fillText(date, 10, canvas.height - (yPos * 2) - 30);
     }
-    var texture = new THREE.Texture(canvas) 
+    var texture = new THREE.Texture(canvas)
     texture.needsUpdate = true;
 
     var material = new THREE.MeshBasicMaterial({
-      map: texture, 
+      map: texture,
       side: THREE.DoubleSide
     });
-    // material.transparent = false 
+    // material.transparent = false
 
     var mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(canvas.width, canvas.height), 
+      new THREE.PlaneGeometry(canvas.width, canvas.height),
       material
     );
 
-    mesh.position.set(-100, 0, 0)
-    mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 3100, 0));
+    mesh.position.set(0, 0, 0)
+    mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-this.state.xOffset + (canvas.width/2) + 10, -canvas.height - 1040, 0));
     mesh.rotation.x = -Math.PI / 2;
     mesh.rotation.z = -Math.PI;
 
     this.scene.add(mesh);
-    this.dateAxisLabels = mesh    
+    this.dateAxisLabels = mesh
   },
 
   addAxes : function() {
@@ -543,8 +553,8 @@ var Vis = React.createClass({
         var blockWidth = this.minsPerBlock * this.pxPerMin
         var blockDatum = sleep.sleepData[j].sleepGraph[i];
         var geometry = new THREE.BoxGeometry(
-            (.8 * blockWidth), 
-            this.sleepStates[blockDatum].height, 
+            (.8 * blockWidth),
+            this.sleepStates[blockDatum].height,
             7
         );
         var material = new THREE.MeshBasicMaterial({
@@ -555,9 +565,9 @@ var Vis = React.createClass({
 
         // Position the sleep block
         var rect = new THREE.Mesh(geometry, material);
-        rect.position.x = ((i * blockWidth) + bedTime); 
+        rect.position.x = ((i * blockWidth) + bedTime) + this.state.xOffset;
         rect.position.y = 0;
-        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj) + (2 * this.nightSpacing);
+        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj) + (2 * this.nightSpacing) + this.state.zOffset;
         rect.translateY(this.sleepStates[blockDatum].height/2);
         rect.updateMatrix();
 
