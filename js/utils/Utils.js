@@ -22,6 +22,67 @@ var Utils = {
     wake: 'timeInWake',
   },
 
+  /*
+   * Creates a scale function
+   *
+  */
+
+  scale: function(hours, displaySize){
+    return d3.scale.linear()
+      .domain([0, hours * 3600])
+      .range([0, displaySize])
+  },
+
+  /*
+   * Creates the date range between the first
+   * and last night of sleep
+   * TODO: remove.  this is getting passed is as props
+  */
+
+  createDateRange: function(nights) {
+    var dateRange = moment.range(
+      nights[0].dateObj,
+      nights[this.props.numNights].dateObj
+    )
+    return Array.from(dateRange.by('days'))
+  },
+
+  /*
+   * Create the datescale to use for mapping
+   * to date positions
+  */
+
+  createDatescale: function(nights, nightSpacing, numNights) {
+    var startDate = moment(nights[0].startDate)
+    var endDate = moment(nights[numNights].startDate)
+    var diff = endDate.diff(startDate, 'days')
+    var width = nightSpacing * diff
+    return d3.time.scale()
+      .domain([startDate, endDate])
+      .range([0, width])
+  },
+
+  /*
+   * Create the timescale to use for mapping
+   * to time positions
+  */
+
+  createTimescale: function(nights, startTime, hours, displaySize) {
+    var baseline = startTime * 3600 // 10 pm in seconds
+    nights.forEach(function(night, ix) {
+      var bt = night.bedTime
+      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
+      var tbt = bts >= baseline
+        ? bts - baseline
+        : bts + (2 * 3600)
+      night.translatedBedTime = tbt
+    })
+
+    return d3.scale.linear()
+      .domain([0, hours * 3600])
+      .range([0, displaySize])
+  },
+
   computeStateStats: function(nights, state){
     var stateKey = this.stateMapping[state];
     var stateValues = _.map(nights, function(night){ return night[stateKey]});
