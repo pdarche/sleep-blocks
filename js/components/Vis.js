@@ -11,6 +11,8 @@ var MomentRange = require('moment-range');
 var moment = MomentRange.extendMoment(Moment);
 var _ = require('underscore');
 var Utils = require('../utils/Utils');
+var Grid = require('../utils/Grid');
+var Night = require('../utils/Night');
 
 var WIDTH           = window.innerWidth
 var HEIGHT          = window.innerHeight
@@ -28,6 +30,7 @@ var START_TIME      = 22
 var NIGHT_SPACING   = 50
 var X_OFFSET        = -740
 var Z_OFFSET        = -740
+var TICK_COUNT      = HOURS
 var SLEEP_STATES    = {
   "UNDEFINED": { "height" : 0, "color" : 0x236167, arr : [] },
   "LIGHT": { "height" : 100, "color" : 0x28774F, arr : [] },
@@ -78,11 +81,14 @@ var Vis = React.createClass({
 
   buildScene: function() {
     this.init();
-    //this.addGrid();
     this.addControls();
     this.addAxes();
     this.addSleepObjs();
     //this.bindEvents();
+    var grid = new Grid(0, GRID_SIZE);
+    var scale = Utils.scale(HOURS, DISPLAY_SIZE)
+    var gridLines = grid.gridLines(scale, HOURS, X_OFFSET);
+    this.scene.add(gridLines)
   },
 
   animate: function() {
@@ -125,21 +131,9 @@ var Vis = React.createClass({
     var endDate = this.props.dateRange[offsetIx + 60]
 
     this.nightAr.forEach(function(night, ix) {
-      // Update the night's position
-      var absPos = self.dateScale(night.dateObj)
-      var newPos = absPos - (self.props.dateOffset * 2 * NIGHT_SPACING)
-      night.position.z = newPos;
-
-      // Update the night's visibility
-      if (moment(night.dateObj).isBefore(startDate) ||
-          moment(night.dateObj).isAfter(endDate)) {
-        night.visible = false;
-      } else {
-        night.visible = true;
-      }
+      night.offset(self.props.dateOffset, startDate, endDate)
     })
   },
-
 
   /*
    * Offset X axis ticks by number of days
@@ -165,11 +159,6 @@ var Vis = React.createClass({
     this.dateAxisLabels.position.z = newPos
   },
 
-  /*
-   *
-   *
-  */
-
   setupTween: function(targetPos) {
     var currPos = this.camera.position;
     var tween = new TWEEN.Tween(currPos).to(targetPos, 500);
@@ -177,28 +166,15 @@ var Vis = React.createClass({
     tween.start();
   },
 
-  /*
-   *
-   *
-  */
   resetBlockOpacity: function() {
     this.nightAr.forEach(function(night, ix){
-      night.children.forEach(function(block){
-        block.material.opacity = 1;
-      });
+      night.setOpacity(1)
     });
   },
 
-  /*
-   *
-   *
-  */
-
   increaseBlockOpacity: function(){
     this.nightAr.forEach(function(night, ix){
-      night.children.forEach(function(block){
-        block.material.opacity = .05;
-      });
+      night.setOpacity(.05)
     });
   },
 
@@ -207,34 +183,23 @@ var Vis = React.createClass({
     this.resetBlockOpacity();
     this.nightAr.forEach(function(night, ix){
       if (index !== ix) {
-        night.children.forEach(function(block){
-          block.material.opacity = .05;
-        });
+        night.setOpacity(.05)
       }
     });
   },
 
   highlightState: function() {
     var targetState = this.props.state.toUpperCase();
-    this.increaseBlockOpacity();
-    SLEEP_STATES[targetState].arr.forEach(function(block){
-      block.material.opacity = 1;
+    this.nightAr.forEach(function(night) {
+      night.highlightState(targetState)
     });
   },
 
   highlightTime: function() {
-    var targetIndex = 0;
-    var timeType = this.props.time;
+    var time = this.props.time;
     this.resetBlockOpacity();
     this.nightAr.forEach(function(night){
-      if (timeType == 'risetime') {
-        targetIndex = night.children.length - 1;
-      }
-      night.children.forEach(function(block, ix) {
-        if (ix !== targetIndex) {
-          block.material.opacity = .01;
-        }
-      });
+      night.highlightTime(time)
     });
   },
 
@@ -254,7 +219,7 @@ var Vis = React.createClass({
 
     // Set the size of the area that the chart is displayed on
     PX_PER_MIN = DISPLAY_SIZE / (HOURS * 60);
-    this.tickCount = HOURS;
+    TICK_COUNT = HOURS;
   },
 
   bindEvents: function() {
@@ -330,30 +295,6 @@ var Vis = React.createClass({
   },
 
 
-  // TODO: remove this. Won't be needed with gridlines
-  addGrid : function() {
-    var gridGeom = new THREE.Geometry();
-    var step = 6;
-
-    for (var i = -GRID_SIZE/2; i <= GRID_SIZE/2; i += step) {
-      gridGeom.vertices.push(new THREE.Vector3(-GRID_SIZE/2, 0, i));
-      gridGeom.vertices.push(new THREE.Vector3(GRID_SIZE/2, 0, i));
-    }
-
-    for (var j = -(GRID_SIZE/2); j <= GRID_SIZE/2; j += step) {
-      gridGeom.vertices.push(new THREE.Vector3(j, 0, -(GRID_SIZE/2)));
-      gridGeom.vertices.push(new THREE.Vector3(j, 0, GRID_SIZE/2));
-    }
-
-    var gridMat = new THREE.LineBasicMaterial({
-      color: 0x000000,
-      opacity: 0.2,
-      visible : true
-    });
-    var gridLines = new THREE.LineSegments(gridGeom, gridMat);
-    this.scene.add(gridLines);
-  },
-
   addYAxisTicks: function() {
     var time = new THREE.Geometry();
     var scale = Utils.scale(HOURS, DISPLAY_SIZE)
@@ -362,7 +303,7 @@ var Vis = React.createClass({
     time.vertices.push(new THREE.Vector3(X_OFFSET, 0, Z_OFFSET));
     time.vertices.push(new THREE.Vector3(DISPLAY_SIZE + X_OFFSET, 0, Z_OFFSET));
 
-    for (var t = 0; t < this.tickCount; t++) {
+    for (var t = 0; t < TICK_COUNT; t++) {
       var xPos = scale(t * 3600) + X_OFFSET // Note: this is tighlty coupled to there only being ticks for hours
       time.vertices.push(new THREE.Vector3(xPos, 0, Z_OFFSET));
       time.vertices.push(new THREE.Vector3(xPos, 0, Z_OFFSET - 15));
@@ -386,8 +327,8 @@ var Vis = React.createClass({
     context.font = "48px Arial";
 
     var hrs = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    for (var t = 0; t < this.tickCount; t++) {
-      var xPos = (DISPLAY_SIZE / this.tickCount * t * PX_PER_MIN);
+    for (var t = 0; t < TICK_COUNT; t++) {
+      var xPos = (DISPLAY_SIZE / TICK_COUNT * t * PX_PER_MIN);
       // var currTime = this.fiveMinIncr[t];
       var time = hrs[t];
       if (time != 10) {
@@ -488,42 +429,16 @@ var Vis = React.createClass({
     var scale = Utils.scale(HOURS, DISPLAY_SIZE)
 
     for (var j = 0; j < this.props.numNights; j++){
-      var bedTime = scale(sleep.sleepData[j].translatedBedTime);
-      var night = new THREE.Object3D();
-
-      for (var i = 0; i < sleep.sleepData[j].sleepGraph.length; i++){
-        // create the material for the sleep block
-        var blockWidth = MINS_PER_BLOCK * PX_PER_MIN
-        var blockDatum = sleep.sleepData[j].sleepGraph[i];
-        var geometry = new THREE.BoxGeometry(
-            (.8 * blockWidth),
-            SLEEP_STATES[blockDatum].height,
-            BLOCK_WIDTH
-        );
-        var material = new THREE.MeshBasicMaterial({
-          color: SLEEP_STATES[blockDatum].color,
-          wireframe: false,
-          transparent: true
-        });
-
-        // Position the sleep block
-        var rect = new THREE.Mesh(geometry, material);
-        rect.position.x = ((i * blockWidth) + bedTime) + X_OFFSET;
-        rect.position.y = 0;
-        rect.position.z = this.dateScale(sleep.sleepData[j].dateObj) + (2 * NIGHT_SPACING) + Z_OFFSET;
-        rect.translateY(SLEEP_STATES[blockDatum].height/2);
-        rect.updateMatrix();
-
-        // add to night object
-        if (blockDatum !== "UNDEFINED") {
-          night.add(rect);
-        }
-
-        // push to appropriate state array
-        SLEEP_STATES[blockDatum].arr.push(rect);
-      }
-      night.dateObj = sleep.sleepData[j].dateObj;
-      nights.add(night);
+      var night = new Night(
+          sleep.sleepData[j],
+          BLOCK_WIDTH,
+          NIGHT_SPACING,
+          X_OFFSET,
+          Z_OFFSET,
+          scale,
+          this.dateScale
+      );
+      nights.add(night._threeObj);
       this.nightAr.push(night);
     }
     this.scene.add(nights);
