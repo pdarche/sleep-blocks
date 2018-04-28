@@ -56,6 +56,7 @@ var Vis = React.createClass({
     this.animate();
     this.offsetBlocks();
     this.offsetDateTicks();
+    this.bindEvents();
   },
 
   componentDidUpdate: function() {
@@ -83,14 +84,15 @@ var Vis = React.createClass({
 
   buildScene: function() {
     this.init();
+    this.addCamera()
+    this.addLights()
+    this.addRenderer()
+    this.addProjector();
     this.addControls();
-    this.addAxes();
+    this.addXAxis()
+    this.addYAxis()
+    this.addGrid();
     this.addSleepObjs();
-    //this.bindEvents();
-    var grid = new Grid(0, GRID_SIZE);
-    var scale = Utils.scale(HOURS, DISPLAY_SIZE)
-    var gridLines = grid.gridLines(scale, HOURS, X_OFFSET);
-    this.scene.add(gridLines)
   },
 
   animate: function() {
@@ -100,6 +102,44 @@ var Vis = React.createClass({
     if (this.props.controlsEnabled){
       window.controls.update();
     }
+  },
+
+  offsetBlocks: function() {
+    var self = this
+    var offsetIx = Math.ceil(this.props.dateOffset)
+    var startDate = this.props.dateRange[offsetIx]
+    var endDate = this.props.dateRange[offsetIx + 60]
+
+    this.nightAr.forEach(function(night, ix) {
+      night.offset(self.props.dateOffset, startDate, endDate)
+    })
+  },
+
+  offsetDateTicks: function() {
+    // Offset the date axis ticks
+    var self = this;
+    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
+    verts.forEach(function(vert, ix) {
+      var absPos = vert.x == 0
+        ? ix * NIGHT_SPACING
+        : (ix - 1) * NIGHT_SPACING
+      var offset = self.props.dateOffset * 2 * NIGHT_SPACING
+      var newPos = absPos - offset
+      vert.z = newPos;
+    });
+    this.dateAxis.verticesNeedUpdate = true;
+
+    // Offset the axis tick labels
+    var absPos = 8000 - 740
+    var newPos = absPos - this.props.dateOffset * 2 * NIGHT_SPACING
+    this.dateAxisLabels.position.z = newPos
+  },
+
+  init: function() {
+    // Set up scene
+    this.container = document.createElement('div');
+    $('#vis').prepend(this.container);
+    this.scene = new THREE.Scene();
   },
 
   handleViewChange: function() {
@@ -121,45 +161,15 @@ var Vis = React.createClass({
     this.setupTween(vec)
   },
 
-  /*
-   * Offset the blocks by number of days
-   *
-  */
-
-  offsetBlocks: function() {
-    var self = this
-    var offsetIx = Math.ceil(this.props.dateOffset)
-    var startDate = this.props.dateRange[offsetIx]
-    var endDate = this.props.dateRange[offsetIx + 60]
-
-    this.nightAr.forEach(function(night, ix) {
-      night.offset(self.props.dateOffset, startDate, endDate)
-    })
+  bindEvents: function() {
+    window.addEventListener('resize', this.onWindowResize, false);
   },
 
-  /*
-   * Offset X axis ticks by number of days
-   *
-  */
+  onWindowResize: function() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
 
-  offsetDateTicks: function() {
-    // Offset the date axis ticks
-    var self = this
-    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
-    verts.forEach(function(vert, ix) {
-      var absPos = vert.x == 0
-        ? ix * NIGHT_SPACING
-        : (ix - 1) * NIGHT_SPACING
-      var offset = self.props.dateOffset * 2 * NIGHT_SPACING
-      var newPos = absPos - offset
-      vert.z = newPos;
-    });
-    this.dateAxis.verticesNeedUpdate = true;
-
-    // Offset the axis tick labels
-    var absPos = 8000 - 740
-    var newPos = absPos - this.props.dateOffset * 2 * NIGHT_SPACING
-    this.dateAxisLabels.position.z = newPos
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   },
 
   setupTween: function(targetPos) {
@@ -206,34 +216,11 @@ var Vis = React.createClass({
     });
   },
 
-  init: function() {
-    // Set up scene
-    this.container = document.createElement('div');
-    $('#vis').prepend(this.container);
-    this.scene = new THREE.Scene();
-
-    this.addCamera()
-    this.addLights()
-    this.addRenderer()
-    this.addProjector();
-
-    // Append the renderer to the container
-    this.container.appendChild(this.renderer.domElement);
-
-    // Set the size of the area that the chart is displayed on
-    PX_PER_MIN = DISPLAY_SIZE / (HOURS * 60);
-    TICK_COUNT = HOURS;
-  },
-
-  bindEvents: function() {
-    window.addEventListener('resize', this.onWindowResize, false);
-  },
-
-  onWindowResize: function() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  addGrid: function() {
+    var grid = new Grid(0, GRID_SIZE);
+    var scale = Utils.scale(HOURS, DISPLAY_SIZE)
+    var gridLines = grid.gridLines(scale, HOURS, X_OFFSET);
+    this.scene.add(gridLines)
   },
 
   addLights: function() {
@@ -267,14 +254,15 @@ var Vis = React.createClass({
     this.renderer.setClearColor(0x000000, 0);
     //this.renderer.setClearColor(0xffffff, 1);
     this.renderer.setSize(WIDTH, HEIGHT);
+    this.container.appendChild(this.renderer.domElement);
   },
 
   addProjector: function() {
     this.projector = new THREE.Projector();
 
     this.plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(2000, 2000),
-        new THREE.MeshBasicMaterial()
+      new THREE.PlaneGeometry(2000, 2000),
+      new THREE.MeshBasicMaterial()
     );
     this.plane.rotation.x = - Math.PI / 2;
     this.plane.visible = false;
@@ -300,12 +288,12 @@ var Vis = React.createClass({
   addYAxis: function() {
     var scale = Utils.scale(this.tickCount, this.displaySize);
     var yAxis = new YAxis(
-        DISPLAY_SIZE,
-        X_OFFSET,
-        Z_OFFSET,
-        TICK_COUNT,
-        PX_PER_MIN,
-        scale
+      DISPLAY_SIZE,
+      X_OFFSET,
+      Z_OFFSET,
+      TICK_COUNT,
+      PX_PER_MIN,
+      scale
     );
 
     this.scene.add(yAxis._threeObj);
@@ -314,11 +302,11 @@ var Vis = React.createClass({
 
   addXAxis: function() {
     var xAxis = new Axis(
-        this.props.dateRange,
-        X_OFFSET,
-        this.dateScale,
-        NIGHT_SPACING,
-        NUM_NIGHTS
+      this.props.dateRange,
+      X_OFFSET,
+      this.dateScale,
+      NIGHT_SPACING,
+      NUM_NIGHTS
     );
 
     this.dateAxis = xAxis._threeObj.geometry;
@@ -328,32 +316,25 @@ var Vis = React.createClass({
     this.scene.add(xAxis.labels);
   },
 
-  addAxes : function() {
-    this.addXAxis()
-    this.addYAxis()
-  },
-
   addSleepObjs: function() {
     var nights = new THREE.Object3D();
     var scale = Utils.scale(HOURS, DISPLAY_SIZE)
 
     for (var j = 0; j < this.props.numNights; j++){
       var night = new Night(
-          sleep.sleepData[j],
-          BLOCK_WIDTH,
-          NIGHT_SPACING,
-          X_OFFSET,
-          Z_OFFSET,
-          scale,
-          this.dateScale
+        sleep.sleepData[j],
+        BLOCK_WIDTH,
+        NIGHT_SPACING,
+        X_OFFSET,
+        Z_OFFSET,
+        scale,
+        this.dateScale
       );
       this.nightAr.push(night);
       nights.add(night._threeObj);
     }
     this.scene.add(nights);
   },
-
-  rotation: 0,
 
   renderScene: function() {
     if (this.isShiftDown) {
