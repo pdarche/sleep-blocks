@@ -18,8 +18,8 @@ var Night = require('../utils/Night');
 var WIDTH           = window.innerWidth
 var HEIGHT          = window.innerHeight
 var VIEW_ANGLE      = 50
-var NEAR            = .1
-var FAR             = 100000
+var NEAR            = 1
+var FAR             = 10000
 var NUM_NIGHTS      = 25
 var GRID_SIZE       = 1800
 var DISPLAY_SIZE    = GRID_SIZE - (1/5 * GRID_SIZE)
@@ -111,7 +111,7 @@ var Vis = React.createClass({
         vec = {x: -25, y: 2000, z: 0}
         break;
       case 'front':
-        vec = {x: 0, y: 800, z: -1700}
+        vec = {x: 0, y: 0, z: -1700}
         break;
       default:
         vec = {x: -1200, y: 1200, z: -1200}
@@ -255,10 +255,15 @@ var Vis = React.createClass({
   },
 
   addCamera: function() {
-    this.camera = new THREE.PerspectiveCamera(
-        VIEW_ANGLE, WIDTH / HEIGHT, NEAR, FAR);
-    this.camera.position.set(-1200, 1200, -1200);
-    this.camera.lookAt(this.scene.position)
+    //this.camera = new THREE.OrthographicCamera(
+    //    VIEW_ANGLE, WIDTH / HEIGHT, NEAR, FAR);
+    //this.camera.position.set(-1200, 1200, -1200);
+    //this.camera.lookAt(this.scene.position)
+    var aspect = window.innerWidth / window.innerHeight;
+    var d = 1000;
+    this.camera = new THREE.OrthographicCamera( -d * aspect, d * aspect, d, -d, NEAR, FAR);
+    this.camera.position.set( -d, d, -d ); // all components equal
+    this.camera.lookAt( this.scene.position ); // or the origin
   },
 
   addRenderer: function() {
@@ -285,9 +290,9 @@ var Vis = React.createClass({
   addControls : function(){
     window.controls = new THREE.TrackballControls(this.camera);
 
-    controls.rotateSpeed = 1.0;
+    //controls.rotateSpeed = 1.0;
+    //controls.panSpeed = 0.8;
     controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
 
     controls.noZoom = false;
     controls.noPan  = true;
@@ -359,11 +364,11 @@ var Vis = React.createClass({
 
   addXAxisTicks: function() {
     var xAxis = new Axis(
-        this.props.dateRange,
-        X_OFFSET,
-        this.dateScale,
-        NIGHT_SPACING,
-        NUM_NIGHTS
+      this.props.dateRange,
+      X_OFFSET,
+      this.dateScale,
+      NIGHT_SPACING,
+      NUM_NIGHTS
     );
 
     this.dateAxis = xAxis._threeObj.geometry;
