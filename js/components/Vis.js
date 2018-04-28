@@ -12,6 +12,7 @@ var moment = MomentRange.extendMoment(Moment);
 var _ = require('underscore');
 var Utils = require('../utils/Utils');
 var Axis = require('../utils/Axis');
+var YAxis = require('../utils/YAxis');
 var Grid = require('../utils/Grid');
 var Night = require('../utils/Night');
 
@@ -296,68 +297,22 @@ var Vis = React.createClass({
     controls.keys = [65, 83, 68];
   },
 
+  addYAxis: function() {
+    var scale = Utils.scale(this.tickCount, this.displaySize);
+    var yAxis = new YAxis(
+        DISPLAY_SIZE,
+        X_OFFSET,
+        Z_OFFSET,
+        TICK_COUNT,
+        PX_PER_MIN,
+        scale
+    );
 
-  addYAxisTicks: function() {
-    var time = new THREE.Geometry();
-    var scale = Utils.scale(HOURS, DISPLAY_SIZE)
-
-    // Add the start and end points
-    time.vertices.push(new THREE.Vector3(X_OFFSET, 0, Z_OFFSET));
-    time.vertices.push(new THREE.Vector3(DISPLAY_SIZE + X_OFFSET, 0, Z_OFFSET));
-
-    for (var t = 0; t < TICK_COUNT; t++) {
-      var xPos = scale(t * 3600) + X_OFFSET // Note: this is tighlty coupled to there only being ticks for hours
-      time.vertices.push(new THREE.Vector3(xPos, 0, Z_OFFSET));
-      time.vertices.push(new THREE.Vector3(xPos, 0, Z_OFFSET - 15));
-    }
-
-    var material = new THREE.LineBasicMaterial({
-      color: 0x000000,
-      opacity: 1,
-      visible : true
-    });
-
-    var tLine = new THREE.LineSegments(time, material);
-    this.scene.add(tLine);
+    this.scene.add(yAxis._threeObj);
+    this.scene.add(yAxis.labels);
   },
 
-  addYAxisTickLabels: function() {
-    var canvas = document.createElement('canvas')
-    var context = canvas.getContext('2d')
-    canvas.height = DISPLAY_SIZE * 2
-    canvas.width = 150
-    context.font = "48px Arial";
-
-    var hrs = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    for (var t = 0; t < TICK_COUNT; t++) {
-      var xPos = (DISPLAY_SIZE / TICK_COUNT * t * PX_PER_MIN);
-      // var currTime = this.fiveMinIncr[t];
-      var time = hrs[t];
-      if (time != 10) {
-        context.fillText(time + ':00', 30, canvas.height - xPos + 10);
-      }
-    }
-    var texture = new THREE.Texture(canvas)
-    texture.needsUpdate = true;
-    var material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-    });
-    material.transparent = false //true
-    var mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(canvas.width/2, canvas.height/2),
-      material
-    )
-    mesh.position.set(
-      X_OFFSET + DISPLAY_SIZE/2,
-      0,
-      Z_OFFSET - canvas.width/2
-    )
-    mesh.rotation.set(-Math.PI / 2, 0, -Math.PI / 2)
-    this.scene.add(mesh);
-  },
-
-  addXAxisTicks: function() {
+  addXAxis: function() {
     var xAxis = new Axis(
         this.props.dateRange,
         X_OFFSET,
@@ -374,9 +329,8 @@ var Vis = React.createClass({
   },
 
   addAxes : function() {
-    this.addXAxisTicks()
-    this.addYAxisTicks()
-    this.addYAxisTickLabels()
+    this.addXAxis()
+    this.addYAxis()
   },
 
   addSleepObjs: function() {
