@@ -29,7 +29,7 @@ var PX_PER_MIN      = DISPLAY_SIZE / (HOURS * 60);
 var BLOCK_WIDTH     = 10
 var HOURS           = 12
 var START_TIME      = 22
-var NIGHT_SPACING   = 50
+var NIGHT_SPACING   = 60
 var X_OFFSET        = -740
 var Z_OFFSET        = -740
 var TICK_COUNT      = HOURS
@@ -89,8 +89,8 @@ var Vis = React.createClass({
     this.addRenderer()
     this.addProjector();
     this.addControls();
-    this.addXAxis()
-    this.addYAxis()
+    this.addXAxis();
+    this.addYAxis();
     this.addGrid();
     this.addSleepObjs();
   },
@@ -291,7 +291,7 @@ var Vis = React.createClass({
   },
 
   addYAxis: function() {
-    var scale = Utils.scale(this.tickCount, this.displaySize);
+    var scale = Utils.scale(HOURS, DISPLAY_SIZE);
     var yAxis = new YAxis(
       DISPLAY_SIZE,
       X_OFFSET,
@@ -309,9 +309,10 @@ var Vis = React.createClass({
     var xAxis = new Axis(
       this.props.dateRange,
       X_OFFSET,
+      GRID_SIZE,
       this.dateScale,
       NIGHT_SPACING,
-      NUM_NIGHTS
+      this.props.numNights
     );
 
     this.dateAxis = xAxis._threeObj.geometry;

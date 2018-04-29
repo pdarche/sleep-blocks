@@ -1,9 +1,10 @@
 'use strict'
 
 
-function Axis(dateRange, xOffset, dateScale, nightSpacing, numNights) {
+function Axis(dateRange, xOffset, displaySize, dateScale, nightSpacing, numNights) {
   this.dateRange = dateRange;
   this.xOffset = xOffset;
+  this.displaySize = displaySize;
   this.dateScale = dateScale;
   this.nightSpacing = nightSpacing;
   this.numNights = numNights;
@@ -16,7 +17,7 @@ Axis.prototype.create = function() {
   days.vertices.push(new THREE.Vector3(0, 0, 0));
   days.vertices.push(new THREE.Vector3(0, 0, 1600));
 
-  for (var i = 0; i < 20; i++) {
+  for (var i = 0; i <= this.dateRange.length; i++) {
     var date = this.dateRange[i];
     var zPos = this.dateScale(date);
     days.vertices.push(new THREE.Vector3(0, 0, zPos));
@@ -38,14 +39,15 @@ Axis.prototype.create = function() {
 Axis.prototype.labels = function() {
   var canvas = document.createElement('canvas')
   var context = canvas.getContext('2d')
-  canvas.height = (this.numNights + 3) * this.nightSpacing * 4
+  var height = this.dateScale(this.dateRange[this.dateRange.length-1]) * 2;
+  canvas.height = height;
   canvas.width = 150
   context.font = "24px Arial";
 
-  for (var d = 0; d < this.dateRange.length; d++){
-    var date = this.dateRange[d].format('MM/DD/YYYY')
-    var yPos = (d * this.nightSpacing);
-    context.fillText(date, 10, canvas.height - (yPos * 2) - 30);
+  for (var d = 0; d < this.dateRange.length; d++) {
+    var date = this.dateRange[d]
+    var zPos = this.dateScale(date) * 2;
+    context.fillText(date.format('MM/DD/YYYY'), 10, canvas.height - zPos);
   }
   var texture = new THREE.Texture(canvas)
   texture.needsUpdate = true;
@@ -54,15 +56,15 @@ Axis.prototype.labels = function() {
     map: texture,
     side: THREE.DoubleSide
   });
-  // material.transparent = false
+  material.transparent = false
 
   var mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(canvas.width, canvas.height),
     material
   );
-
   mesh.position.set(0, 0, 0)
-  mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-this.xOffset + (canvas.width/2) + 10, -canvas.height + 460, 0));
+  var translation = new THREE.Matrix4().makeTranslation(-this.xOffset + (canvas.width/2) + 10, -(canvas.height + this.displaySize) + 30, 0)
+  mesh.geometry.applyMatrix(translation);
   mesh.rotation.x = -Math.PI / 2;
   mesh.rotation.z = -Math.PI;
 
