@@ -47,7 +47,7 @@ Axis.prototype.labels = function() {
   for (var d = 0; d < this.dateRange.length; d++) {
     var date = this.dateRange[d]
     var zPos = this.dateScale(date) * 2;
-    context.fillText(date.format('MM/DD/YYYY'), 10, canvas.height - zPos);
+    context.fillText(date.format('LL'), 10, canvas.height - zPos);
   }
   var texture = new THREE.Texture(canvas)
   texture.needsUpdate = true;
