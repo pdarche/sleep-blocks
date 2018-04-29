@@ -33,6 +33,7 @@ var NIGHT_SPACING   = 60
 var X_OFFSET        = -740
 var Z_OFFSET        = -740
 var TICK_COUNT      = HOURS
+var ZOOM            = .02
 var SLEEP_STATES    = {
   "UNDEFINED": { "height" : 0, "color" : 0x236167, arr : [] },
   "LIGHT": { "height" : 100, "color" : 0x28774F, arr : [] },
@@ -101,6 +102,7 @@ var Vis = React.createClass({
     this.renderScene();
     if (this.props.controlsEnabled){
       window.controls.update();
+      this.camera.updateProjectionMatrix()
     }
   },
 
@@ -163,6 +165,8 @@ var Vis = React.createClass({
 
   bindEvents: function() {
     window.addEventListener('resize', this.onWindowResize, false);
+    this.renderer.domElement.addEventListener('mousewheel', this.mouseWheel, false);
+    this.renderer.domElement.addEventListener('DOMMouseScroll', this.mouseWheel, false); // firefox
   },
 
   onWindowResize: function() {
@@ -170,6 +174,34 @@ var Vis = React.createClass({
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+  } ,
+
+  mouseWheel: function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('wheeling')
+
+    var delta = 0;
+
+    if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+      delta = event.wheelDelta / 40;
+    } else if (event.detail) { // Firefox
+      delta = - event.detail / 3;
+    }
+
+    var width = this.camera.right / ZOOM;
+    var height = this.camera.top / ZOOM;
+
+    ZOOM -= delta * 0.001;
+
+    this.camera.left = -ZOOM*width;
+    this.camera.right = ZOOM*width;
+    this.camera.top = ZOOM*height;
+    this.camera.bottom = -ZOOM*height;
+
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.render(scene, camera);
   },
 
   setupTween: function(targetPos) {
@@ -248,9 +280,9 @@ var Vis = React.createClass({
     //this.camera.position.set(-1200, 1200, -1200);
     //this.camera.lookAt(this.scene.position)
     var aspect = window.innerWidth / window.innerHeight;
-    var d = 1000;
-    this.camera = new THREE.OrthographicCamera( -d * aspect, d * aspect, d, -d, NEAR, FAR);
-    this.camera.position.set( -d, d, -d ); // all components equal
+    var d = 800;
+    this.camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, NEAR, FAR);
+    this.camera.position.set(-d, d, -d); // all components equal
     this.camera.lookAt( this.scene.position ); // or the origin
   },
 
@@ -281,9 +313,9 @@ var Vis = React.createClass({
 
     //controls.rotateSpeed = 1.0;
     //controls.panSpeed = 0.8;
-    controls.zoomSpeed = 1.2;
+    //controls.ZOOMSpeed = 1.2;
 
-    controls.noZoom = false;
+    controls.noZoom= true;
     controls.noPan  = true;
     controls.noRotate = true;
     controls.dynamicDampingFactor = 0.3;

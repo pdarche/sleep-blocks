@@ -35,7 +35,7 @@ Night.prototype.create = function() {
          SLEEP_STATES[state].height,
          this.blockWidth
      );
-     var material = new THREE.MeshBasicMaterial({
+     var material = new THREE.MeshPhongMaterial({
        color: SLEEP_STATES[state].color,
        wireframe: false,
        transparent: true
