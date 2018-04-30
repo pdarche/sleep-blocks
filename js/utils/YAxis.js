@@ -56,6 +56,7 @@ YAxis.prototype.labels = function() {
       new THREE.PlaneGeometry(canvas.width/2, canvas.height/2),
       material
     )
+    mesh.trasparent = true;
     mesh.position.set(-20, 0, this.zOffset - canvas.width/2)
     mesh.rotation.set(-Math.PI / 2, 0, -Math.PI / 2)
     return mesh
