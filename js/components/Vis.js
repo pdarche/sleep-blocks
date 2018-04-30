@@ -179,7 +179,6 @@ var Vis = React.createClass({
   mouseWheel: function(event) {
     event.preventDefault();
     event.stopPropagation();
-    console.log('wheeling')
 
     var delta = 0;
 
@@ -256,34 +255,22 @@ var Vis = React.createClass({
   },
 
   addLights: function() {
-    // Set up lights
     var ambientLight = new THREE.AmbientLight(0x606060);
     this.scene.add(ambientLight);
 
-    var spotLight = new THREE.SpotLight();
-    spotLight.position.set(10, 80, 30);
-    spotLight.castShadow = true;
-    this.scene.add(spotLight)
-
-    var directionalLight = new THREE.DirectionalLight(0xffffff);
-    directionalLight.position.x = Math.random() - 0.5;
-    directionalLight.position.y = Math.random() - 0.5;
-    directionalLight.position.z = Math.random() - 0.5;
-    directionalLight.position.normalize();
-    directionalLight.castShadow = true;
-    this.scene.add(directionalLight);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff);
+    this.directionalLight.position.x = 0;
+    this.directionalLight.position.y = 10;
+    this.directionalLight.position.z = -10;
+    this.scene.add(this.directionalLight);
   },
 
   addCamera: function() {
-    //this.camera = new THREE.OrthographicCamera(
-    //    VIEW_ANGLE, WIDTH / HEIGHT, NEAR, FAR);
-    //this.camera.position.set(-1200, 1200, -1200);
-    //this.camera.lookAt(this.scene.position)
     var aspect = window.innerWidth / window.innerHeight;
     var d = 800;
     this.camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, NEAR, FAR);
-    this.camera.position.set(-d, d, -d); // all components equal
-    this.camera.lookAt( this.scene.position ); // or the origin
+    this.camera.position.set(-d, d, -d);
+    this.camera.lookAt( this.scene.position );
   },
 
   addRenderer: function() {
