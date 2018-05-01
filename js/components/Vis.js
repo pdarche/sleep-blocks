@@ -56,7 +56,7 @@ var Vis = React.createClass({
     this.buildScene();
     this.animate();
     this.offsetBlocks();
-    this.offsetDateTicks();
+    //this.offsetDateTicks();
     this.bindEvents();
   },
 
@@ -77,7 +77,7 @@ var Vis = React.createClass({
         break;
       case 'dateOffset':
         this.offsetBlocks();
-        this.offsetDateTicks();
+        //this.offsetDateTicks();
       default:
         return
     }
@@ -161,9 +161,9 @@ var Vis = React.createClass({
     this.dateAxis.verticesNeedUpdate = true;
 
     // Offset the axis tick labels
-    var absPos = 8000 - 740
-    var newPos = absPos - this.props.dateOffset * 2 * NIGHT_SPACING
-    this.dateAxisLabels.position.z = newPos
+    //var absPos = 8000 - 740
+    //var newPos = absPos - this.props.dateOffset * 2 * NIGHT_SPACING
+    //this.dateAxisLabels.position.z = newPos
   },
 
   init: function() {
@@ -370,8 +370,8 @@ var Vis = React.createClass({
     this.dateAxis = xAxis._threeObj.geometry;
     this.scene.add(xAxis._threeObj);
 
-    this.dateAxisLabels = xAxis.labels;
-    this.scene.add(xAxis.labels);
+    //this.dateAxisLabels = xAxis.labels;
+    //this.scene.add(xAxis.labels);
   },
 
   addSleepObjs: function() {

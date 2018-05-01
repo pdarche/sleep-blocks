@@ -17,12 +17,12 @@ Axis.prototype.create = function() {
   days.vertices.push(new THREE.Vector3(0, 0, 0));
   days.vertices.push(new THREE.Vector3(0, 0, 1600));
 
-  for (var i = 0; i <= this.dateRange.length; i++) {
-    var date = this.dateRange[i];
-    var zPos = this.dateScale(date);
-    days.vertices.push(new THREE.Vector3(0, 0, zPos));
-    days.vertices.push(new THREE.Vector3(-10, 0, zPos));
-  }
+  //for (var i = 0; i <= this.dateRange.length; i++) {
+  //  var date = this.dateRange[i];
+  //  var zPos = this.dateScale(date);
+  //  days.vertices.push(new THREE.Vector3(0, 0, zPos));
+  //  days.vertices.push(new THREE.Vector3(-10, 0, zPos));
+  //}
 
   var material = new THREE.LineBasicMaterial({
     color: 0x000000,
