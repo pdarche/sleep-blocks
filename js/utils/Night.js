@@ -65,7 +65,7 @@ Night.prototype.highlightState = function(targetState) {
     if (block.state === targetState) {
       block.material.opacity = 1;
     } else {
-      block.material.opacity = .05;
+      block.material.opacity = .01;
     }
   });
 }

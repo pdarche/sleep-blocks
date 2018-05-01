@@ -108,6 +108,8 @@ var Vis = React.createClass({
 
   handleViewChange: function() {
     var vec;
+    var rot = {x: -Math.PI / 2, y: 0, z: -Math.PI / 2}
+    this.yAxis.labels.position.setY(0)
     switch (this.props.activeView) {
       case 'overview':
         vec = {x: -1200, y: 1200, z: -1200}
@@ -116,13 +118,17 @@ var Vis = React.createClass({
         vec = {x: -25, y: 2000, z: 0}
         break;
       case 'front':
+        this.highlightFirst();
+        this.yAxis.labels.position.setY(-50)
+        rot = {x: -Math.PI, y: 0, z: -Math.PI / 2}
         vec = {x: 0, y: 0, z: -1700}
         break;
       default:
         vec = {x: -1200, y: 1200, z: -1200}
         break;
     }
-    this.setupTween(vec)
+    this.tweenCamera(vec)
+    this.tweenAxis(rot)
   },
 
   offsetBlocks: function() {
@@ -133,7 +139,11 @@ var Vis = React.createClass({
 
     this.nightAr.forEach(function(night, ix) {
       night.offset(self.props.dateOffset, startDate, endDate)
-    })
+    });
+
+    if (this.props.activeView === 'front') {
+      this.highlightFirst()
+    }
   },
 
   offsetDateTicks: function() {
@@ -200,13 +210,23 @@ var Vis = React.createClass({
 
     this.camera.updateProjectionMatrix();
 
-    this.renderer.render(scene, camera);
+    this.renderer.render(this.scene, this.camera);
   },
 
-  setupTween: function(targetPos) {
+  tweenCamera: function(targetPos) {
     var currPos = this.camera.position;
     var tween = new TWEEN.Tween(currPos).to(targetPos, 500);
     tween.easing(TWEEN.Easing.Cubic.InOut)
+    tween.start();
+  },
+
+  tweenAxis: function(targetRot) {
+    var currRot = this.yAxis.labels.rotation;
+    // var currPos = this.yAxis.labels.position.y;
+    var tween = new TWEEN.Tween(currRot).to(targetRot, 500);
+    // var tweenPos = new TWEEN.Tween(currPos).to(-10, 500);
+    tween.easing(TWEEN.Easing.Cubic.InOut)
+    // tweenPos.easing(TWEEN.Easing.Cubic.InOut)
     tween.start();
   },
 
@@ -218,7 +238,7 @@ var Vis = React.createClass({
 
   increaseBlockOpacity: function(){
     this.nightAr.forEach(function(night, ix){
-      night.setOpacity(.05)
+      night.setOpacity(.01)
     });
   },
 
@@ -227,7 +247,7 @@ var Vis = React.createClass({
     this.resetBlockOpacity();
     this.nightAr.forEach(function(night, ix){
       if (index !== ix) {
-        night.setOpacity(.05)
+        night.setOpacity(.01)
       }
     });
   },
@@ -244,6 +264,18 @@ var Vis = React.createClass({
     this.resetBlockOpacity();
     this.nightAr.forEach(function(night){
       night.highlightTime(time)
+    });
+  },
+
+  highlightFirst: function() {
+    var updated = false;
+    this.nightAr.forEach(function(night) {
+      if (night._threeObj.visible && !updated) {
+        night.setOpacity(1)
+        updated = true
+      } else {
+        night.setOpacity(.01)
+      }
     });
   },
 
@@ -320,6 +352,7 @@ var Vis = React.createClass({
       scale
     );
 
+    this.yAxis = yAxis;
     this.scene.add(yAxis._threeObj);
     this.scene.add(yAxis.labels);
   },
