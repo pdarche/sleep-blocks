@@ -135,7 +135,7 @@ var Vis = React.createClass({
     var self = this
     var offsetIx = Math.ceil(this.props.dateOffset)
     var startDate = this.props.dateRange[offsetIx]
-    var endDate = this.props.dateRange[offsetIx + 60]
+    var endDate = this.props.dateRange[offsetIx + 12]
 
     this.nightAr.forEach(function(night, ix) {
       night.offset(self.props.dateOffset, startDate, endDate)

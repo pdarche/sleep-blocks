@@ -27,7 +27,7 @@ var BlocksApp = React.createClass({
       eventType: null,
       controlsEnabled: true,
       dateOffset: 0,
-      numNights: 20
+      numNights: 387
     }
   },
 
