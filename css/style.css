@@ -96,25 +96,25 @@ h2 {
 
 
 /* Slider */
-
+/*
 #slider:hover {
     top: -80px;
     transition: all .25s;
 }
+*/
 
 #slider {
   position: relative;
-  top: -80px;
+  top: -70px;
   z-index: 200;
-  width: 100%;
+  width: 90%;
   margin: 0px auto;
-  background-color: rgba(255,255,255,.4);
   transition: all .25s;
 }
 
 .axis {
   fill: none;
-  stroke: #000;
+  stroke: #555;
   shape-rendering: crispEdges;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -122,9 +122,9 @@ h2 {
   stroke-width: 1px;
 }
 
-.axis .minor{
+.axis .minor {
   fill: none;
-  stroke: #000;
+  stroke: #555;
   shape-rendering: crispEdges;
 }
 
@@ -144,7 +144,9 @@ h2 {
 
 .slider .handle text {
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
+  stroke: #555;
+  shape-rendering: crispEdges;
 }
 
 .slider .current-date, .slider .handle-path{
@@ -169,6 +171,7 @@ h2 {
 }
 
 .current-date text {
+  stroke: #555;
   font-size: 12;
 }
 
