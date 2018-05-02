@@ -144,7 +144,9 @@ h2 {
 
 .slider .handle text {
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
+  stroke: #555;
+  shape-rendering: crispEdges;
 }
 
 .slider .current-date, .slider .handle-path{

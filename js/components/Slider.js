@@ -18,14 +18,16 @@ var Slider = React.createClass({
 
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
-      width = window.innerWidth - margin.left - margin.right,
+      width = (.9 * window.innerWidth) - margin.left - margin.right,
       height = 60 - margin.bottom - margin.top;
 
+    // Timescale
     var timeScale = d3.time.scale()
       .domain([startDate, endDate])
       .range([0, width])
       .clamp(true);
 
+    // Offset scale (what is this?)
     var offsetScale = d3.scale.linear()
       .domain([0, width])
       .range([0, this.props.dateRange.length - 1])
@@ -43,13 +45,15 @@ var Slider = React.createClass({
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    // X Axis
     var xAxis = d3.svg.axis()
         .scale(timeScale)
         .orient("bottom")
         .ticks(10)
-        .tickSize(0)
+        //.tickSize(0)
         .tickPadding(10)
 
+    // What is this
     svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height / 2 + ")")
@@ -60,16 +64,16 @@ var Slider = React.createClass({
       })
       .attr("class", "halo");
 
-    //svg.selectAll(".axis g")
-    //  .attr("transform", "translate(0,-3)")
+    d3.selectAll('.x text')
+      .attr("transform", "translate(0, -5)")
 
     // Slider
     var slider = svg.append("g")
       .attr("class", "slider")
       .call(brush);
 
-    slider.selectAll(".extent, .resize")
-       .remove();
+    //slider.selectAll(".extent, .resize")
+    //   .remove();
 
     slider.select(".background")
       .attr("height", height);
@@ -77,15 +81,15 @@ var Slider = React.createClass({
     var handle = slider.append("g")
       .attr("class", "handle")
 
-    // TODO: change!  This is where the stupid handle is
+    // This is where the stupid handle is
     handle.append("path")
       .attr("class", "handle-path")
       .attr("transform", "translate(0, 10)")
-      .attr("d", "M 0 -5 V 0")
+      .attr("d", "M 0 -7 V 0")
 
     handle.append('text')
       .attr("class", "current-date")
-      .attr("transform", "translate(0, 0)")
+      .attr("transform", "translate(0, -5)")
       .text(startDate.format('MMM DD'))
 
     // Axis for night highlighting
