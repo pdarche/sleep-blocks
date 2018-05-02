@@ -1,14 +1,25 @@
 body {
-	font-family: Monospace;
+	font-family: Helvetica, Arial, sans-serif;
 	/*background-color: #202020;*/
 	background-color: #f0f0f0;
 	margin: 0px;
 	overflow: hidden;
 }
 
-h2 {
-	/*color: #ccc;*/
-	text-align: center;
+h1 {
+  position: absolute;
+  top: 5px;
+  left: 20px;
+  margin: 10px 0px;
+  font-family: monospace;
+}
+
+h2, h3, h4 {
+	/*color: #ccc;
+	text-align: center;*/
+    margin: 5px;
+    font-weight: normal;
+    font-size: 13px;
 }
 
 .stats {
@@ -51,14 +62,21 @@ h2 {
 }
 
 #controls {
+    display: flex;
+    flex-direction: column;
 	position: absolute;
-	top: 20px;
-	left: 10px;
-
-	width: 200px;
+    top: 40px;
+	width: 235px;
+    margin: 20px;
 	padding: 10px;
-	/*border: 1px solid #ccc;*/
+	border: 1px solid #ccc;
 	z-index: 100;
+    opacity: .05;
+    transition: all .25s linear;
+}
+
+#controls:hover {
+  opacity: 1;
 }
 
 .times, .sleep-states, .views {
@@ -66,14 +84,22 @@ h2 {
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
-	justify-content: center;
+	justify-content: flex-start;
+    margin-bottom: 5px;
 }
 
 .time, .state, .view {
 	margin: 5px;
-	padding: 10px;
+	padding: 5px;
 	border: 1px solid #ccc;
-	width: 34%;
+	width: 55px;
+    font-size: 12px;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.state {
+    width: 36px;
 }
 
 .day, .state, .time, .view {
@@ -96,12 +122,6 @@ h2 {
 
 
 /* Slider */
-/*
-#slider:hover {
-    top: -80px;
-    transition: all .25s;
-}
-*/
 
 #slider {
   position: relative;
@@ -109,7 +129,12 @@ h2 {
   z-index: 200;
   width: 90%;
   margin: 0px auto;
+  opacity: .1;
   transition: all .25s;
+}
+
+#slider:hover {
+    opacity: 1;
 }
 
 .axis {
@@ -135,6 +160,11 @@ h2 {
   stroke-linecap: round;*/
 }
 
+.axis text {
+  font-size: 14px;
+  fill: #555;
+}
+
 .slider .handle path {
   stroke: gray;
   stroke-width: 1px;
@@ -144,7 +174,8 @@ h2 {
 
 .slider .handle text {
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
+  fill: #555;
   stroke: #555;
   shape-rendering: crispEdges;
 }
