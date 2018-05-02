@@ -124,6 +124,7 @@ var BlocksApp = React.createClass({
   render: function() {
     return (
       <div>
+        <h1>Sleep Blocks</h1>
         <Controls
           nights={this.state.activeNights}
           handleNightHover={this.handleNightHover}
