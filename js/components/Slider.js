@@ -13,8 +13,10 @@ var Slider = React.createClass({
   componentDidMount: function() {
     var self = this;
     var formatDate = d3.time.format("%b %d");
-    var startDate = moment(this.props.nights[0].startDate);
-    var endDate = moment(this.props.nights[this.props.numNights].startDate);
+    var startDate = moment("05-22-2011");
+    var endDate = moment("11-22-2012");
+    var range = moment.range(startDate, endDate);
+    var dateRange = Array.from(range.by('days'))
 
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
@@ -30,7 +32,7 @@ var Slider = React.createClass({
     // Offset scale (what is this?)
     var offsetScale = d3.scale.linear()
       .domain([0, width])
-      .range([0, this.props.dateRange.length - 1])
+      .range([0, dateRange.length - 1])
       .clamp(true)
 
     // Initialize brush
@@ -116,8 +118,7 @@ var Slider = React.createClass({
     //      .style('opacity', .1)
     //    d3.select(this.parentNode).select('text').style('opacity', 0)
     //  })
-
-    slider.call(brush.event);
+    //slider.call(brush.event);
 
     function brushed(ev) {
       var value = brush.extent()[0];

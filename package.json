@@ -7,15 +7,16 @@
   "dependencies": {
     "classnames": "2.2.1",
     "d3": "^3.5.10",
-    "lodash": "latest",
-    "moment": "2.10.6",
-    "moment-range": "^3.0.3",
-    "react": "^0.14.3",
-    "react-dom": "^0.14.3",
+    "gulp-count": "^1.0.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.11.0",
+    "moment-range": "^3.1.1",
+    "react": "^0.14.9",
+    "react-dom": "^0.14.9",
     "three": "^0.85.2",
     "three-orbit-controls": "^82.1.0",
     "tween.js": "latest",
-    "underscore": "^1.7.0"
+    "underscore": "^1.9.0"
   },
   "devDependencies": {
     "browserify": "~6.2.0",

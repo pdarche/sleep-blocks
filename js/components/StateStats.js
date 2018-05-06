@@ -31,7 +31,7 @@ var StateStats = React.createClass({
 
     return (
       <div className="stats">
-        <h1 className="stats--date">{this.formatState(this.props.state)} </h1>
+        <h4 className="stats--date">{this.formatState(this.props.state)} </h4>
         <table>
           <tr>
             <td className="stats--stat">Avg</td>

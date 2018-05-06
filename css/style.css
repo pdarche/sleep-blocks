@@ -6,7 +6,7 @@ body {
 	overflow: hidden;
 }
 
-h1 {
+#title {
   position: absolute;
   top: 5px;
   left: 20px;
@@ -26,38 +26,32 @@ h2, h3, h4 {
 	position: absolute;
 	right: 20px;
 	top: 20px;
-
 	display: block;
-
-	/*font-family: helvetica;*/
-/*	color: #aaa;*/
-
-	width: 300px;
+	width: 250px;
+    margin: 20px;
+	padding: 10px;
 }
-
-.stats--date {
-	position: relative;
-	font-weight: 500;
-	font-size: 40px;
-	margin: 10px 5px;
-}
-
 .stats--container {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 }
 
+.stats--date {
+	position: relative;
+    font-weight: 500;
+	font-size: 16px;
+    margin: 5px;
+}
+
 .stats--stat {
-	padding: 5px;
-	margin: 5px;
-	text-align: left;
 	font-weight: bold;
 }
 
-.stats--value {
+.stats--stat, .stats--value {
 	padding: 5px;
 	margin: 5px;
+    font-size: 13px;
 	text-align: left;
 }
 

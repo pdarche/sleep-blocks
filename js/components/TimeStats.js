@@ -23,20 +23,22 @@ var TimeStats = React.createClass({
 
     return (
       <div className="stats">
-        <h1 className="stats--date">{Utils.toTitleCase(this.props.time)} </h1>
+        <h4 className="stats--date">{Utils.toTitleCase(this.props.time)} </h4>
         <table>
-          <tr>
-            <td className="stats--stat">Avg</td>
-            <td className="stats--value">{stats.mean}</td>
-          </tr>
-          <tr>
-            <td className="stats--stat">Max</td>
-            <td className="stats--value">{this.formatTime(stats.max.value)} on {this.formatDate(stats.max.date)}</td>
-          </tr>
-          <tr>
-            <td className="stats--stat">Min</td>
-            <td className="stats--value">{this.formatTime(stats.min.value)} on {this.formatDate(stats.min.date)}</td>
-          </tr>
+            <tbody>
+            <tr>
+              <td className="stats--stat">Avg</td>
+              <td className="stats--value">{stats.mean}</td>
+            </tr>
+            <tr>
+              <td className="stats--stat">Max</td>
+              <td className="stats--value">{this.formatTime(stats.max.value)} on {this.formatDate(stats.max.date)}</td>
+            </tr>
+            <tr>
+              <td className="stats--stat">Min</td>
+              <td className="stats--value">{this.formatTime(stats.min.value)} on {this.formatDate(stats.min.date)}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     );

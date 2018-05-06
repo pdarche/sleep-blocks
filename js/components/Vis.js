@@ -45,13 +45,18 @@ var SLEEP_STATES    = {
 
 var Vis = React.createClass({
   nightAr: [],
+  getInitialState: function() {
+    return {
+      built: false
+    }
+  },
 
-  componentDidMount: function() {
+  buildVis: function() {
     this.dateScale = Utils.createDatescale(
-        sleep.sleepData, NIGHT_SPACING, this.props.numNights);
+        this.props.nights, NIGHT_SPACING, this.props.numNights);
 
     this.timeScale = Utils.createTimescale(
-        sleep.sleepData, START_TIME, HOURS, DISPLAY_SIZE)
+        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE)
 
     this.buildScene();
     this.animate();
@@ -61,6 +66,11 @@ var Vis = React.createClass({
   },
 
   componentDidUpdate: function() {
+    if (this.props.ready && !this.state.built) {
+      this.buildVis()
+      this.setState({built: true})
+    }
+
     controls.enabled = this.props.controlsEnabled;
     switch (this.props.eventType) {
       case 'night':
@@ -269,7 +279,7 @@ var Vis = React.createClass({
 
   highlightFirst: function() {
     var updated = false;
-    this.nightAr.forEach(function(night) {
+    this.nightAr.forEach(function(night, ix) {
       if (night._threeObj.visible && !updated) {
         night.setOpacity(1)
         updated = true
@@ -378,9 +388,9 @@ var Vis = React.createClass({
     var nights = new THREE.Object3D();
     var scale = Utils.scale(HOURS, DISPLAY_SIZE)
 
-    for (var j = 0; j < this.props.numNights; j++){
+    for (var j = 0; j < this.props.nights.length - 1; j++){
       var night = new Night(
-        sleep.sleepData[j],
+        this.props.nights[j],
         BLOCK_WIDTH,
         NIGHT_SPACING,
         X_OFFSET,

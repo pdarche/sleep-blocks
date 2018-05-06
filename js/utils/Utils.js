@@ -42,7 +42,7 @@ var Utils = {
   createDateRange: function(nights) {
     var dateRange = moment.range(
       nights[0].dateObj,
-      nights[this.props.numNights].dateObj
+      nights[nights.length - 1].dateObj
     )
     return Array.from(dateRange.by('days'))
   },
@@ -54,7 +54,7 @@ var Utils = {
 
   createDatescale: function(nights, nightSpacing, numNights) {
     var startDate = moment(nights[0].startDate)
-    var endDate = moment(nights[numNights].startDate)
+    var endDate = moment(nights[nights.length - 1].startDate)
     var diff = endDate.diff(startDate, 'days')
     var width = nightSpacing * diff
     return d3.time.scale()
@@ -68,16 +68,6 @@ var Utils = {
   */
 
   createTimescale: function(nights, startTime, hours, displaySize) {
-    var baseline = startTime * 3600 // 10 pm in seconds
-    nights.forEach(function(night, ix) {
-      var bt = night.bedTime
-      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
-      var tbt = bts >= baseline
-        ? bts - baseline
-        : bts + (2 * 3600)
-      night.translatedBedTime = tbt
-    })
-
     return d3.scale.linear()
       .domain([0, hours * 3600])
       .range([0, displaySize])
@@ -96,6 +86,30 @@ var Utils = {
       min: {value: min[stateKey], date: min.startDate},
       max: {value: max[stateKey], date: max.startDate},
       mean: mean
+    }
+  },
+
+  computeRangeStats: function(nights) {
+    var avgSleep = _.mean(nights.map(function(n){ return n.totalZ}))
+    var avgLight = _.mean(nights.map(function(n){ return n.timeInLight}))
+    var avgDeep = _.mean(nights.map(function(n){ return n.timeInDeep}))
+    var avgRem = _.mean(nights.map(function(n){ return n.timeInRem}))
+    var avgWake = _.mean(nights.map(function(n){ return n.timeInWake}))
+    var bedtime = nights.length
+      ? this.computeTimeStats(nights, 'bedtime')
+      : {mean: null}
+    var risetime = nights.length
+      ? this.computeTimeStats(nights, 'risetime')
+      : {mean: null}
+
+    return {
+      bedtime: bedtime,
+      risetime: risetime,
+      sleep: _.round(avgSleep),
+      light: _.round(avgLight),
+      deep: _.round(avgDeep),
+      rem:  _.round(avgRem),
+      wake: _.round(avgWake)
     }
   },
 
@@ -138,8 +152,8 @@ var Utils = {
   computeTimeStats: function(nights, time){
     var self = this;
     var timeKey = this.timeMapping[time];
-    // find the largetst value before 9 pm
-    var ltnine = _.filter(nights, function(n){ return n[timeKey].hour < 21})
+    // find the largetst value before 10 pm
+    var ltnine = _.filter(nights, function(n){ return n[timeKey].hour < 22})
         ltnine = _.map(ltnine, function(n){ return n[timeKey].hour})
     var maxHour = _.max(ltnine) + 1
     var offset = maxHour * 3600
@@ -180,3 +194,4 @@ var Utils = {
 }
 
 module.exports = Utils;
+
