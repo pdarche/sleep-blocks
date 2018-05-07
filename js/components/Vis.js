@@ -51,20 +51,6 @@ var Vis = React.createClass({
     }
   },
 
-  buildVis: function() {
-    this.dateScale = Utils.createDatescale(
-        this.props.nights, NIGHT_SPACING, this.props.numNights);
-
-    this.timeScale = Utils.createTimescale(
-        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE)
-
-    this.buildScene();
-    this.animate();
-    this.offsetBlocks();
-    //this.offsetDateTicks();
-    this.bindEvents();
-  },
-
   componentDidUpdate: function() {
     if (this.props.ready && !this.state.built) {
       this.buildVis()
@@ -91,6 +77,20 @@ var Vis = React.createClass({
       default:
         return
     }
+  },
+
+  buildVis: function() {
+    this.dateScale = Utils.createDatescale(
+        this.props.nights, NIGHT_SPACING, this.props.numNights);
+
+    this.timeScale = Utils.createTimescale(
+        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE)
+
+    this.buildScene();
+    this.animate();
+    this.offsetBlocks();
+    //this.offsetDateTicks();
+    this.bindEvents();
   },
 
   buildScene: function() {
@@ -143,12 +143,12 @@ var Vis = React.createClass({
 
   offsetBlocks: function() {
     var self = this
-    var offsetIx = Math.ceil(this.props.dateOffset)
-    var startDate = this.props.dateRange[offsetIx]
-    var endDate = this.props.dateRange[offsetIx + 12]
-
     this.nightAr.forEach(function(night, ix) {
-      night.offset(self.props.dateOffset, startDate, endDate)
+      night.offset(
+        self.props.dateOffset,
+        self.props.startDate,
+        self.props.endDate
+      )
     });
 
     if (this.props.activeView === 'front') {

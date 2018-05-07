@@ -17,8 +17,18 @@ var START_TIME = 22;
 
 var BlocksApp = React.createClass({
   getInitialState: function(){
+    var dateRange = Array.from(moment.range(
+      moment("05-22-2011"),
+      moment("11-22-2012")
+    ).by('days'));
+
     return {
       ready: false,
+      dateRange: dateRange,
+      startDate: dateRange[0],
+      endDate: dateRange[12],
+      offsetIx: 0,
+      visibleNights: 12,
       nights: [],
       activeView: 'overview',
       activeNights: [],
@@ -34,18 +44,11 @@ var BlocksApp = React.createClass({
     }
   },
 
-  componentWillMount() {
-    var dateRange = moment.range(
-      moment("05-22-2011"),
-      moment("11-22-2012")
-    )
-    this.dateRange = Array.from(dateRange.by('days'))
-  },
-
   // Fetch the sleep data
   componentDidMount: function() {
     var self = this;
     $.getJSON('/js/data/sleep.json', function(res) {
+      // TODO: move this to utils or something
       var baseline = START_TIME * 3600 // 10 pm in seconds
       var nights = res.sleepData.map(function(night, ix) {
         night.dateObj = moment(night.startDate);
@@ -59,11 +62,10 @@ var BlocksApp = React.createClass({
         return night
       });
 
-      var active = nights.slice(0,14);
       self.setState({
         ready: true,
         nights: nights,
-        activeNights: active,
+        activeNights: nights.slice(0, 12),
         activeNight: null,
         activeState: null,
         activeTime: null
@@ -138,21 +140,22 @@ var BlocksApp = React.createClass({
   },
 
   handleSliderMovement: function(value) {
-    // Handle Active Nights shuld be here
     var offsetIx = Math.ceil(value)
-    var startDate = this.dateRange[offsetIx]
-    var endDate = this.dateRange[offsetIx + 12]
+    var startDate = this.state.dateRange[offsetIx]
+    var endDate = this.state.dateRange[offsetIx + 12]
     var activeNights = this.state.nights.filter(function(night) {
       return (
         night.dateObj.isSameOrAfter(startDate) &&
         night.dateObj.isSameOrBefore(endDate)
       );
     })
-    //console.log('the night ix is', activeNights.map(n => n.startDate))
 
     this.setState({
       eventType: 'dateOffset',
       dateOffset: value,
+      offsetIx: offsetIx,
+      startDate: startDate,
+      endDate: endDate,
       activeNight: activeNights[0],
       activeNights: activeNights
     });
@@ -180,12 +183,14 @@ var BlocksApp = React.createClass({
           activeNights={this.state.activeNights}
           night={this.state.activeNight}
           nightIx={this.state.activeNightIx}
+          startDate={this.state.startDate}
+          endDate={this.state.endDate}
           state={this.state.activeState}
           time={this.state.activeTime}
           dateOffset={this.state.dateOffset}
           eventType={this.state.eventType}
           activeView={this.state.activeView}
-          dateRange={this.dateRange}
+          dateRange={this.state.dateRange}
           controlsEnabled={this.state.controlsEnabled}
           handleActiveNightUpdate={this.handleActiveNightUpdate}
           handleViewChange={this.handleViewChange}
@@ -200,7 +205,9 @@ var BlocksApp = React.createClass({
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
-          dateRange={this.dateRange}
+          startDate={this.state.startDate}
+          endDate={this.state.endDate}
+          dateRange={this.state.dateRange}
           numNights={this.state.numNights}
           handleNightHover={this.handleNightHover}
           handleSliderHover={this.handleSliderHover}
