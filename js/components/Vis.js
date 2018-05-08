@@ -122,9 +122,11 @@ var Vis = React.createClass({
     this.yAxis.labels.position.setY(0)
     switch (this.props.activeView) {
       case 'overview':
+        this.resetBlockOpacity();
         vec = {x: -1200, y: 1200, z: -1200}
         break;
       case 'overhead':
+        this.resetBlockOpacity();
         vec = {x: -25, y: 2000, z: 0}
         break;
       case 'front':
@@ -194,7 +196,12 @@ var Vis = React.createClass({
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-  } ,
+  },
+
+  handleDoubleClick: function() {
+    console.log('double clicking')
+    this.props.handleViewChange('overview')
+  },
 
   mouseWheel: function(event) {
     event.preventDefault();
@@ -415,7 +422,7 @@ var Vis = React.createClass({
   render: function() {
     return (
       <div>
-        <div id="vis" onDoubleClick={this.resetBlockOpacity}></div>
+        <div id="vis" onDoubleClick={this.handleDoubleClick}></div>
       </div>
     );
   }

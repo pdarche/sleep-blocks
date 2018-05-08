@@ -74,21 +74,19 @@ var BlocksApp = React.createClass({
   },
 
   switchViewStats: function(view) {
-    //switch (view) {
-    //  case 'front':
-    //    return 'night'
-    //    break;
-    //  case 'overview':
-    //    return 'range'
-    //    break;
-    //  case 'front':
-    //    return 'night'
-    //    break;
-    //}
-
-    return view === 'front'
-      ? 'night'
-      : this.state.statsState
+    switch (view) {
+      case 'overhead':
+        return 'range'
+        break;
+      case 'front':
+        return 'night'
+        break;
+      case 'overview':
+        return 'range'
+        break;
+      default:
+        return 'range'
+    }
   },
 
   handleNightHover: function(targetNight, date) {
@@ -99,7 +97,7 @@ var BlocksApp = React.createClass({
       return night.dateObj.isSame(date)
     })
     this.setState({
-      activeNight: activeNight, // this.state.activeNights[targetNight],
+      activeNight: activeNight,
       activeNightIx: activeNightIx,
       eventType: 'night',
       statsState: 'night'
