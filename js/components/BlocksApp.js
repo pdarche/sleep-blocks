@@ -9,6 +9,7 @@ var Vis = require('./Vis');
 var Controls = require('./Controls');
 var Stats = require('./Stats');
 var Slider = require('./Slider');
+var Utils = require('../utils/Utils');
 var _ = require('lodash');
 var moment = require('moment');
 
@@ -48,20 +49,8 @@ var BlocksApp = React.createClass({
     var self = this;
     window.moment = moment;
     $.getJSON('/js/data/sleep.json', function(res) {
-      // TODO: move this to utils or something
       var baseline = START_TIME * 3600 // 10 pm in seconds
-      var nights = res.sleepData.map(function(night, ix) {
-        var date = {year: night.startDate.year, month: night.startDate.month -1, day: night.startDate.day}
-        night.dateObj = moment(date);
-        night.id = ix;
-        var bt = night.bedTime
-        var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
-        var tbt = bts >= baseline
-          ? bts - baseline
-          : bts + (2 * 3600)
-        night.translatedBedTime = tbt
-        return night
-      });
+      var nights = Utils.processData(res.sleepData, baseline)
 
       self.setState({
         ready: true,

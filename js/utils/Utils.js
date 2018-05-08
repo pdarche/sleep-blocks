@@ -190,6 +190,26 @@ var Utils = {
     return str.replace(/\w\S*/g, function(txt){
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+  },
+
+  // Refactor: a function should do just one thing
+  processData: function(nights, baseline) {
+      return nights.map(function(night, ix) {
+        var date = moment({
+            year: night.startDate.year,
+            month: night.startDate.month - 1,
+            day: night.startDate.day
+        })
+        night.dateObj = date;
+        night.id = ix;
+        var bt = night.bedTime
+        var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
+        var tbt = bts >= baseline
+          ? bts - baseline
+          : bts + (2 * 3600)
+        night.translatedBedTime = tbt
+        return night
+      });
   }
 }
 

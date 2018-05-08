@@ -84,7 +84,7 @@ var Vis = React.createClass({
         this.props.nights, NIGHT_SPACING);
 
     this.timeScale = Utils.createTimescale(
-        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE)
+        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE);
 
     this.buildScene();
     this.animate();
@@ -143,7 +143,6 @@ var Vis = React.createClass({
 
   offsetBlocks: function() {
     var self = this
-    console.log(self.props.dateOffset)
     this.nightAr.forEach(function(night, ix) {
       night.offset(
         self.props.dateOffset,
