@@ -9,7 +9,6 @@ var Vis = require('./Vis');
 var Controls = require('./Controls');
 var Stats = require('./Stats');
 var Slider = require('./Slider');
-var d3 = require('d3');
 var _ = require('lodash');
 var moment = require('moment');
 
@@ -18,7 +17,7 @@ var START_TIME = 22;
 var BlocksApp = React.createClass({
   getInitialState: function(){
     var dateRange = Array.from(moment.range(
-      moment("05-22-2011"),
+      moment("04-22-2011"),
       moment("11-22-2012")
     ).by('days'));
 
@@ -47,11 +46,13 @@ var BlocksApp = React.createClass({
   // Fetch the sleep data
   componentDidMount: function() {
     var self = this;
+    window.moment = moment;
     $.getJSON('/js/data/sleep.json', function(res) {
       // TODO: move this to utils or something
       var baseline = START_TIME * 3600 // 10 pm in seconds
       var nights = res.sleepData.map(function(night, ix) {
-        night.dateObj = moment(night.startDate);
+        var date = {year: night.startDate.year, month: night.startDate.month -1, day: night.startDate.day}
+        night.dateObj = moment(date);
         night.id = ix;
         var bt = night.bedTime
         var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
@@ -65,7 +66,7 @@ var BlocksApp = React.createClass({
       self.setState({
         ready: true,
         nights: nights,
-        activeNights: nights.slice(0, 12),
+        activeNights: nights.slice(0, self.state.visibleNights),
         activeNight: null,
         activeState: null,
         activeTime: null
@@ -140,7 +141,7 @@ var BlocksApp = React.createClass({
   },
 
   handleSliderMovement: function(value) {
-    var offsetIx = Math.ceil(value)
+    var offsetIx = Math.floor(value)
     var startDate = this.state.dateRange[offsetIx]
     var endDate = this.state.dateRange[offsetIx + 12]
     var activeNights = this.state.nights.filter(function(night) {
@@ -148,7 +149,7 @@ var BlocksApp = React.createClass({
         night.dateObj.isSameOrAfter(startDate) &&
         night.dateObj.isSameOrBefore(endDate)
       );
-    })
+    });
 
     this.setState({
       eventType: 'dateOffset',
@@ -199,6 +200,8 @@ var BlocksApp = React.createClass({
           night={this.state.activeNight}
           nights={this.state.nights}
           activeNights={this.state.activeNights}
+          dateRange={this.state.dateRange}
+          offsetIx={this.state.offsetIx}
           state={this.state.activeState}
           time={this.state.activeTime}
           statsState={this.state.statsState}/>

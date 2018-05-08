@@ -81,7 +81,7 @@ var Vis = React.createClass({
 
   buildVis: function() {
     this.dateScale = Utils.createDatescale(
-        this.props.nights, NIGHT_SPACING, this.props.numNights);
+        this.props.nights, NIGHT_SPACING);
 
     this.timeScale = Utils.createTimescale(
         this.props.nights, START_TIME, HOURS, DISPLAY_SIZE)
@@ -143,12 +143,13 @@ var Vis = React.createClass({
 
   offsetBlocks: function() {
     var self = this
+    console.log(self.props.dateOffset)
     this.nightAr.forEach(function(night, ix) {
       night.offset(
         self.props.dateOffset,
         self.props.startDate,
         self.props.endDate
-      )
+      );
     });
 
     if (this.props.activeView === 'front') {
@@ -409,7 +410,6 @@ var Vis = React.createClass({
       this.theta -= this.mouse2D.x * 6;
     }
     this.camera.lookAt(this.scene.position);
-    // this.raycaster = this.projector.pickingRay(this.mouse2D.clone(), this.camera);
     this.renderer.render(this.scene, this.camera);
   },
 

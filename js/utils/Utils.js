@@ -52,9 +52,9 @@ var Utils = {
    * to date positions
   */
 
-  createDatescale: function(nights, nightSpacing, numNights) {
-    var startDate = moment(nights[0].startDate)
-    var endDate = moment(nights[nights.length - 1].startDate)
+  createDatescale: function(nights, nightSpacing) {
+    var startDate = nights[0].dateObj;
+    var endDate = nights[nights.length - 1].dateObj;
     var diff = endDate.diff(startDate, 'days')
     var width = nightSpacing * diff
     return d3.time.scale()

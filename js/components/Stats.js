@@ -24,7 +24,10 @@ var Stats = React.createClass({
         stats = <TimeStats nights={this.props.activeNights} time={this.props.time}/>
         break;
       case 'range':
-        stats = <RangeStats nights={this.props.activeNights} />
+        stats = <RangeStats
+          offsetIx={this.props.offsetIx}
+          dateRange={this.props.dateRange}
+          nights={this.props.activeNights} />
     }
     return stats
   },
