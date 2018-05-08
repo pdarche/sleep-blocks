@@ -57,7 +57,6 @@ var Vis = React.createClass({
       this.setState({built: true})
     }
 
-    controls.enabled = this.props.controlsEnabled;
     switch (this.props.eventType) {
       case 'night':
         this.highlightNight();
@@ -99,7 +98,6 @@ var Vis = React.createClass({
     this.addLights()
     this.addRenderer()
     this.addProjector();
-    this.addControls();
     this.addXAxis();
     this.addYAxis();
     this.addGrid();
@@ -110,10 +108,7 @@ var Vis = React.createClass({
     requestAnimationFrame(this.animate);
     TWEEN.update();
     this.renderScene();
-    if (this.props.controlsEnabled){
-      window.controls.update();
-      this.camera.updateProjectionMatrix()
-    }
+    this.camera.updateProjectionMatrix();
   },
 
   handleViewChange: function() {
@@ -342,20 +337,6 @@ var Vis = React.createClass({
     this.scene.add(this.plane);
 
     this.mouse2D = new THREE.Vector3(0, 0, 0);
-  },
-
-  addControls : function(){
-    window.controls = new THREE.TrackballControls(this.camera);
-
-    //controls.rotateSpeed = 1.0;
-    //controls.panSpeed = 0.8;
-    //controls.ZOOMSpeed = 1.2;
-
-    controls.noZoom= true;
-    controls.noPan  = true;
-    controls.noRotate = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.keys = [65, 83, 68];
   },
 
   addYAxis: function() {

@@ -38,7 +38,6 @@ var BlocksApp = React.createClass({
       activeTime: null,
       eventType: null,
       statsState: 'range',
-      controlsEnabled: true,
       dateOffset: 0,
       numNights: 387
     }
@@ -120,13 +119,6 @@ var BlocksApp = React.createClass({
     });
   },
 
-  handleSliderHover: function() {
-    this.setState({
-      controlsEnabled: !this.state.controlsEnabled,
-      eventType: null
-    });
-  },
-
   handleSliderMovement: function(value) {
     var offsetIx = Math.floor(value)
     var startDate = this.state.dateRange[offsetIx]
@@ -179,7 +171,6 @@ var BlocksApp = React.createClass({
           eventType={this.state.eventType}
           activeView={this.state.activeView}
           dateRange={this.state.dateRange}
-          controlsEnabled={this.state.controlsEnabled}
           handleActiveNightUpdate={this.handleActiveNightUpdate}
           handleViewChange={this.handleViewChange}
           numNights={this.state.numNights}/>
@@ -200,7 +191,6 @@ var BlocksApp = React.createClass({
           dateRange={this.state.dateRange}
           numNights={this.state.numNights}
           handleNightHover={this.handleNightHover}
-          handleSliderHover={this.handleSliderHover}
           handleSliderMovement={this.handleSliderMovement}/>
       </div>
     );
