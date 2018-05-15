@@ -107,7 +107,7 @@ var Slider = React.createClass({
   },
 
   onMouseOver: function() {
-    this.props.handleSliderHover();
+    //this.props.handleSliderHover();
   },
 
   render: function(){

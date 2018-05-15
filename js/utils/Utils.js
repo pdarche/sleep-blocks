@@ -1,7 +1,7 @@
 'use strict';
 
-var _ = require('lodash');
 var moment = require('moment');
+var _ = require('lodash');
 
   /*
   * Utilities for the application

@@ -59,7 +59,7 @@ var BlocksApp = React.createClass({
         activeState: null,
         activeTime: null
       });
-    })
+    });
   },
 
   handleViewChange: function(targetView) {
