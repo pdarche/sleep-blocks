@@ -73,6 +73,55 @@ var Utils = {
       .range([0, displaySize])
   },
 
+  rollingWindow: function(values, dateRange, window_size) {
+    var means = [];
+    for (var i = 0; i < values.length - window_size; i++) {
+      var mean = _.mean(values.slice(i, i+window_size));
+      means.push({date: dateRange[i], value: mean});
+    }
+    return means
+  },
+
+  mapToDateRange: function(nights, dateRange) {
+    var nightIx = 0;
+    var dateIx = 0;
+    var mapping = []
+    while (nightIx < nights.length) {
+        var night, date;
+        var n = nights[nightIx];
+        var d = dateRange[dateIx];
+        if (d.isBefore(n.dateObj)) {
+          date = d
+          night = null
+          dateIx += 1
+        } else if (d.isSame(n.dateObj)) {
+          date = d
+          night = n
+          dateIx += 1
+          nightIx += 1
+        }
+        mapping.push({night: night, date: date})
+    }
+    return mapping
+  },
+
+  computeWindows: function(nights, dateRange, window_size) {
+    var sleep = nights.map(function(n){ return n.totalZ})
+    var light = nights.map(function(n){ return n.timeInLight})
+    var deep  = nights.map(function(n){ return n.timeInDeep})
+    var rem   = nights.map(function(n){ return n.timeInRem})
+    var wake  = nights.map(function(n){ return n.timeInWake})
+
+    return {
+      sleep: this.rollingWindow(sleep, dateRange, window_size),
+      light: this.rollingWindow(light, dateRange, window_size),
+      deep : this.rollingWindow(deep, dateRange, window_size),
+      rem  : this.rollingWindow(rem, dateRange, window_size),
+      wake : this.rollingWindow(wake, dateRange, window_size),
+    }
+
+  },
+
   computeStateStats: function(nights, state){
     var stateKey = this.stateMapping[state];
     var stateValues = _.map(nights, function(night){ return night[stateKey]});
@@ -105,11 +154,24 @@ var Utils = {
     return {
       bedtime: bedtime,
       risetime: risetime,
-      sleep: _.round(avgSleep),
-      light: _.round(avgLight),
-      deep: _.round(avgDeep),
-      rem:  _.round(avgRem),
-      wake: _.round(avgWake)
+      sleep: this.formatTime(avgSleep),
+      light: this.formatTime(avgLight),
+      deep: this.formatTime(avgDeep),
+      rem:  this.formatTime(avgRem),
+      wake: this.formatTime(avgWake)
+    }
+  },
+
+  formatTime: function(mins) {
+    var hours = Math.floor(mins/60);
+    var mins = Math.floor(mins % 60);
+
+    if (hours == 0) {
+      return mins + " mins"
+    } else if (hours == 1) {
+      return hours + " hr " + mins + " mins"
+    } else {
+      return hours + " hrs " + mins + " mins"
     }
   },
 
@@ -146,6 +208,7 @@ var Utils = {
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
     var time    = hours+':'+minutes+':'+seconds;
+    time = moment(time, 'HH:mm:ss').format('h:mm a')
     return time;
   },
 

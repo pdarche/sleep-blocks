@@ -27,7 +27,8 @@ var Stats = React.createClass({
         stats = <RangeStats
           offsetIx={this.props.offsetIx}
           dateRange={this.props.dateRange}
-          nights={this.props.activeNights} />
+          nights={this.props.activeNights}
+          windows={this.props.windows} />
     }
     return stats
   },

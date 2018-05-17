@@ -26,9 +26,9 @@ var BlocksApp = React.createClass({
       ready: false,
       dateRange: dateRange,
       startDate: dateRange[0],
-      endDate: dateRange[12],
+      endDate: dateRange[10],
       offsetIx: 0,
-      visibleNights: 12,
+      visibleNights: 10,
       nights: [],
       activeView: 'overview',
       activeNights: [],
@@ -39,7 +39,8 @@ var BlocksApp = React.createClass({
       eventType: null,
       statsState: 'range',
       dateOffset: 0,
-      numNights: 387
+      numNights: 387,
+      windows: []
     }
   },
 
@@ -50,6 +51,9 @@ var BlocksApp = React.createClass({
     $.getJSON('/js/data/sleep.json', function(res) {
       var baseline = START_TIME * 3600 // 10 pm in seconds
       var nights = Utils.processData(res.sleepData, baseline)
+      var windows = Utils.computeWindows(
+        res.sleepData, self.state.dateRange, 10)
+      var mapped = Utils.mapToDateRange(nights, self.state.dateRange)
 
       self.setState({
         ready: true,
@@ -57,7 +61,9 @@ var BlocksApp = React.createClass({
         activeNights: nights.slice(0, self.state.visibleNights),
         activeNight: null,
         activeState: null,
-        activeTime: null
+        activeTime: null,
+        windows: windows,
+        mapped: mapped
       });
     });
   },
@@ -122,7 +128,7 @@ var BlocksApp = React.createClass({
   handleSliderMovement: function(value) {
     var offsetIx = Math.floor(value)
     var startDate = this.state.dateRange[offsetIx]
-    var endDate = this.state.dateRange[offsetIx + 12]
+    var endDate = this.state.dateRange[offsetIx + 10]
     var activeNights = this.state.nights.filter(function(night) {
       return (
         night.dateObj.isSameOrAfter(startDate) &&
@@ -182,7 +188,8 @@ var BlocksApp = React.createClass({
           offsetIx={this.state.offsetIx}
           state={this.state.activeState}
           time={this.state.activeTime}
-          statsState={this.state.statsState}/>
+          statsState={this.state.statsState}
+          windows={this.state.windows}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
