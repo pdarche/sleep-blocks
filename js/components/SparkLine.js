@@ -48,6 +48,11 @@ var SparkLine = React.createClass({
         .attr('stroke-width', .5)
         .attr('stroke', 'black')
 
+      d3.select('.' + cls)
+        .append('circle')
+        .attr('r', 2)
+        .attr('fill', 'steelblue')
+
       this.setState({loaded: true});
     } else if (data.length) {
       this.update(scales, height);
@@ -63,6 +68,11 @@ var SparkLine = React.createClass({
       .attr('x2', function(d) { return scales.x(d.date) })
       .attr('y2', function(d) { return scales.y(d.value) })
       .attr('y1', height)
+
+    d3.selectAll(id + ' circle')
+      .datum(this.props.data[this.props.offset])
+      .attr('cx', function(d) { return scales.x(d.date) })
+      .attr('cy', function(d) { return scales.y(d.value) })
   },
 
   scales: function(dr, width, height) {
