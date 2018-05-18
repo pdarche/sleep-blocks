@@ -34,9 +34,10 @@ var RangeStats = React.createClass({
   },
 
   render: function() {
-    var stats = Utils.computeRangeStats(this.props.nights)
+    var stats = Utils.computeRangeStats(this.props.activeNights)
     var startDate = this.props.dateRange[this.props.offsetIx].format('MMM Do');
-    var endDate = this.props.dateRange[this.props.offsetIx + 12].format('MMM Do');
+    var endDate = this.props.dateRange[this.props.offsetIx + 10].format('MMM Do');
+
     var statCollection = [
       {name: 'Risetime', value: stats.risetime.mean, key: 'stat-risetime', unit: ''},
       {name: 'Bedtime', value: stats.bedtime.mean, key: 'stat-bedtime', unit: ''},

@@ -51,9 +51,9 @@ var BlocksApp = React.createClass({
     $.getJSON('/js/data/sleep.json', function(res) {
       var baseline = START_TIME * 3600 // 10 pm in seconds
       var nights = Utils.processData(res.sleepData, baseline)
-      var windows = Utils.computeWindows(
-        res.sleepData, self.state.dateRange, 10)
       var mapped = Utils.mapToDateRange(nights, self.state.dateRange)
+      var windows = Utils.computeWindows(
+        mapped, self.state.dateRange, 10)
 
       self.setState({
         ready: true,

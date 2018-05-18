@@ -128,26 +128,6 @@ var Vis = React.createClass({
     }
   },
 
-  offsetDateTicks: function() {
-    // Offset the date axis ticks
-    var self = this;
-    var verts = this.dateAxis.vertices.slice(2, this.dateAxis.vertices.length);
-    verts.forEach(function(vert, ix) {
-      var absPos = vert.x == 0
-        ? ix * NIGHT_SPACING
-        : (ix - 1) * NIGHT_SPACING
-      var offset = self.props.dateOffset * 2 * NIGHT_SPACING
-      var newPos = absPos - offset
-      vert.z = newPos;
-    });
-    this.dateAxis.verticesNeedUpdate = true;
-
-    // Offset the axis tick labels
-    //var absPos = 8000 - 740
-    //var newPos = absPos - this.props.dateOffset * 2 * NIGHT_SPACING
-    //this.dateAxisLabels.position.z = newPos
-  },
-
   handleDoubleClick: function() {
     this.props.handleViewChange('overview')
   },

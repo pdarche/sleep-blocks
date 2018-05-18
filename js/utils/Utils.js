@@ -76,10 +76,34 @@ var Utils = {
   rollingWindow: function(values, dateRange, window_size) {
     var means = [];
     for (var i = 0; i < values.length - window_size; i++) {
-      var mean = _.mean(values.slice(i, i+window_size));
+      var vals = values.slice(i, i+window_size).filter(function(v) { if (v) return v });
+      var mean = _.mean(vals) || 0;
       means.push({date: dateRange[i], value: mean});
     }
     return means
+  },
+
+  splitWindows: function(rolling_window) {
+    var vals = []
+    //while window_ix < rolling_window.length {
+    for (var i = 0; i < rolling_window.length; i++) {
+      if (rolling_window[i].value !== 0) {
+        vals.push(i)
+      }
+    }
+
+    var windows = {0: []}
+    var wix = 0
+    for (var j = 0; j < vals.length; j++) {
+      if (j == 0 || (vals[j] - vals[j-1] == 1)) {
+        windows[wix].push(rolling_window[vals[j]])
+      } else {
+        wix++
+        windows[wix] = [rolling_window[vals[j]]]
+      }
+    }
+
+    return _.values(windows)
   },
 
   mapToDateRange: function(nights, dateRange) {
@@ -92,7 +116,8 @@ var Utils = {
         var d = dateRange[dateIx];
         if (d.isBefore(n.dateObj)) {
           date = d
-          night = null
+          //night = {totalZ: 0, timeInLight: 0, timeInDeep: 0, timeInRem: 0, timeInWake: 0}
+          night = {totalZ: null, timeInLight: null, timeInDeep: null, timeInRem: null, timeInWake: null}
           dateIx += 1
         } else if (d.isSame(n.dateObj)) {
           date = d
@@ -106,11 +131,11 @@ var Utils = {
   },
 
   computeWindows: function(nights, dateRange, window_size) {
-    var sleep = nights.map(function(n){ return n.totalZ})
-    var light = nights.map(function(n){ return n.timeInLight})
-    var deep  = nights.map(function(n){ return n.timeInDeep})
-    var rem   = nights.map(function(n){ return n.timeInRem})
-    var wake  = nights.map(function(n){ return n.timeInWake})
+    var sleep = nights.map(function(n){ return n.night.totalZ })
+    var light = nights.map(function(n){ return n.night.timeInLight })
+    var deep  = nights.map(function(n){ return n.night.timeInDeep })
+    var rem   = nights.map(function(n){ return n.night.timeInRem  })
+    var wake  = nights.map(function(n){ return n.night.timeInWake })
 
     return {
       sleep: this.rollingWindow(sleep, dateRange, window_size),
@@ -119,7 +144,6 @@ var Utils = {
       rem  : this.rollingWindow(rem, dateRange, window_size),
       wake : this.rollingWindow(wake, dateRange, window_size),
     }
-
   },
 
   computeStateStats: function(nights, state){

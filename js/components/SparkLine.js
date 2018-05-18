@@ -1,6 +1,8 @@
 'use strict'
 
 
+var Utils = require('../utils/Utils');
+
 var SparkLine = React.createClass({
   getInitialState: function() {
     return {
@@ -13,33 +15,37 @@ var SparkLine = React.createClass({
     var height = 25;
     var scales = this.scales(this.props.dateRange, width, height)
     var data = this.props.data;
-    scales.y.domain(d3.extent(data, function(d) {
+    var wozeros = data.filter(function(d) { return d.value != 0 })
+    scales.y.domain(d3.extent(wozeros, function(d) {
       return d.value;
     }));
 
     if (data.length && !this.state.loaded) {
+      var segments = Utils.splitWindows(data);
       var line = d3.svg.line()
         .x(function(d) { return scales.x(d.date); })
         .y(function(d) { return scales.y(d.value); });
 
       var id = '#id_' + this.props.stat
       var cls = 'stat-' + this.props.stat
-      d3.select(id)
+      var svg = d3.select(id)
         .append('svg')
         .attr('class', cls)
         .attr('width', width)
         .attr('height', height)
-        .append('path')
-        .datum(data)
-        .attr('class', 'sparkline')
-        .attr('d', line)
-        .style('fill', 'none')
-        .style('stroke', 'black')
-        .style('stroke-width', 1);
+
+       svg.selectAll('.sparkline')
+         .data(segments)
+        .enter().append('path')
+         .attr('class', 'sparkline')
+         .attr('d', line)
+         .style('fill', 'none')
+         .style('stroke', 'black')
+         .style('stroke-width', .5);
 
       d3.select('.' + cls)
         .append('line')
-        .attr('stroke-width', 1)
+        .attr('stroke-width', .5)
         .attr('stroke', 'black')
 
       this.setState({loaded: true});
