@@ -131,6 +131,15 @@ var Utils = {
   },
 
   computeWindows: function(nights, dateRange, window_size) {
+    var self = this;
+    var bedtimes = _.map(nights, function(n){
+        var time = n.night.bedTime || {hour: 0, minute: 0, second: 0 }
+        return self.timeToSeconds(time, 72000); });
+
+    var risetimes = _.map(nights, function(n){
+        var time = n.night.riseTime || {hour: 0, minute: 0, second: 0 }
+        return self.timeToSeconds(time, 72000); });
+
     var sleep = nights.map(function(n){ return n.night.totalZ })
     var light = nights.map(function(n){ return n.night.timeInLight })
     var deep  = nights.map(function(n){ return n.night.timeInDeep })
@@ -138,11 +147,13 @@ var Utils = {
     var wake  = nights.map(function(n){ return n.night.timeInWake })
 
     return {
-      sleep: this.rollingWindow(sleep, dateRange, window_size),
-      light: this.rollingWindow(light, dateRange, window_size),
-      deep : this.rollingWindow(deep, dateRange, window_size),
-      rem  : this.rollingWindow(rem, dateRange, window_size),
-      wake : this.rollingWindow(wake, dateRange, window_size),
+      bedtime : this.rollingWindow(bedtimes, dateRange, window_size),
+      risetime: this.rollingWindow(risetimes, dateRange, window_size),
+      sleep   : this.rollingWindow(sleep, dateRange, window_size),
+      light   : this.rollingWindow(light, dateRange, window_size),
+      deep    : this.rollingWindow(deep, dateRange, window_size),
+      rem     : this.rollingWindow(rem, dateRange, window_size),
+      wake    : this.rollingWindow(wake, dateRange, window_size),
     }
   },
 

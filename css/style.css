@@ -73,6 +73,48 @@ h2, h3, h4 {
     width: 100px;
 }
 
+/* experimental styles */
+.stats {
+    width: inherit;
+    /*
+    box-shadow: 0px 1px 7px grey;
+    padding: 10px
+    */
+}
+
+.stats--stats-container {
+  background-color: rgba(240,240,240, .9);
+  border: 1px solid #ccc;
+  padding: 5px;
+  margin-top: 15px;
+}
+
+.stats--name {
+    font-weight: normal;
+    font-size: 10px;
+}
+
+.stats--date {
+    font-size: 20px;
+    margin: 10px;
+}
+
+.stats--stat {
+    font-size: 12px;
+    margin: 10px;
+    justify-content: flex-end;
+}
+
+.stats--value {
+    font-size: 14px;
+}
+
+.stats--sparkline {
+    align-self: flex-end;
+}
+
+/* end experimental */
+
 #controls {
     display: flex;
     flex-direction: column;
