@@ -21,7 +21,7 @@ var BlocksApp = React.createClass({
       moment("04-22-2011"),
       moment("11-22-2012")
     ).by('days'));
-    var visibleNights = 10
+    var visibleNights = 13;
 
     return {
       ready: false,
@@ -131,19 +131,17 @@ var BlocksApp = React.createClass({
   },
 
   handleMouseOver: function() {
-    console.log('mousing down');
     this.setState({sliderGrabbed: true});
   },
 
   handleMouseOut: function() {
-    console.log('mousing up');
     this.setState({sliderGrabbed: false});
   },
 
   handleSliderMovement: function(value) {
-    var offsetIx = Math.floor(value)
-    var startDate = this.state.dateRange[offsetIx]
-    var endDate = this.state.dateRange[offsetIx + 10]
+    var offsetIx = Math.floor(value);
+    var startDate = this.state.dateRange[offsetIx];
+    var endDate = this.state.dateRange[offsetIx + this.state.visibleNights];
     var activeNights = this.state.nights.filter(function(night) {
       return (
         night.dateObj.isSameOrAfter(startDate) &&

@@ -15,13 +15,16 @@ var Stats = React.createClass({
     var stats;
     switch (this.props.statsState) {
       case 'night':
-        stats = <SingleNightStats night={this.props.night}/>;
+        stats = <SingleNightStats
+          night={this.props.night}/>;
         break;
       case 'state':
-        stats = <StateStats nights={this.props.activeNights} state={this.props.state}/>;
+        stats = <StateStats
+          nights={this.props.activeNights} state={this.props.state}/>;
         break;
       case 'time':
-        stats = <TimeStats nights={this.props.activeNights} time={this.props.time}/>
+        stats = <TimeStats
+          nights={this.props.activeNights} time={this.props.time}/>
         break;
       case 'range':
         stats = <RangeStats

@@ -43,8 +43,8 @@ var RangeStats = React.createClass({
     var endDate = this.props.dateRange[this.props.offsetIx + 10].format('MMM Do');
 
     var statCollection = [
-      {name: 'Risetime', value: stats.risetime.mean, key: 'risetime', unit: ''},
       {name: 'Bedtime', value: stats.bedtime.mean, key: 'bedtime', unit: ''},
+      {name: 'Risetime', value: stats.risetime.mean, key: 'risetime', unit: ''},
       {name: 'Avg Sleep', value: stats.sleep, key: 'sleep', unit: ''},
       {name: 'Light Sleep', value: stats.light, key: 'light', unit: ''},
       {name: 'Deep Sleep', value: stats.deep, key: 'deep'},
