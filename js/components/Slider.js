@@ -107,14 +107,18 @@ var Slider = React.createClass({
   },
 
   onMouseOver: function() {
-    //this.props.handleSliderHover();
+    this.props.handleMouseOver();
+  },
+
+  onMouseOut: function() {
+    this.props.handleMouseOut();
   },
 
   render: function(){
     return (
       <div id="slider"
         onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOver}>
+        onMouseOut={this.onMouseOut}>
       </div>
     );
   }

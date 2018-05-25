@@ -83,9 +83,12 @@ var Utils = {
     return means
   },
 
+  /*
+   * Splits an array into array of arrays
+   * based on empty values
+  */
   splitWindows: function(rolling_window) {
     var vals = []
-    //while window_ix < rolling_window.length {
     for (var i = 0; i < rolling_window.length; i++) {
       if (rolling_window[i].value !== 0) {
         vals.push(i)
@@ -106,18 +109,28 @@ var Utils = {
     return _.values(windows)
   },
 
+  /*
+   * Create a mapping of night objects to date keys
+   * based on sleep date
+  */
+
   mapToDateRange: function(nights, dateRange) {
     var nightIx = 0;
     var dateIx = 0;
-    var mapping = []
+    var mapping = [];
     while (nightIx < nights.length) {
         var night, date;
         var n = nights[nightIx];
         var d = dateRange[dateIx];
         if (d.isBefore(n.dateObj)) {
           date = d
-          //night = {totalZ: 0, timeInLight: 0, timeInDeep: 0, timeInRem: 0, timeInWake: 0}
-          night = {totalZ: null, timeInLight: null, timeInDeep: null, timeInRem: null, timeInWake: null}
+          night = {
+            totalZ: null,
+            timeInLight: null,
+            timeInDeep: null,
+            timeInRem: null,
+            timeInWake: null
+          }
           dateIx += 1
         } else if (d.isSame(n.dateObj)) {
           date = d
@@ -133,12 +146,14 @@ var Utils = {
   computeWindows: function(nights, dateRange, window_size) {
     var self = this;
     var bedtimes = _.map(nights, function(n){
-        var time = n.night.bedTime || {hour: 0, minute: 0, second: 0 }
-        return self.timeToSeconds(time, 72000); });
+      var time = n.night.bedTime || {hour: 0, minute: 0, second: 0 }
+      return self.timeToSeconds(time, 72000);
+    });
 
     var risetimes = _.map(nights, function(n){
-        var time = n.night.riseTime || {hour: 0, minute: 0, second: 0 }
-        return self.timeToSeconds(time, 72000); });
+      var time = n.night.riseTime || {hour: 0, minute: 0, second: 0 }
+      return self.timeToSeconds(time, 72000);
+    });
 
     var sleep = nights.map(function(n){ return n.night.totalZ })
     var light = nights.map(function(n){ return n.night.timeInLight })

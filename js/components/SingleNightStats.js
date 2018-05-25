@@ -19,7 +19,7 @@ var SingleNightStats = React.createClass({
 
     return (
       <div className="stats">
-        <h4 className="stats--date">{date}</h4>
+        <h1 className="stats--date">{date}</h1>
         <table>
           <tbody>
             <tr>

@@ -29,7 +29,8 @@ var Stats = React.createClass({
           dateRange={this.props.dateRange}
           activeNights={this.props.activeNights}
           nights={this.props.nights}
-          windows={this.props.windows} />
+          windows={this.props.windows}
+          sliderGrabbed={this.props.sliderGrabbed}/>
     }
     return stats
   },

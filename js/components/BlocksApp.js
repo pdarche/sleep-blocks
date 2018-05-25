@@ -21,14 +21,15 @@ var BlocksApp = React.createClass({
       moment("04-22-2011"),
       moment("11-22-2012")
     ).by('days'));
+    var visibleNights = 10
 
     return {
       ready: false,
       dateRange: dateRange,
       startDate: dateRange[0],
-      endDate: dateRange[10],
+      endDate: dateRange[visibleNights],
       offsetIx: 0,
-      visibleNights: 10,
+      visibleNights: visibleNights,
       nights: [],
       activeView: 'overview',
       activeNights: [],
@@ -40,7 +41,8 @@ var BlocksApp = React.createClass({
       statsState: 'range',
       dateOffset: 0,
       numNights: 387,
-      windows: []
+      windows: [],
+      sliderGrabbed: false
     }
   },
 
@@ -51,9 +53,12 @@ var BlocksApp = React.createClass({
     $.getJSON('/js/data/sleep.json', function(res) {
       var baseline = START_TIME * 3600 // 10 pm in seconds
       var nights = Utils.processData(res.sleepData, baseline)
-      var mapped = Utils.mapToDateRange(nights, self.state.dateRange)
+      var mappedNights = Utils.mapToDateRange(nights, self.state.dateRange)
       var windows = Utils.computeWindows(
-        mapped, self.state.dateRange, 10)
+        mappedNights,
+        self.state.dateRange,
+        self.state.visibleNights
+      )
 
       self.setState({
         ready: true,
@@ -63,19 +68,19 @@ var BlocksApp = React.createClass({
         activeState: null,
         activeTime: null,
         windows: windows,
-        mapped: mapped
+        mapped: mappedNights
       });
     });
   },
 
   handleViewChange: function(targetView) {
-   var self = this;
-   this.setState({
-     activeView: targetView,
-     eventType: 'view',
-     activeNight: this.state.activeNights[0],
-     statsState: self.switchViewStats(targetView)
-   });
+    var self = this;
+    this.setState({
+      activeView: targetView,
+      eventType: 'view',
+      activeNight: this.state.activeNights[0],
+      statsState: self.switchViewStats(targetView)
+    });
   },
 
   switchViewStats: function(view) {
@@ -123,6 +128,16 @@ var BlocksApp = React.createClass({
       statsState: 'time',
       activeTime: targetTime
     });
+  },
+
+  handleMouseOver: function() {
+    console.log('mousing down');
+    this.setState({sliderGrabbed: true});
+  },
+
+  handleMouseOut: function() {
+    console.log('mousing up');
+    this.setState({sliderGrabbed: false});
   },
 
   handleSliderMovement: function(value) {
@@ -189,7 +204,8 @@ var BlocksApp = React.createClass({
           state={this.state.activeState}
           time={this.state.activeTime}
           statsState={this.state.statsState}
-          windows={this.state.windows}/>
+          windows={this.state.windows}
+          sliderGrabbed={this.state.sliderGrabbed}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
@@ -197,6 +213,8 @@ var BlocksApp = React.createClass({
           endDate={this.state.endDate}
           dateRange={this.state.dateRange}
           numNights={this.state.numNights}
+          handleMouseOut={this.handleMouseOut}
+          handleMouseOver={this.handleMouseOver}
           handleNightHover={this.handleNightHover}
           handleSliderMovement={this.handleSliderMovement}/>
       </div>

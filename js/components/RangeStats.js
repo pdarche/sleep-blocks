@@ -16,13 +16,17 @@ var RangeStats = React.createClass({
   },
 
   createStat: function(stat) {
+    var className = this.props.sliderGrabbed
+      ? "stats--sparkline shown"
+      : "stats--sparkline hidden"
+
     return (
       <div className="stats--stat">
         <div className="stats--stat-container">
           <h4 className="stats--name">{stat.name}</h4>
           <p className="stats--value">{stat.value}</p>
         </div>
-        <div className="stats--sparkline">
+        <div className={className}>
           <SparkLine
             data={this.props.windows[stat.key]}
             offset={this.props.offsetIx}
@@ -49,7 +53,7 @@ var RangeStats = React.createClass({
     ]
     return (
       <div className="stats">
-        <h4 className="stats--date">{startDate} - {endDate}</h4>
+        <h1 className="stats--date">{startDate} - {endDate}</h1>
         <div className="stats--stats-container">
             {statCollection.map(this.createStat)}
         </div>

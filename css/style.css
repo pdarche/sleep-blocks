@@ -39,7 +39,6 @@ h2, h3, h4 {
 
 .stats--date {
 	position: relative;
-	font-size: 24px;
     font-family: monospace;
     font-weight: bold;
     margin: 10px 0px;
@@ -67,6 +66,9 @@ h2, h3, h4 {
 
 .stats--sparkline {
     align-self: center;
+    opacity: 1;
+    transition-delay: 0s, 2s;
+    transition: opacity 250ms linear;
 }
 
 .stats--stat-container {
@@ -86,7 +88,10 @@ h2, h3, h4 {
   background-color: rgba(240,240,240, .9);
   border: 1px solid #ccc;
   padding: 5px;
-  margin-top: 15px;
+  margin-top: 10px;
+  float: right;
+  max-width: 270px;
+  transition: all 250ms linear;
 }
 
 .stats--name {
@@ -95,7 +100,6 @@ h2, h3, h4 {
 }
 
 .stats--date {
-    font-size: 20px;
     margin: 10px;
 }
 
@@ -111,6 +115,21 @@ h2, h3, h4 {
 
 .stats--sparkline {
     align-self: flex-end;
+}
+
+.hidden {
+  opacity: 0;
+  width: 0;
+  transition-delay: 250ms linear;
+  transition: width 250ms linear;
+}
+
+.shown {
+  opacity: 1;
+  width: 150px;
+  transition: width 250ms linear;
+  transition-delay: 250ms;
+  transition: opacity 250ms ease-in;
 }
 
 /* end experimental */
