@@ -1,3 +1,4 @@
+
 body {
 	font-family: Helvetica, Arial, sans-serif;
 	/*background-color: #202020;*/
@@ -28,7 +29,8 @@ h2, h3, h4 {
 	top: 0px;
 	display: block;
 	width: 320px;
-    margin: 10px;
+    overflow-x: hidden;
+    height: 100%;
 }
 
 .stats--container {
@@ -88,7 +90,7 @@ h2, h3, h4 {
   background-color: rgba(240,240,240, .9);
   border-left: 1px solid #ccc;
   padding: 5px;
-  margin-top: 10px;
+  margin-top: 80px;
   float: right;
   max-width: 270px;
   transition: all 250ms linear;
@@ -198,10 +200,12 @@ h2, h3, h4 {
 /* Slider */
 
 #slider {
-  position: relative;
-  top: -70px;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 0px;
   z-index: 200;
-  width: 90%;
+  width: 100%;
   margin: 0px auto;
   opacity: .1;
   transition: all .25s;
