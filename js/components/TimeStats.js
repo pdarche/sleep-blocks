@@ -43,10 +43,12 @@ var TimeStats = React.createClass({
     ]
 
     return (
-      <div className="stats">
+      <div>
         <h1 className="stats--date">{Utils.toTitleCase(this.props.time)} </h1>
-        <div className="stats--stats-container">
-            {statCollection.map(this.createStat)}
+        <div className="stats">
+          <div className="stats--stats-container">
+              {statCollection.map(this.createStat)}
+          </div>
         </div>
       </div>
     );

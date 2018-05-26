@@ -43,7 +43,7 @@ var StateStats = React.createClass({
     );
   },
 
-  render: function(){
+  render: function() {
     var stats = Utils.computeStateStats(this.props.nights, this.props.state);
     var statCollection = [
        {name: 'Average', value: this.formatValue(stats.mean)},
@@ -52,10 +52,12 @@ var StateStats = React.createClass({
     ]
 
     return (
-      <div className="stats">
+      <div>
         <h1 className="stats--date">{this.formatState(this.props.state)}</h1>
-        <div className="stats--stats-container">
-            {statCollection.map(this.createStat)}
+        <div className="stats">
+          <div className="stats--stats-container">
+              {statCollection.map(this.createStat)}
+          </div>
         </div>
       </div>
     );

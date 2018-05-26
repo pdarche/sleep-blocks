@@ -20,11 +20,13 @@ var Stats = React.createClass({
         break;
       case 'state':
         stats = <StateStats
-          nights={this.props.activeNights} state={this.props.state}/>;
+          nights={this.props.activeNights}
+          state={this.props.state}/>;
         break;
       case 'time':
         stats = <TimeStats
-          nights={this.props.activeNights} time={this.props.time}/>
+          nights={this.props.activeNights}
+          time={this.props.time}/>
         break;
       case 'range':
         stats = <RangeStats
@@ -33,7 +35,8 @@ var Stats = React.createClass({
           activeNights={this.props.activeNights}
           nights={this.props.nights}
           windows={this.props.windows}
-          sliderGrabbed={this.props.sliderGrabbed}/>
+          sliderGrabbed={this.props.sliderGrabbed}
+          visibleNights={this.props.visibleNights}/>
     }
     return stats
   },

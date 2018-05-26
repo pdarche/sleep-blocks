@@ -27,10 +27,12 @@ h2, h3, h4 {
 	position: absolute;
 	right: 20px;
 	top: 0px;
-	display: block;
 	width: 320px;
     overflow-x: hidden;
     height: 100%;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stats--container {
@@ -40,7 +42,9 @@ h2, h3, h4 {
 }
 
 .stats--date {
-	position: relative;
+	position: absolute;
+    top: 5px;
+    right: 20px;
     font-family: monospace;
     font-weight: bold;
     margin: 10px 0px;
@@ -90,7 +94,6 @@ h2, h3, h4 {
   background-color: rgba(240,240,240, .9);
   border-left: 1px solid #ccc;
   padding: 5px;
-  margin-top: 80px;
   float: right;
   max-width: 270px;
   transition: all 250ms linear;

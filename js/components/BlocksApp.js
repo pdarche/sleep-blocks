@@ -21,7 +21,7 @@ var BlocksApp = React.createClass({
       moment("04-22-2011"),
       moment("11-22-2012")
     ).by('days'));
-    var visibleNights = 13;
+    var visibleNights = 14;
 
     return {
       ready: false,
@@ -203,7 +203,8 @@ var BlocksApp = React.createClass({
           time={this.state.activeTime}
           statsState={this.state.statsState}
           windows={this.state.windows}
-          sliderGrabbed={this.state.sliderGrabbed}/>
+          sliderGrabbed={this.state.sliderGrabbed}
+          visibleNights={this.state.visibleNights}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}

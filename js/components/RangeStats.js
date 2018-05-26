@@ -40,7 +40,7 @@ var RangeStats = React.createClass({
   render: function() {
     var stats = Utils.computeRangeStats(this.props.activeNights)
     var startDate = this.props.dateRange[this.props.offsetIx].format('MMM Do');
-    var endDate = this.props.dateRange[this.props.offsetIx + 10].format('MMM Do');
+    var endDate = this.props.dateRange[this.props.offsetIx + this.props.visibleNights].format('MMM Do');
 
     var statCollection = [
       {name: 'Bedtime', value: stats.bedtime.mean, key: 'bedtime', unit: ''},
@@ -52,10 +52,12 @@ var RangeStats = React.createClass({
       {name: 'Time Awake', value: stats.wake, key: 'wake'}
     ]
     return (
-      <div className="stats">
+      <div>
         <h1 className="stats--date">{startDate} - {endDate}</h1>
-        <div className="stats--stats-container">
-            {statCollection.map(this.createStat)}
+        <div className="stats">
+          <div className="stats--stats-container">
+              {statCollection.map(this.createStat)}
+          </div>
         </div>
       </div>
     );
