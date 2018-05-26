@@ -46,7 +46,6 @@ var BlocksApp = React.createClass({
     }
   },
 
-  // Fetch the sleep data
   componentDidMount: function() {
     var self = this;
     window.moment = moment;

@@ -48,8 +48,10 @@ var Utils = {
   },
 
   /*
-   * Create the datescale to use for mapping
+   * Creates the datescale to use for mapping
    * to date positions
+   * @param {array} nights - List of night objecs
+   * @param {int} nightSpacing - Int for spacing between night objects
   */
 
   createDatescale: function(nights, nightSpacing) {
@@ -65,6 +67,8 @@ var Utils = {
   /*
    * Create the timescale to use for mapping
    * to time positions
+   * @param {array} nights - Array of night objects
+   * @param {starTime} nights - Array of night objects
   */
 
   createTimescale: function(nights, startTime, hours, displaySize) {
@@ -72,6 +76,13 @@ var Utils = {
       .domain([0, hours * 3600])
       .range([0, displaySize])
   },
+
+  /*
+   * Creates a rolling window of values
+   * @param {array} values - Array of integers to be averaged
+   * @param {array} dateRange - Array of moment objects
+   * @param {int} window_size - Int of size of the window
+  */
 
   rollingWindow: function(values, dateRange, window_size) {
     var means = [];
@@ -86,7 +97,9 @@ var Utils = {
   /*
    * Splits an array into array of arrays
    * based on empty values
+   * @param {array} rolling_windows - Array of arrays of ints of window values
   */
+
   splitWindows: function(rolling_window) {
     var vals = []
     for (var i = 0; i < rolling_window.length; i++) {
@@ -110,8 +123,10 @@ var Utils = {
   },
 
   /*
-   * Create a mapping of night objects to date keys
-   * based on sleep date
+   * Maps an array of night objects to date keys
+   * based on the object's sleep date
+   * @param {array} nights - Array of night objects
+   * @param {array} dateRange - Array of Moment date objects
   */
 
   mapToDateRange: function(nights, dateRange) {
@@ -145,21 +160,21 @@ var Utils = {
 
   computeWindows: function(nights, dateRange, window_size) {
     var self = this;
-    var bedtimes = _.map(nights, function(n){
-      var time = n.night.bedTime || {hour: 0, minute: 0, second: 0 }
-      return self.timeToSeconds(time, 72000);
+
+    var bedtimes = _.map(nights, function(n) {
+      return n.night.yOffset || 0
     });
 
     var risetimes = _.map(nights, function(n){
       var time = n.night.riseTime || {hour: 0, minute: 0, second: 0 }
-      return self.timeToSeconds(time, 72000);
+      return self.timeToSeconds(time);
     });
 
-    var sleep = nights.map(function(n){ return n.night.totalZ })
-    var light = nights.map(function(n){ return n.night.timeInLight })
-    var deep  = nights.map(function(n){ return n.night.timeInDeep })
-    var rem   = nights.map(function(n){ return n.night.timeInRem  })
-    var wake  = nights.map(function(n){ return n.night.timeInWake })
+    var sleep = nights.map(function(n) { return n.night.totalZ })
+    var light = nights.map(function(n) { return n.night.timeInLight })
+    var deep  = nights.map(function(n) { return n.night.timeInDeep })
+    var rem   = nights.map(function(n) { return n.night.timeInRem  })
+    var wake  = nights.map(function(n) { return n.night.timeInWake })
 
     return {
       bedtime : this.rollingWindow(bedtimes, dateRange, window_size),
@@ -191,10 +206,10 @@ var Utils = {
   computeRangeStats: function(nights) {
     var avgSleep = _.mean(nights.map(function(n){ return n.totalZ}))
     var avgLight = _.mean(nights.map(function(n){ return n.timeInLight}))
-    var avgDeep = _.mean(nights.map(function(n){ return n.timeInDeep}))
-    var avgRem = _.mean(nights.map(function(n){ return n.timeInRem}))
-    var avgWake = _.mean(nights.map(function(n){ return n.timeInWake}))
-    var bedtime = nights.length
+    var avgDeep  = _.mean(nights.map(function(n){ return n.timeInDeep}))
+    var avgRem   = _.mean(nights.map(function(n){ return n.timeInRem}))
+    var avgWake  = _.mean(nights.map(function(n){ return n.timeInWake}))
+    var bedtime  = nights.length
       ? this.computeTimeStats(nights, 'bedtime')
       : {mean: null}
     var risetime = nights.length
@@ -235,55 +250,155 @@ var Utils = {
     'risetime': 'riseTime'
   },
 
-  timeOffset: 7200,
+  /*
+  * Converts a datetime object to seconds (with offset)
+  * @param {object} time - The datetime object to be converted
+  * @param {number} offset - The number of seconds to offset the time
+  */
 
-  timeToSeconds: function(time, offset){
+  timeToSeconds: function(time, offset) {
     var seconds = time.second + (60 * time.minute) + (3600 * time.hour);
     if (offset) {
       seconds -= offset;
     }
-    if (seconds < 0){
+
+    if (seconds < 0) {
       seconds += 86400
     }
+
     return seconds
   },
 
-  secondsToHms: function(d) {
-    var sec_num = parseInt(d, 10); // don't forget the second param
+  /*
+  * Converts an integer of seconds to an Moment object
+  * @param {number} seconds - The seconds to be converted
+  */
+  secondsToHms: function(seconds) {
+    var sec_num = parseInt(seconds, 10); // don't forget the second param
     var hours   = Math.floor(sec_num / 3600);
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     var seconds = sec_num - (hours * 3600) - (minutes * 60);
+    console.log('the sec info is', [sec_num, hours, minutes, seconds])
+    console.log('the incoming seconds are', seconds)
 
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
     var time    = hours+':'+minutes+':'+seconds;
+    console.log('the time is', time);
     time = moment(time, 'HH:mm:ss').format('h:mm a')
     return time;
   },
 
-  computeTimeStats: function(nights, time){
+  //addTimeInSeconds: function(nights, time, baseHour) {
+  //  if (!baseHour) {
+  //    baseHour = 22
+  //  }
+
+  //  var self = this;
+  //  var timeKey = this.timeMapping[time];
+
+  //  // find the largest value before the base hour
+  //  // (which would be the latest risetime)
+  //  var ltbase = _.filter(nights, function(n) {
+  //    return n[timeKey].hour < baseHour
+  //  });
+  //  ltbase = _.map(ltbase, function(n) {
+  //    return n[timeKey].hour
+  //  });
+  //  // Add one to get the hour ceiling of that time
+  //  var maxHour = _.max(ltnine) + 1
+  //  var offset = maxHour * 3600
+
+  //  // Remove that hour of that time from each value
+  //  // This sets the upper bound of times to midnight
+  //  // Set the TS (time in seconds)
+  //  // TODO: this should be computed once!
+  //  var nightsWithTs = _.map(nights, function(night){
+  //    night[timeKey + 'Ts'] = self.timeToSeconds(night[timeKey], offset);
+  //    return night
+  //  });
+
+  //},
+
+  computeTimeOffset(nights, time, baseHour) {
+    if (!baseHour) {
+      baseHour = 22
+    }
+
     var self = this;
     var timeKey = this.timeMapping[time];
-    // find the largetst value before 10 pm
-    var ltnine = _.filter(nights, function(n){ return n[timeKey].hour < 22})
-        ltnine = _.map(ltnine, function(n){ return n[timeKey].hour})
+
+    // find the largest value before 10 pm
+    var ltnine = _.filter(nights, function(n) {
+      return n[timeKey].hour < baseHour
+    });
+    ltnine = _.map(ltnine, function(n) {
+      return n[timeKey].hour
+    });
+    // Add one to get the hour ceiling of that time
     var maxHour = _.max(ltnine) + 1
     var offset = maxHour * 3600
-    // remove that time + 1 hour of that time from each value
-    var timeValues = _.map(nights, function(n){ return self.timeToSeconds(n[timeKey], offset); });
+    return offset
+  },
+
+
+  computeYOffset: function(time) {
+    var seconds = time.second + (60 * time.minute) + (3600 * time.hour);
+    if (time.hour >= 22) {
+      seconds -= (22 * 3600)
+    } else {
+      seconds += (2 * 3600)
+    }
+    return seconds
+  },
+
+  /*
+  * Computes statistics for time metrics
+  * @param {array} nights - The array of night objects
+  * @param {string} time - The metric to compute {BedTime, NightTime}
+  */
+  computeTimeStats: function(nights, time, baseHour) {
+    if (!baseHour) {
+      baseHour = 22
+    }
+
+    var self = this;
+    var timeKey = this.timeMapping[time];
+
+    // find the largest value before 10 pm
+    var ltnine = nights
+     .filter(function(n) {
+      return n[timeKey].hour < baseHour
+    })
+     .map(function(n) {
+      return n[timeKey].hour
+    });
+    // Add one to get the hour ceiling of that time
+    var maxHour = _.max(ltnine) + 1
+    var offset = maxHour * 3600
+
+    // Remove that hour of that time from each value
+    // This sets the upper bound of times to midnight
+    var timeValues = _.map(nights, function(n) {
+      return self.timeToSeconds(n[timeKey], offset);
+    });
+
+    // Set the TS (time in seconds)
     var nightsWithTs = _.map(nights, function(n){
       n[timeKey + 'Ts'] = self.timeToSeconds(n[timeKey], offset);
       return n
     });
+
     // compute the min, max, and mean
     var timeMin = _.min(timeValues);
     var timeMax = _.max(timeValues);
-    var min = _.find(nightsWithTs, [timeKey+'Ts', timeMin]);
-    var max = _.find(nightsWithTs, [timeKey+'Ts', timeMax]);
-    var mean = _.mean(timeValues) + offset;
+    var min     = _.find(nightsWithTs, [timeKey+'Ts', timeMin]);
+    var max     = _.find(nightsWithTs, [timeKey+'Ts', timeMax]);
+    var mean    = _.mean(timeValues) + offset;
 
-    if (mean > 86400){
+    // TODO: refactor, this is tightly couped with timeToSeconds
+    if (mean > 86400) {
       mean -= 86400
     }
 
@@ -321,6 +436,8 @@ var Utils = {
           ? bts - baseline
           : bts + (2 * 3600)
         night.translatedBedTime = tbt
+        // Add the Y Offset
+        night.yOffset = Utils.computeYOffset(night.bedTime)
         return night
       });
   }
