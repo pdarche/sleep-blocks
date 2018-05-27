@@ -12,7 +12,7 @@ var Slider = React.createClass({
 
   componentDidMount: function() {
     var self = this;
-    var formatDate = d3.time.format("%b %d");
+    var formatDate = d3.time.format("%b %e");
 
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
@@ -89,7 +89,7 @@ var Slider = React.createClass({
     handle.append('text')
       .attr("class", "current-date")
       .attr("transform", "translate(0, -5)")
-      .text(this.props.startDate.format('MMM DD'))
+      .text(this.props.startDate.format('MMM d'))
 
     function brushed(ev) {
       var value = brush.extent()[0];

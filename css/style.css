@@ -220,7 +220,7 @@ h2, h3, h4 {
 
 .axis {
   fill: none;
-  stroke: #555;
+  stroke: #333;
   shape-rendering: crispEdges;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -230,7 +230,7 @@ h2, h3, h4 {
 
 .axis .minor {
   fill: none;
-  stroke: #555;
+  stroke: #333;
   shape-rendering: crispEdges;
 }
 
@@ -242,12 +242,13 @@ h2, h3, h4 {
 }
 
 .axis text {
-  font-size: 14px;
-  fill: #555;
+  font-size: 13px;
+  stroke-width: 0px;
+  fill: #333;
 }
 
 .slider .handle path {
-  stroke: gray;
+  stroke: #333;
   stroke-width: 1px;
   stroke-linecap: round;
   pointer-events: none;
@@ -255,9 +256,9 @@ h2, h3, h4 {
 
 .slider .handle text {
   text-align: center;
-  font-size: 14px;
-  fill: #555;
-  stroke: #555;
+  font-size: 13px;
+  stroke: #333;
+  stroke-width: 0px;
   shape-rendering: crispEdges;
 }
 
@@ -283,7 +284,7 @@ h2, h3, h4 {
 }
 
 .current-date text {
-  stroke: #555;
+  stroke: #333;
   font-size: 12;
 }
 

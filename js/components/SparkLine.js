@@ -2,6 +2,15 @@
 
 
 var Utils = require('../utils/Utils');
+var colors = {
+    'risetime': 'yellow',
+    'bedtime': 'darkblue',
+    'sleep': 'orange',
+    'light': 'green',
+    'deep': 'darkblue',
+    'rem': 'yellow',
+    'wake': 'maroon'
+}
 
 var SparkLine = React.createClass({
   getInitialState: function() {
