@@ -9,14 +9,6 @@ var Utils = require('../utils/Utils');
 var moment = require('moment');
 
 var StateStats = React.createClass({
-  formatDate: function(date){
-    return moment(date).format('LL');
-  },
-
-  formatValue: function(mins){
-    return moment.duration(mins, 'minutes').humanize();
-  },
-
   formatState: function(state) {
     var state = Utils.toTitleCase(state)
     if (state !== 'Wake') {
@@ -46,9 +38,9 @@ var StateStats = React.createClass({
   render: function() {
     var stats = Utils.computeStateStats(this.props.nights, this.props.state);
     var statCollection = [
-       {name: 'Average', value: this.formatValue(stats.mean)},
-       {name: 'Max', value: this.formatValue(stats.max.value)},
-       {name: 'Min', value: this.formatValue(stats.min.value)}
+       {name: 'Average', value: stats.mean},
+       {name: 'Max', value: stats.max.value},
+       {name: 'Min', value: stats.min.value}
     ]
 
     return (

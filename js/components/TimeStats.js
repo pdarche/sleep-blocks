@@ -9,12 +9,7 @@ var Utils = require('../utils/Utils');
 var moment = require('moment');
 
 var TimeStats = React.createClass({
-
-  formatDate: function(date){
-    return moment(date).format('LL');
-  },
-
-  formatTime: function(time){
+  formatTime: function(time) {
     return moment(time).format('h:mm a');
   },
 

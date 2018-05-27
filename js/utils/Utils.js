@@ -12,7 +12,6 @@ var Utils = {
 
   /*
   * Computes the stats for a given sleep state
-  *
   */
 
   stateMapping: {
@@ -33,7 +32,6 @@ var Utils = {
 
   /*
    * Creates a scale function
-   *
   */
 
   scale: function(hours, displaySize){
@@ -167,6 +165,13 @@ var Utils = {
     return mapping
   },
 
+  /*
+   * Computes rolling windows for Range Stats
+   * @param {array} nights - Array of night objects
+   * @param {array} dateRange - Array of Moment date objects
+   * @param {int} window_size - Int of window size for the window
+  */
+
   computeWindows: function(nights, dateRange, window_size) {
     var self = this;
 
@@ -196,6 +201,12 @@ var Utils = {
     }
   },
 
+  /*
+   * Computes the stats for a sleep state
+   * @param {array} nights - Array of night objects
+   * @param {string} string - String of the state
+  */
+
   computeStateStats: function(nights, state){
     var stateKey = this.stateMapping[state];
     var stateValues = _.map(nights, function(night){ return night[stateKey]});
@@ -206,12 +217,16 @@ var Utils = {
     var mean = _.sum(stateValues) / stateValues.length;
 
     return {
-      min: {value: min[stateKey], date: min.startDate},
-      max: {value: max[stateKey], date: max.startDate},
-      mean: mean
+      min: {value: this.formatTime(min[stateKey]), date: min.startDate},
+      max: {value: this.formatTime(max[stateKey]), date: max.startDate},
+      mean: this.formatTime(mean)
     }
   },
 
+  /*
+   * Computes the stats for a date range
+   * @param {array} nights - Array of night objects
+  */
   computeRangeStats: function(nights) {
     var avgSleep = _.mean(nights.map(function(n){ return n.totalZ}))
     var avgLight = _.mean(nights.map(function(n){ return n.timeInLight}))
@@ -239,6 +254,10 @@ var Utils = {
   formatTime: function(mins) {
     var hours = Math.floor(mins/60);
     var mins = Math.floor(mins % 60);
+
+    if (!mins) {
+      return "No information"
+    }
 
     if (hours == 0) {
       return mins + " mins"
@@ -277,14 +296,11 @@ var Utils = {
     var hours   = Math.floor(sec_num / 3600);
     var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     var seconds = sec_num - (hours * 3600) - (minutes * 60);
-    console.log('the sec info is', [sec_num, hours, minutes, seconds])
-    console.log('the incoming seconds are', seconds)
 
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
     var time    = hours+':'+minutes+':'+seconds;
-    console.log('the time is', time);
     time = moment(time, 'HH:mm:ss').format('h:mm a')
     return time;
   },
@@ -395,24 +411,27 @@ var Utils = {
 
   // Refactor: a function should do just one thing
   processData: function(nights, baseline) {
-      return nights.map(function(night, ix) {
-        var date = moment({
-            year: night.startDate.year,
-            month: night.startDate.month - 1,
-            day: night.startDate.day
-        })
-        night.dateObj = date;
-        night.id = ix;
-        var bt = night.bedTime
-        var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
-        var tbt = bts >= baseline
-          ? bts - baseline
-          : bts + (2 * 3600)
-        night.translatedBedTime = tbt
-        // Add the Y Offset
-        night.yOffset = Utils.computeYOffset(night.bedTime)
-        return night
-      });
+    return nights.map(function(night, ix) {
+      var date = moment({
+          year: night.startDate.year,
+          month: night.startDate.month - 1,
+          day: night.startDate.day
+      })
+      night.bedTime.month = night.bedTime.month - 1
+      night.riseTime.month = night.riseTime.month - 1
+      night.startDate.month = night.startDate.month - 1
+      night.dateObj = date;
+      night.id = ix;
+      var bt = night.bedTime
+      var bts = bt.hour * 3600 + bt.minute * 60 + bt.second
+      var tbt = bts >= baseline
+        ? bts - baseline
+        : bts + (2 * 3600)
+      night.translatedBedTime = tbt
+      // Add the Y Offset
+      night.yOffset = Utils.computeYOffset(night.bedTime)
+      return night
+    });
   }
 }
 
