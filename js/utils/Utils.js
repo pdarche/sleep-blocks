@@ -23,6 +23,15 @@ var Utils = {
   },
 
   /*
+  * Mapping between time keys
+  */
+
+  timeMapping: {
+    'bedtime': 'bedTime',
+    'risetime': 'riseTime'
+  },
+
+  /*
    * Creates a scale function
    *
   */
@@ -241,16 +250,6 @@ var Utils = {
   },
 
   /*
-  * Computes the stats for bed and wake times
-  *
-  */
-
-  timeMapping: {
-    'bedtime': 'bedTime',
-    'risetime': 'riseTime'
-  },
-
-  /*
   * Converts a datetime object to seconds (with offset)
   * @param {object} time - The datetime object to be converted
   * @param {number} offset - The number of seconds to offset the time
@@ -290,36 +289,6 @@ var Utils = {
     return time;
   },
 
-  //addTimeInSeconds: function(nights, time, baseHour) {
-  //  if (!baseHour) {
-  //    baseHour = 22
-  //  }
-
-  //  var self = this;
-  //  var timeKey = this.timeMapping[time];
-
-  //  // find the largest value before the base hour
-  //  // (which would be the latest risetime)
-  //  var ltbase = _.filter(nights, function(n) {
-  //    return n[timeKey].hour < baseHour
-  //  });
-  //  ltbase = _.map(ltbase, function(n) {
-  //    return n[timeKey].hour
-  //  });
-  //  // Add one to get the hour ceiling of that time
-  //  var maxHour = _.max(ltnine) + 1
-  //  var offset = maxHour * 3600
-
-  //  // Remove that hour of that time from each value
-  //  // This sets the upper bound of times to midnight
-  //  // Set the TS (time in seconds)
-  //  // TODO: this should be computed once!
-  //  var nightsWithTs = _.map(nights, function(night){
-  //    night[timeKey + 'Ts'] = self.timeToSeconds(night[timeKey], offset);
-  //    return night
-  //  });
-
-  //},
 
   computeTimeOffset(nights, time, baseHour) {
     if (!baseHour) {
@@ -343,6 +312,10 @@ var Utils = {
   },
 
 
+  /*
+  * Computes a y value (zerod at the base time)
+  * @param {obejct} time - Time object to be converted
+  */
   computeYOffset: function(time) {
     var seconds = time.second + (60 * time.minute) + (3600 * time.hour);
     if (time.hour >= 22) {
@@ -411,7 +384,7 @@ var Utils = {
 
   /*
   * Title Cases a string
-  *
+  * @param {string} str - String to be title cased
   */
 
   toTitleCase: function(str) {
