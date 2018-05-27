@@ -12,9 +12,7 @@ var Slider = React.createClass({
 
   componentDidMount: function() {
     var self = this;
-    var formatDate = d3.time.format("%b %d");
-    var startDate = moment(this.props.nights[0].startDate);
-    var endDate = moment(this.props.nights[this.props.numNights].startDate);
+    var formatDate = d3.time.format("%b %e");
 
     // Parameters
     var margin = {top: 20, right: 50, bottom: 20, left: 50},
@@ -23,7 +21,7 @@ var Slider = React.createClass({
 
     // Timescale
     var timeScale = d3.time.scale()
-      .domain([startDate, endDate])
+      .domain([this.props.dateRange[0], this.props.dateRange[this.props.dateRange.length-1]])
       .range([0, width])
       .clamp(true);
 
@@ -36,7 +34,7 @@ var Slider = React.createClass({
     // Initialize brush
     var brush = d3.svg.brush()
       .x(timeScale)
-      .extent([startDate, startDate])
+      .extent([this.props.startDate, this.props.startDate])
       .on("brush", brushed);
 
     var svg = d3.select("#slider").append("svg")
@@ -87,37 +85,11 @@ var Slider = React.createClass({
       .attr("transform", "translate(0, 10)")
       .attr("d", "M 0 -7 V 0")
 
+
     handle.append('text')
       .attr("class", "current-date")
       .attr("transform", "translate(0, -5)")
-      .text(startDate.format('MMM DD'))
-
-    // Axis for night highlighting
-    //var hoverAxis = d3.svg.axis()
-    //    .scale(timeScale)
-    //    .orient("bottom")
-    //    .ticks(this.props.dateRange.length - 1)
-    //    .tickSize(-8)
-    //
-    //svg.append("g")
-    //  .attr("class", "x axis hover")
-    //  .attr("transform", "translate(0," + height / 2 + ")")
-    //  .call(hoverAxis)
-    //
-    //d3.selectAll(".hover line").on('mouseover', function(d, ix){
-    //    // add check for if mouse is down.  if it is don't do antyhing
-    //    self.props.handleNightHover(ix, d)
-    //    d3.select(this)
-    //      .style('opacity', 1)
-    //    d3.select(this.parentNode).select('text').style('opacity', 1)
-    //  })
-    //  .on('mouseout', function(d, ix) {
-    //    d3.select(this)
-    //      .style('opacity', .1)
-    //    d3.select(this.parentNode).select('text').style('opacity', 0)
-    //  })
-
-    slider.call(brush.event);
+      .text(this.props.startDate.format('MMM d'))
 
     function brushed(ev) {
       var value = brush.extent()[0];
@@ -135,14 +107,19 @@ var Slider = React.createClass({
   },
 
   onMouseOver: function() {
-    this.props.handleSliderHover();
+    this.props.handleMouseOver();
+  },
+
+  onMouseOut: function() {
+    this.props.handleMouseOut();
   },
 
   render: function(){
     return (
       <div id="slider"
         onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOver}></div>
+        onMouseOut={this.onMouseOut}>
+      </div>
     );
   }
 });
