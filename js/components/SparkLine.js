@@ -24,7 +24,8 @@ var SparkLine = React.createClass({
       var segments = Utils.splitWindows(data);
       var line = d3.svg.line()
         .x(function(d) { return scales.x(d.date); })
-        .y(function(d) { return scales.y(d.value); });
+        .y(function(d) { return scales.y(d.value); })
+        .interpolate('cardinal')
 
       var id = '#id_' + this.props.stat
       var cls = 'stat-' + this.props.stat
@@ -50,8 +51,8 @@ var SparkLine = React.createClass({
 
       d3.select('.' + cls)
         .append('circle')
-        .attr('r', 2)
-        .attr('fill', 'steelblue')
+        .attr('r', 3)
+        .attr('fill', 'maroon')
 
       this.setState({loaded: true});
     } else if (data.length) {
@@ -81,7 +82,7 @@ var SparkLine = React.createClass({
       .range([0, width]);
 
     var y = d3.scale.linear()
-      .range([height, 0]);
+      .range([height - 4, 4]);
 
     return {
       x: x,

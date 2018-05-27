@@ -235,10 +235,10 @@ var Utils = {
     var avgWake  = _.mean(nights.map(function(n){ return n.timeInWake}))
     var bedtime  = nights.length
       ? this.computeTimeStats(nights, 'bedtime')
-      : {mean: null}
+      : {mean: "No information"}
     var risetime = nights.length
       ? this.computeTimeStats(nights, 'risetime')
-      : {mean: null}
+      : {mean: "No information"}
 
     return {
       bedtime: bedtime,

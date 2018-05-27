@@ -10,11 +10,6 @@ var moment = require('moment');
 var SparkLine = require('./SparkLine');
 
 var RangeStats = React.createClass({
-  createTime: function(time) {
-    var time = moment.duration(time, 'minutes').asHours()
-    return Math.round(time * 100) / 100
-  },
-
   createStat: function(stat) {
     var className = this.props.sliderGrabbed
       ? "stats--sparkline shown"
@@ -46,10 +41,10 @@ var RangeStats = React.createClass({
       {name: 'Bedtime', value: stats.bedtime.mean, key: 'bedtime', unit: ''},
       {name: 'Risetime', value: stats.risetime.mean, key: 'risetime', unit: ''},
       {name: 'Avg Sleep', value: stats.sleep, key: 'sleep', unit: ''},
-      {name: 'Light Sleep', value: stats.light, key: 'light', unit: ''},
-      {name: 'Deep Sleep', value: stats.deep, key: 'deep'},
-      {name: 'REM Sleep', value: stats.rem, key: 'rem'},
-      {name: 'Time Awake', value: stats.wake, key: 'wake'}
+      {name: 'Avg Light Sleep', value: stats.light, key: 'light', unit: ''},
+      {name: 'Avg Deep Sleep', value: stats.deep, key: 'deep'},
+      {name: 'Avg REM Sleep', value: stats.rem, key: 'rem'},
+      {name: 'Avg Time Awake', value: stats.wake, key: 'wake'}
     ]
     return (
       <div>
