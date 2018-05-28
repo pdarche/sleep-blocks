@@ -5,93 +5,120 @@
 *
 */
 
+var Title = require('./Title');
 var Vis = require('./Vis');
 var Controls = require('./Controls');
 var Stats = require('./Stats');
 var Slider = require('./Slider');
-var d3 = require('d3');
+var Utils = require('../utils/Utils');
 var _ = require('lodash');
 var moment = require('moment');
 
+var START_TIME = 22;
 
 var BlocksApp = React.createClass({
   getInitialState: function(){
+    var dateRange = Array.from(moment.range(
+      moment("04-22-2011"),
+      moment("11-22-2012")
+    ).by('days'));
+    var visibleNights = 14;
+
     return {
-      nights: sleep.sleepData,
+      ready: false,
+      built: false,
+      dateRange: dateRange,
+      startDate: dateRange[0],
+      endDate: dateRange[visibleNights],
+      offsetIx: 0,
+      visibleNights: visibleNights,
+      nights: [],
       activeView: 'overview',
-      activeNights: sleep.sleepData,
+      activeNights: [],
       activeNight: null,
       activeNightIx: null,
       activeState: null,
       activeTime: null,
       eventType: null,
-      controlsEnabled: true,
-      dateOffset: 0
+      statsState: 'range',
+      dateOffset: 0,
+      numNights: 387,
+      windows: [],
+      sliderGrabbed: false
     }
   },
 
-  componentWillMount: function() {
-    // TODO: move this into a function
-    sleep.sleepData = sleep.sleepData.map(function(night){
-      night.dateObj = moment(night.startDate) 
-      return night
-    }) 
-    this.createDateRange()
-  },
-
-  // Fetch the sleep data
   componentDidMount: function() {
-    // TODO: fetch this instead of loading the file
     var self = this;
-    //$.getJSON('js/data/sleep.json', function(res){
-    //  var nights = res.sleepData.map(function(night, ix){
-    //    night.id = ix;
-    //    return night
-    //  });
-    //  var active = nights.slice(0,14);
+    window.moment = moment;
+    $.getJSON('/js/data/sleep.json', function(res) {
+      var baseline = START_TIME * 3600 // 10 pm in seconds
+      var nights = Utils.processData(res.sleepData, baseline)
+      var mappedNights = Utils.mapToDateRange(nights, self.state.dateRange)
+      var windows = Utils.computeWindows(
+        mappedNights,
+        self.state.dateRange,
+        self.state.visibleNights
+      )
 
-    //  self.setState({
-    //    nights: nights,
-    //    activeNights: active,
-    //    activeNight: null,
-    //    activeState: null,
-    //    activeTime: null
-    //  });
-    //})
+      self.setState({
+        ready: true,
+        nights: nights,
+        activeNights: nights.slice(0, self.state.visibleNights),
+        activeNight: null,
+        activeState: null,
+        activeTime: null,
+        windows: windows,
+        mapped: mappedNights
+      });
+    });
   },
 
-  createDateRange: function() {
-    var dateRange = moment.range(
-        sleep.sleepData[0].dateObj, 
-        sleep.sleepData[this.state.nights.length - 1].dateObj
-    ) 
-    this.dateRange = Array.from(dateRange.by('days'))
+  switchViewStats: function(view) {
+    switch (view) {
+      case 'overhead':
+        return 'range'
+        break;
+      case 'front':
+        return 'night'
+        break;
+      case 'overview':
+        return 'range'
+        break;
+      default:
+        return 'range'
+    }
   },
 
   handleViewChange: function(targetView) {
-   this.setState({
-     activeView: targetView,
-     eventType: 'view'
-   });
+    var self = this;
+    this.setState({
+      activeView: targetView,
+      eventType: 'view',
+      activeNight: this.state.activeNights[0],
+      statsState: self.switchViewStats(targetView)
+    });
   },
 
   handleNightHover: function(targetNight, date) {
-    var activeNight = _.find(sleep.sleepData, function(night) {
+    var activeNight = _.find(this.state.nights, function(night) {
       return night.dateObj.isSame(date)
-    }) 
-    var activeNightIx = _.findIndex(sleep.sleepData, function(night) {
+    })
+    var activeNightIx = _.findIndex(this.state.nights, function(night) {
       return night.dateObj.isSame(date)
-    }) 
+    })
     this.setState({
-      activeNight: activeNight, // this.state.activeNights[targetNight],
+      activeNight: activeNight,
       activeNightIx: activeNightIx,
-      eventType: 'night'
+      eventType: 'night',
+      statsState: 'night'
     });
   },
 
   handleStateHover: function(targetState) {
     this.setState({
       eventType: 'state',
+      statsState: 'state',
       activeState: targetState
     });
   },
@@ -99,28 +126,61 @@ var BlocksApp = React.createClass({
   handleTimeHover: function(targetTime) {
     this.setState({
       eventType: 'time',
+      statsState: 'time',
       activeTime: targetTime
     });
   },
 
-  handleSliderHover: function() {
-    this.setState({
-      controlsEnabled: !this.state.controlsEnabled,
-      eventType: null
-    });
+  handleMouseOver: function() {
+    this.setState({sliderGrabbed: true});
+  },
+
+  handleMouseOut: function() {
+    this.setState({sliderGrabbed: false});
+  },
+
+  handleVisBuilt: function() {
+    this.setState({built: true});
   },
 
   handleSliderMovement: function(value) {
+    var offsetIx = Math.floor(value);
+    var startDate = this.state.dateRange[offsetIx];
+    var endDate = this.state.dateRange[offsetIx + this.state.visibleNights];
+    var activeNights = this.state.nights.filter(function(night) {
+      return (
+        night.dateObj.isSameOrAfter(startDate) &&
+        night.dateObj.isSameOrBefore(endDate)
+      );
+    });
+
     this.setState({
       eventType: 'dateOffset',
-      dateOffset: value
+      dateOffset: value,
+      offsetIx: offsetIx,
+      startDate: startDate,
+      endDate: endDate,
+      activeNight: activeNights[0],
+      activeNights: activeNights
     });
+  },
+
+  handleActiveNightUpdate: function(ix) {
+    var activeNight = this.state.nights[ix];
+    this.setState({activeNight: activeNight});
+  },
+
+  loading: function() {
+    return (
+      <div>Loading</div>
+    );
   },
 
   // Render the visualization view
   render: function() {
     return (
       <div>
+        <Title built={this.state.built} />
         <Controls
           nights={this.state.activeNights}
           handleNightHover={this.handleNightHover}
@@ -128,22 +188,46 @@ var BlocksApp = React.createClass({
           handleTimeHover={this.handleTimeHover}
           handleViewChange={this.handleViewChange}/>
         <Vis
-          nights={this.state.activeNights}
+          ready={this.state.ready}
+          built={this.state.built}
+          nights={this.state.nights}
+          activeNights={this.state.activeNights}
           night={this.state.activeNight}
           nightIx={this.state.activeNightIx}
+          startDate={this.state.startDate}
+          endDate={this.state.endDate}
           state={this.state.activeState}
           time={this.state.activeTime}
           dateOffset={this.state.dateOffset}
           eventType={this.state.eventType}
           activeView={this.state.activeView}
-          dateRange={this.dateRange}
-          controlsEnabled={this.state.controlsEnabled}/>
+          dateRange={this.state.dateRange}
+          handleVisBuilt={this.handleVisBuilt}
+          handleActiveNightUpdate={this.handleActiveNightUpdate}
+          handleViewChange={this.handleViewChange}
+          numNights={this.state.numNights}/>
+        <Stats
+          night={this.state.activeNight}
+          nights={this.state.nights}
+          activeNights={this.state.activeNights}
+          dateRange={this.state.dateRange}
+          offsetIx={this.state.offsetIx}
+          state={this.state.activeState}
+          time={this.state.activeTime}
+          statsState={this.state.statsState}
+          windows={this.state.windows}
+          sliderGrabbed={this.state.sliderGrabbed}
+          visibleNights={this.state.visibleNights}/>
         <Slider
           nights={this.state.nights}
           activeNights={this.state.activeNights}
-          dateRange={this.dateRange}
+          startDate={this.state.startDate}
+          endDate={this.state.endDate}
+          dateRange={this.state.dateRange}
+          numNights={this.state.numNights}
+          handleMouseOut={this.handleMouseOut}
+          handleMouseOver={this.handleMouseOver}
           handleNightHover={this.handleNightHover}
-          handleSliderHover={this.handleSliderHover}
           handleSliderMovement={this.handleSliderMovement}/>
       </div>
     );
@@ -152,9 +236,3 @@ var BlocksApp = React.createClass({
 
 module.exports = BlocksApp;
 
-// <Stats
-//   night={this.state.activeNight}
-//   nights={this.state.activeNights}
-//   state={this.state.activeState}
-//   time={this.state.activeTime}
-//   statsType={this.state.eventType}/>

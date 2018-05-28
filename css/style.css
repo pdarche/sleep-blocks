@@ -1,34 +1,69 @@
+
 body {
-	font-family: Monospace;
+	font-family: 'Lato', 'Open Sans', Helvetica, Arial, sans-serif;
 	/*background-color: #202020;*/
 	background-color: #f0f0f0;
 	margin: 0px;
 	overflow: hidden;
 }
 
-h2 {
-	/*color: #ccc;*/
-	text-align: center;
+#title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+
+  font-family: 'Oswald';
+}
+
+#title.loading {
+  background-color: white;
+  z-index: 1000;
+}
+
+#title.built {
+  background-color: none;
+  width: 140px;
+  height: 30px;
+  top: 15px;
+  left: 30px;
+  transition: background-color 250ms linear;
+  transition: width 5ms linear;
+  transition: height 5ms linear;
+  transition: top 100ms linear;
+  transition: left 100ms linear;
+  transition-delay: 200ms, 200ms, 200ms, 200ms, 0s;
+  transition-property: width, height, top, left, background-color;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 100;
+}
+
+h2, h3, h4 {
+	/*color: #ccc;
+	text-align: center;*/
+    margin: 5px;
+    font-weight: normal;
+    font-size: 13px;
 }
 
 .stats {
 	position: absolute;
 	right: 20px;
-	top: 20px;
-
-	display: block;
-
-	/*font-family: helvetica;*/
-/*	color: #aaa;*/
-
-	width: 300px;
-}
-
-.stats--date {
-	position: relative;
-	font-weight: 500;
-	font-size: 40px;
-	margin: 10px 5px;
+	top: 0px;
+	width: 321px;
+    overflow-x: hidden;
+    height: 100%;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stats--container {
@@ -37,28 +72,120 @@ h2 {
 	flex-wrap: wrap;
 }
 
+.stats--date {
+	position: absolute;
+    top: 5px;
+    right: 20px;
+    font-family: 'Oswald';
+    margin: 10px 0px;
+}
+
 .stats--stat {
-	padding: 5px;
-	margin: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.stats--name, .stats--value {
+	padding: 0px;
+	margin: 5px 0px;
+    font-size: 16px;
 	text-align: left;
+}
+
+.stats--name {
 	font-weight: bold;
+    font-size: 12px;
+    margin: 5px 0px 0px 0px;
+}
+
+.stats--sparkline {
+    align-self: center;
+    opacity: 1;
+    transition-delay: 0s, 2s;
+    transition: opacity 250ms linear;
+}
+
+.stats--stat-container {
+    width: 101px;
+}
+
+/* experimental styles */
+.stats {
+    width: inherit;
+    /*
+    box-shadow: 0px 1px 7px grey;
+    padding: 10px
+    */
+}
+
+.stats--stats-container {
+  background-color: rgba(240,240,240, .9);
+  border-left: 1px solid #ccc;
+  padding: 5px;
+  float: right;
+  max-width: 275px;
+  transition: all 250ms linear;
+}
+
+.stats--name {
+  font-weight: normal;
+  font-size: 10px;
+}
+
+.stats--date {
+  margin: 10px;
+}
+
+.stats--stat {
+  font-size: 12px;
+  margin: 10px;
+  justify-content: flex-end;
 }
 
 .stats--value {
-	padding: 5px;
-	margin: 5px;
-	text-align: left;
+    font-size: 14px;
 }
 
-#controls {
-	position: absolute;
-	top: 20px;
-	left: 10px;
+.stats--sparkline {
+    align-self: flex-end;
+}
 
-	width: 200px;
-	padding: 10px;
-	/*border: 1px solid #ccc;*/
-	z-index: 100;
+.hidden {
+  opacity: 0;
+  width: 0;
+  transition-delay: 250ms linear;
+  transition: width 250ms linear;
+}
+
+.shown {
+  opacity: 1;
+  width: 150px;
+  transition: width 250ms linear;
+  transition-delay: 250ms;
+  transition: opacity 250ms ease-in;
+}
+
+/* end experimental */
+
+#controls {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 40px;
+  width: 235px;
+  margin: 20px;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+  z-index: 100;
+  opacity: .05;
+  transition: all .25s linear;
+  background-color: rgba(240,240,240, .9);
+}
+
+#controls:hover {
+  opacity: 1;
 }
 
 .times, .sleep-states, .views {
@@ -66,14 +193,22 @@ h2 {
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
-	justify-content: center;
+	justify-content: flex-start;
+    margin-bottom: 5px;
 }
 
 .time, .state, .view {
 	margin: 5px;
-	padding: 10px;
+	padding: 5px;
 	border: 1px solid #ccc;
-	width: 34%;
+	width: 55px;
+    font-size: 12px;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.state {
+    width: 36px;
 }
 
 .day, .state, .time, .view {
@@ -97,24 +232,25 @@ h2 {
 
 /* Slider */
 
-#slider:hover {
-    top: -80px;
-    transition: all .25s;
-}
-
 #slider {
-  position: relative;
-  top: -80px;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 0px;
   z-index: 200;
   width: 100%;
   margin: 0px auto;
-  background-color: rgba(255,255,255,.4);
+  opacity: .1;
   transition: all .25s;
+}
+
+#slider:hover {
+    opacity: 1;
 }
 
 .axis {
   fill: none;
-  stroke: #000;
+  stroke: #333;
   shape-rendering: crispEdges;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -122,9 +258,9 @@ h2 {
   stroke-width: 1px;
 }
 
-.axis .minor{
+.axis .minor {
   fill: none;
-  stroke: #000;
+  stroke: #333;
   shape-rendering: crispEdges;
 }
 
@@ -135,8 +271,14 @@ h2 {
   stroke-linecap: round;*/
 }
 
+.axis text {
+  font-size: 13px;
+  stroke-width: 0px;
+  fill: #333;
+}
+
 .slider .handle path {
-  stroke: gray;
+  stroke: #333;
   stroke-width: 1px;
   stroke-linecap: round;
   pointer-events: none;
@@ -144,7 +286,10 @@ h2 {
 
 .slider .handle text {
   text-align: center;
-  font-size: 18px;
+  font-size: 13px;
+  stroke: #333;
+  stroke-width: 0px;
+  shape-rendering: crispEdges;
 }
 
 .slider .current-date, .slider .handle-path{
@@ -169,6 +314,7 @@ h2 {
 }
 
 .current-date text {
+  stroke: #333;
   font-size: 12;
 }
 
@@ -178,5 +324,5 @@ h2 {
 
 .hover line {
   opacity: .1;
-  stroke-width:  1;
+  stroke-width:  2;
 }

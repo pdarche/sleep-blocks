@@ -9,7 +9,7 @@ var moment = require('moment');
 
 var Controls = React.createClass({
   handleViewChange: function(ev) {
-    this.props.handleViewChange(ev.target.id);                
+    this.props.handleViewChange(ev.target.id);
   },
 
   handleDateHover: function(ev){
@@ -25,29 +25,22 @@ var Controls = React.createClass({
   },
 
   render: function() {
-    var self = this;
-    // var nights = this.props.nights.map(function(night){
-    //   var date = moment(night.startDate).format('L');
-    //   return <div className="day" id={night.id} onMouseOver={self.handleDateHover} >{date}</div>
-    // });
-    var nights = [];
-
     return (
       <div id="controls">
-        <h2>View</h2>
+        <h4>Perspective</h4>
         <div className="views">
-          <div className="view overhead" id="overhead" onClick={this.handleViewChange}>overhead</div>
-          <div className="view front" id="front" onClick={this.handleViewChange}>front</div>
-          <div className="view overview" id="overview" onClick={this.handleViewChange}>overview</div>
+          <div className="view overhead" id="overhead" onClick={this.handleViewChange}>Top</div>
+          <div className="view front" id="front" onClick={this.handleViewChange}>Front</div>
+          <div className="view overview" id="overview" onClick={this.handleViewChange}>Overview</div>
         </div>
 
-        <h2>Times</h2>
+        <h4>Bed/Rise Times</h4>
         <div className="times">
-          <div className="time bedtime" id="bedtime" onClick={this.handleTimeHover}>bedtime</div>
-          <div className="time risetime" id="risetime" onClick={this.handleTimeHover}>risetime</div>
+          <div className="time bedtime" id="bedtime" onClick={this.handleTimeHover}>Bedtime</div>
+          <div className="time risetime" id="risetime" onClick={this.handleTimeHover}>Risetime</div>
         </div>
 
-        <h2>Sleep State</h2>
+        <h4>Sleep State</h4>
         <div className="sleep-states">
           <div className="state light" id="light" onClick={this.handleStateHover}>Light</div>
           <div className="state deep" id="deep" onClick={this.handleStateHover}>Deep</div>
