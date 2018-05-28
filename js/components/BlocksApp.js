@@ -5,6 +5,7 @@
 *
 */
 
+var Title = require('./Title');
 var Vis = require('./Vis');
 var Controls = require('./Controls');
 var Stats = require('./Stats');
@@ -25,6 +26,7 @@ var BlocksApp = React.createClass({
 
     return {
       ready: false,
+      built: false,
       dateRange: dateRange,
       startDate: dateRange[0],
       endDate: dateRange[visibleNights],
@@ -72,16 +74,6 @@ var BlocksApp = React.createClass({
     });
   },
 
-  handleViewChange: function(targetView) {
-    var self = this;
-    this.setState({
-      activeView: targetView,
-      eventType: 'view',
-      activeNight: this.state.activeNights[0],
-      statsState: self.switchViewStats(targetView)
-    });
-  },
-
   switchViewStats: function(view) {
     switch (view) {
       case 'overhead':
@@ -96,6 +88,16 @@ var BlocksApp = React.createClass({
       default:
         return 'range'
     }
+  },
+
+  handleViewChange: function(targetView) {
+    var self = this;
+    this.setState({
+      activeView: targetView,
+      eventType: 'view',
+      activeNight: this.state.activeNights[0],
+      statsState: self.switchViewStats(targetView)
+    });
   },
 
   handleNightHover: function(targetNight, date) {
@@ -137,6 +139,10 @@ var BlocksApp = React.createClass({
     this.setState({sliderGrabbed: false});
   },
 
+  handleVisBuilt: function() {
+    this.setState({built: true});
+  },
+
   handleSliderMovement: function(value) {
     var offsetIx = Math.floor(value);
     var startDate = this.state.dateRange[offsetIx];
@@ -160,15 +166,21 @@ var BlocksApp = React.createClass({
   },
 
   handleActiveNightUpdate: function(ix) {
-    var activeNight = this.state.nights[ix]
+    var activeNight = this.state.nights[ix];
     this.setState({activeNight: activeNight});
+  },
+
+  loading: function() {
+    return (
+      <div>Loading</div>
+    );
   },
 
   // Render the visualization view
   render: function() {
     return (
       <div>
-        <h1 id="title">Sleep Blocks</h1>
+        <Title built={this.state.built} />
         <Controls
           nights={this.state.activeNights}
           handleNightHover={this.handleNightHover}
@@ -177,6 +189,7 @@ var BlocksApp = React.createClass({
           handleViewChange={this.handleViewChange}/>
         <Vis
           ready={this.state.ready}
+          built={this.state.built}
           nights={this.state.nights}
           activeNights={this.state.activeNights}
           night={this.state.activeNight}
@@ -189,6 +202,7 @@ var BlocksApp = React.createClass({
           eventType={this.state.eventType}
           activeView={this.state.activeView}
           dateRange={this.state.dateRange}
+          handleVisBuilt={this.handleVisBuilt}
           handleActiveNightUpdate={this.handleActiveNightUpdate}
           handleViewChange={this.handleViewChange}
           numNights={this.state.numNights}/>

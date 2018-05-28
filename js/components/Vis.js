@@ -26,16 +26,13 @@ var NIGHT_SPACING   = 60
 
 
 var Vis = React.createClass({
-  getInitialState: function() {
-    return {
-      built: false
-    }
-  },
-
   componentDidUpdate: function() {
-    if (this.props.ready && !this.state.built) {
+    if (this.props.ready && !this.props.built) {
       this.buildVis();
-      this.setState({built: true});
+      var self = this;
+      setTimeout(function() {
+        self.props.handleVisBuilt()
+      }, 1000);
     }
 
     switch (this.props.eventType) {
@@ -60,10 +57,10 @@ var Vis = React.createClass({
 
   buildVis: function() {
     this.dateScale = Utils.createDatescale(
-        this.props.nights, NIGHT_SPACING);
+      this.props.nights, NIGHT_SPACING);
 
     this.timeScale = Utils.createTimescale(
-        this.props.nights, START_TIME, HOURS, DISPLAY_SIZE);
+      this.props.nights, START_TIME, HOURS, DISPLAY_SIZE);
 
     this.Scene = new Scene(
       this.timeScale,
@@ -90,6 +87,7 @@ var Vis = React.createClass({
     var vec;
     var rot = {x: -Math.PI / 2, y: 0, z: -Math.PI / 2}
     this.Scene.yAxis.labels.position.setY(0)
+
     switch (this.props.activeView) {
       case 'overview':
         this.resetBlockOpacity();
